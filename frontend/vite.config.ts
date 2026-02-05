@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import process from 'node:process'
 
 export default defineConfig({
   plugins: [
@@ -22,8 +21,11 @@ export default defineConfig({
   assetsInclude: ['**/*.svg', '**/*.csv'],
 
   preview: {
+    // Allow preview server to be accessed from outside the container
     host: '0.0.0.0',
-    port: parseInt(process.env.PORT || '4173'),
+    // Use the PORT environment variable if set, otherwise default to 4173
+    port: process.env.PORT ? parseInt(process.env.PORT) : 4173,
+    // Allow all hosts to access the preview server
     allowedHosts: true,
   },
 })
