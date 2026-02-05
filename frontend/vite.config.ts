@@ -28,4 +28,14 @@ export default defineConfig({
     // Allow all hosts to access the preview server
     allowedHosts: true,
   },
+
+  server: {
+    // Development server proxy for API calls
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+    },
+  },
 })
