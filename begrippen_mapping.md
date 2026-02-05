@@ -15,12 +15,11 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 |-------|-------|------|--------------|
 | 🟢 1 | Groen | **Real-world entiteiten** | Fysieke of juridische entiteiten die onafhankelijk van het systeem bestaan |
 | 🔵 2 | Blauw | **Juridische constructen** | Abstracte entiteiten die bestaan bij gratie van wetgeving of overeenkomsten |
-| 🟣 4 | Paars | **Berekende informatie** | Output van regels - de KERN van Rules as Code |
-| 🟤 5 | Bruin | **Parameters** | Externe feiten die jaarlijks/periodiek wijzigen |
-| 🔴 6 | Rood | **Validatie-output** | Resultaat van regeltoepassing (ja/nee, classificaties) |
-| ⚪ 7 | Grijs | **Meta-analyse** | Hulpmiddelen voor besluitvorming (scenario's, vergelijkingen, advies) |
+| 🟣 3 | Paars | **Berekende informatie** | Output van regels - de KERN van Rules as Code |
+| 🟤 4 | Bruin | **Parameters** | Externe feiten die jaarlijks/periodiek wijzigen |
+| 🔴 5 | Rood | **Validatie-output** | Resultaat van regeltoepassing (ja/nee, classificaties) |
+| ⚪ 6 | Grijs | **Meta-analyse** | Hulpmiddelen voor besluitvorming (scenario's, vergelijkingen, advies) |
 
-> **Noot**: Groep 3 (🟡 Temporele feiten) classificeert datum-attributen, geen entiteiten.
 
 ---
 
@@ -51,8 +50,8 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 |-------|----------|------------|----------------|-------------|-----------|
 | 🔵 2 | `BedragIneensKeuze` | `bedrag_ineens_percentage` | Pensioenwet art. 69a: "bedrag ineens" | `de BedragIneensKeuze` | Keuze om max 10% van pensioenwaarde als eenmalig bedrag op te nemen |
 | 🔵 2 | `UitgesteldeBetaling` | `geschiktheid.uitgestelde_betaling` | Wet herziening bedrag ineens: "uitgestelde uitbetaling" | `de UitgesteldeBetaling` | Optie om betaling uit te stellen naar januari volgend op AOW-jaar |
-| 🔴 6 | `Geschiktheidsbeoordeling` | `geschiktheid.bedrag_ineens.voorwaarden` | Pensioenwet art. 69a lid 2 | `de Geschiktheidsbeoordeling` | Toets of aan alle voorwaarden is voldaan |
-| 🟣 4 | `BedragIneensResultaat` | `berekeningen.bedrag_ineens_hoogte` | Pensioenwet art. 69a | `het BedragIneensResultaat` | Berekend bruto bedrag en pensioeneffecten |
+| 🔴 5 | `Geschiktheidsbeoordeling` | `geschiktheid.bedrag_ineens.voorwaarden` | Pensioenwet art. 69a lid 2 | `de Geschiktheidsbeoordeling` | Toets of aan alle voorwaarden is voldaan |
+| 🟣 3 | `BedragIneensResultaat` | `berekeningen.bedrag_ineens_hoogte` | Pensioenwet art. 69a | `het BedragIneensResultaat` | Berekend bruto bedrag en pensioeneffecten |
 
 ---
 
@@ -60,18 +59,18 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 
 | Groep | NORA/MIM | Rules JSON | Wetgeving/Bron | Regelspraak | Definitie |
 |-------|----------|------------|----------------|-------------|-----------|
-| 🟣 4 | `Inkomensjaar` | `bruto_inkomen`, `toetsingsinkomen` | BRI: "geregistreerd inkomen", AWIR art. 8: "toetsingsinkomen" | `het Inkomensjaar` | Het (berekende) inkomen over een kalenderjaar |
-| 🟣 4 | `Belastingaanslag` | `berekeningen.belasting` | Wet IB 2001: "aanslag inkomstenbelasting" | `de Belastingaanslag` | De berekende belasting over een jaar |
-| 🟣 4 | `Heffingskorting` | `heffingskortingen` | Wet IB 2001 art. 8.1: "heffingskorting" | `de Heffingskorting` | Berekende korting op de verschuldigde belasting |
-| 🟣 4 | `ZvwBijdrage` | `zvw_bijdrage` | Zvw art. 45 | `de ZvwBijdrage` | Berekende inkomensafhankelijke Zvw-bijdrage |
+| 🟣 3 | `Inkomensjaar` | `bruto_inkomen`, `toetsingsinkomen` | BRI: "geregistreerd inkomen", AWIR art. 8: "toetsingsinkomen" | `het Inkomensjaar` | Het (berekende) inkomen over een kalenderjaar |
+| 🟣 3 | `Belastingaanslag` | `berekeningen.belasting` | Wet IB 2001: "aanslag inkomstenbelasting" | `de Belastingaanslag` | De berekende belasting over een jaar |
+| 🟣 3 | `Heffingskorting` | `heffingskortingen` | Wet IB 2001 art. 8.1: "heffingskorting" | `de Heffingskorting` | Berekende korting op de verschuldigde belasting |
+| 🟣 3 | `ZvwBijdrage` | `zvw_bijdrage` | Zvw art. 45 | `de ZvwBijdrage` | Berekende inkomensafhankelijke Zvw-bijdrage |
 
 ### Heffingskorting Subtypen
 
 | Groep | NORA/MIM | Rules JSON | Wetgeving/Bron | Regelspraak |
 |-------|----------|------------|----------------|-------------|
-| 🟣 4 | `AlgemeneHeffingskorting` | `algemene_heffingskorting` | Wet IB 2001 art. 8.10 | `de algemene heffingskorting` |
-| 🟣 4 | `Ouderenkorting` | `ouderenkorting` | Wet IB 2001 art. 8.17 | `de ouderenkorting` |
-| 🟣 4 | `AlleenstaandeOuderenkorting` | - | Wet IB 2001 art. 8.18 | `de alleenstaande ouderenkorting` |
+| 🟣 3 | `AlgemeneHeffingskorting` | `algemene_heffingskorting` | Wet IB 2001 art. 8.10 | `de algemene heffingskorting` |
+| 🟣 3 | `Ouderenkorting` | `ouderenkorting` | Wet IB 2001 art. 8.17 | `de ouderenkorting` |
+| 🟣 3 | `AlleenstaandeOuderenkorting` | - | Wet IB 2001 art. 8.18 | `de alleenstaande ouderenkorting` |
 
 ---
 
@@ -79,12 +78,12 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 
 | Groep | NORA/MIM | Rules JSON | Wetgeving/Bron | Regelspraak | Definitie |
 |-------|----------|------------|----------------|-------------|-----------|
-| 🟣 4 | `Toeslag` | `toeslagen` | AWIR: "tegemoetkoming" | `de Toeslag` | Berekende inkomensafhankelijke overheidsbijdrage |
-| 🟣 4 | `Zorgtoeslag` | `toeslagen.zorgtoeslag` | Wet zorgtoeslag art. 1 | `de Zorgtoeslag` | Berekende tegemoetkoming zorgverzekering |
-| 🟣 4 | `Huurtoeslag` | `toeslagen.huurtoeslag` | Wet huurtoeslag art. 1 | `de Huurtoeslag` | Berekende tegemoetkoming huurkosten |
-| 🟣 4 | `KindgebondenBudget` | `toeslagen.kindgebonden_budget` | Wet kindgebonden budget | `het KindgebondenBudget` | Berekende bijdrage voor ouders met kinderen |
-| 🟣 4 | `AIO` | `toeslagen.aio` | Participatiewet: "AIO-aanvulling" | `de AIO` | Berekende aanvullende inkomensvoorziening ouderen |
-| 🟣 4 | `BijzondereNabetaling` | `huurtoeslag.bijzondere_uitzondering` | Besluit huurtoeslag art. 2b | `de BijzondereNabetaling` | Uitzondering waardoor bedrag ineens niet meetelt voor huurtoeslag |
+| 🟣 3 | `Toeslag` | `toeslagen` | AWIR: "tegemoetkoming" | `de Toeslag` | Berekende inkomensafhankelijke overheidsbijdrage |
+| 🟣 3 | `Zorgtoeslag` | `toeslagen.zorgtoeslag` | Wet zorgtoeslag art. 1 | `de Zorgtoeslag` | Berekende tegemoetkoming zorgverzekering |
+| 🟣 3 | `Huurtoeslag` | `toeslagen.huurtoeslag` | Wet huurtoeslag art. 1 | `de Huurtoeslag` | Berekende tegemoetkoming huurkosten |
+| 🟣 3 | `KindgebondenBudget` | `toeslagen.kindgebonden_budget` | Wet kindgebonden budget | `het KindgebondenBudget` | Berekende bijdrage voor ouders met kinderen |
+| 🟣 3 | `AIO` | `toeslagen.aio` | Participatiewet: "AIO-aanvulling" | `de AIO` | Berekende aanvullende inkomensvoorziening ouderen |
+| 🟣 3 | `BijzondereNabetaling` | `huurtoeslag.bijzondere_uitzondering` | Besluit huurtoeslag art. 2b | `de BijzondereNabetaling` | Uitzondering waardoor bedrag ineens niet meetelt voor huurtoeslag |
 
 ---
 
@@ -92,12 +91,12 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 
 | Groep | NORA/MIM | Rules JSON path | Wetgeving/Bron | Regelspraak | Definitie |
 |-------|----------|-----------------|----------------|-------------|-----------|
-| 🟤 5 | `Parameterset` | `constanten.belastingjaar` | - | `de Parameterset` | Verzameling jaarparameters |
-| 🟤 5 | `Belastingtarief` | `berekeningen.belasting.belastingschijven_*` | Wet IB 2001 art. 2.10 | `het Belastingtarief` | Progressief tarief per schijf |
-| 🟤 5 | `HeffingskortingBedrag` | `berekeningen.belasting.heffingskortingen.*` | Wet IB 2001 Hfdst 8 | `het HeffingskortingBedrag` | Bedrag en afbouwgrenzen per korting |
-| 🟤 5 | `ZvwTarief` | `berekeningen.belasting.inkomensafhankelijke_bijdrage_zvw` | Zvw art. 45 | `het ZvwTarief` | Bijdragepercentage en max grondslag |
-| 🟤 5 | `Toeslaggrens` | `toeslagen.*.geschiktheid.inkomensgrenzen_*` | Per wet (zorgtoeslag, huurtoeslag) | `de Toeslaggrens` | Inkomensgrenzen per toeslag |
-| 🟤 5 | `AOWBedrag` | - | SVB normen | `het AOWBedrag` | Bruto AOW per huishoudtype |
+| 🟤 4 | `Parameterset` | `constanten.belastingjaar` | - | `de Parameterset` | Verzameling jaarparameters |
+| 🟤 4 | `Belastingtarief` | `berekeningen.belasting.belastingschijven_*` | Wet IB 2001 art. 2.10 | `het Belastingtarief` | Progressief tarief per schijf |
+| 🟤 4 | `HeffingskortingBedrag` | `berekeningen.belasting.heffingskortingen.*` | Wet IB 2001 Hfdst 8 | `het HeffingskortingBedrag` | Bedrag en afbouwgrenzen per korting |
+| 🟤 4 | `ZvwTarief` | `berekeningen.belasting.inkomensafhankelijke_bijdrage_zvw` | Zvw art. 45 | `het ZvwTarief` | Bijdragepercentage en max grondslag |
+| 🟤 4 | `Toeslaggrens` | `toeslagen.*.geschiktheid.inkomensgrenzen_*` | Per wet (zorgtoeslag, huurtoeslag) | `de Toeslaggrens` | Inkomensgrenzen per toeslag |
+| 🟤 4 | `AOWBedrag` | - | SVB normen | `het AOWBedrag` | Bruto AOW per huishoudtype |
 
 ---
 
@@ -105,10 +104,10 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 
 | Groep | NORA/MIM | Rules JSON | Wetgeving/Bron | Regelspraak | Definitie |
 |-------|----------|------------|----------------|-------------|-----------|
-| ⚪ 7 | `Berekeningsscenario` | `scenarios` | - | `het Berekeningsscenario` | Hypothetische berekening voor specifiek opnamepercentage |
-| ⚪ 7 | `Scenariovergelijking` | `scenarios` | - | `de Scenariovergelijking` | Vergelijking van 0%/5%/10% scenario's naast elkaar |
-| ⚪ 7 | `Signalering` | `risicofactoren.*.risicos` | - | `de Signalering` | Waarschuwing of advies voor de gebruiker |
-| 🔴 6 | `Risicoprofiel` | `risicofactoren.financieel_kwetsbare_groepen` | - | `het Risicoprofiel` | Classificatie van financiële kwetsbaarheid |
+| ⚪ 6 | `Berekeningsscenario` | `scenarios` | - | `het Berekeningsscenario` | Hypothetische berekening voor specifiek opnamepercentage |
+| ⚪ 6 | `Scenariovergelijking` | `scenarios` | - | `de Scenariovergelijking` | Vergelijking van 0%/5%/10% scenario's naast elkaar |
+| ⚪ 6 | `Signalering` | `risicofactoren.*.risicos` | - | `de Signalering` | Waarschuwing of advies voor de gebruiker |
+| 🔴 5 | `Risicoprofiel` | `risicofactoren.financieel_kwetsbare_groepen` | - | `het Risicoprofiel` | Classificatie van financiële kwetsbaarheid |
 
 ---
 
@@ -135,7 +134,7 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 | `ingangsdatum` | - | Pensioenwet | `de pensioeningangsdatum` | - |
 | `isVerevend` | `bijzondere_situaties.scheiding_verevening` | WVPS | `is verevend pensioen (kenmerk)` | - |
 
-### Inkomensjaar (🟣 Groep 4)
+### Inkomensjaar (🟣 Groep 3)
 
 | NORA/MIM attribuut | Rules JSON | Wetgeving | Regelspraak | EK Nota kolom |
 |--------------------|------------|-----------|-------------|---------------|
@@ -145,7 +144,7 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 | `brutoInkomen` | `bruto_inkomen` | - | `het bruto inkomen jaar opname` | "Bruto-inkomen" |
 | `toetsingsinkomen` | `toetsingsinkomen` | AWIR art. 8 | `het toetsingsinkomen jaar opname` | - |
 
-### Belastingaanslag (🟣 Groep 4)
+### Belastingaanslag (🟣 Groep 3)
 
 | NORA/MIM attribuut | Rules JSON | Wetgeving | Regelspraak | EK Nota kolom |
 |--------------------|------------|-----------|-------------|---------------|
@@ -155,7 +154,7 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 | `belastingNaKortingen` | - | - | `de belasting na heffingskortingen` | "Totaal te betalen belasting na heffingskortingen" |
 | `nettoInkomen` | `netto_inkomen` | - | `het netto inkomen` | "Netto-inkomen" |
 
-### Toeslag (🟣 Groep 4)
+### Toeslag (🟣 Groep 3)
 
 | NORA/MIM attribuut | Rules JSON | Wetgeving | Regelspraak | EK Nota kolom |
 |--------------------|------------|-----------|-------------|---------------|
@@ -215,15 +214,15 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 | Wet | Artikel | NORA/MIM Entiteit | Groep | Beschrijving |
 |-----|---------|-------------------|-------|--------------|
 | Pensioenwet | art. 69a | `BedragIneensKeuze` | 🔵 2 | Afkoop deel aanspraak ouderdomspensioen |
-| Pensioenwet | art. 48a | `Geschiktheidsbeoordeling` | 🔴 6 | Keuzebegeleiding |
-| Wet IB 2001 | art. 2.10 | `Belastingtarief` | 🟤 5 | Tarieven box 1 |
-| Wet IB 2001 | art. 8.10 | `Heffingskorting` | 🟣 4 | Algemene heffingskorting |
-| Wet IB 2001 | art. 8.17 | `Heffingskorting` | 🟣 4 | Ouderenkorting |
-| Zvw | art. 45 | `ZvwTarief` | 🟤 5 | Inkomensafhankelijke bijdrage |
-| AWIR | art. 7, 8 | `Inkomensjaar` | 🟣 4 | Draagkracht en toetsingsinkomen |
-| Wet zorgtoeslag | art. 1 | `Zorgtoeslag` | 🟣 4 | Tegemoetkoming zorgverzekering |
-| Wet huurtoeslag | art. 1, 7, 10 | `Huurtoeslag` | 🟣 4 | Tegemoetkoming huurkosten |
-| Besluit huurtoeslag | art. 2b | `BijzondereNabetaling` | 🟣 4 | Bijzondere nabetaling uitzondering |
+| Pensioenwet | art. 48a | `Geschiktheidsbeoordeling` | 🔴 5 | Keuzebegeleiding |
+| Wet IB 2001 | art. 2.10 | `Belastingtarief` | 🟤 4 | Tarieven box 1 |
+| Wet IB 2001 | art. 8.10 | `Heffingskorting` | 🟣 3 | Algemene heffingskorting |
+| Wet IB 2001 | art. 8.17 | `Heffingskorting` | 🟣 3 | Ouderenkorting |
+| Zvw | art. 45 | `ZvwTarief` | 🟤 4 | Inkomensafhankelijke bijdrage |
+| AWIR | art. 7, 8 | `Inkomensjaar` | 🟣 3 | Draagkracht en toetsingsinkomen |
+| Wet zorgtoeslag | art. 1 | `Zorgtoeslag` | 🟣 3 | Tegemoetkoming zorgverzekering |
+| Wet huurtoeslag | art. 1, 7, 10 | `Huurtoeslag` | 🟣 3 | Tegemoetkoming huurkosten |
+| Besluit huurtoeslag | art. 2b | `BijzondereNabetaling` | 🟣 3 | Bijzondere nabetaling uitzondering |
 | WVPS | - | `Pensioenverevening` | 🔵 2 | Wet verevening pensioenrechten bij scheiding |
 
 ---
@@ -242,32 +241,31 @@ Huishouden, Pensioenaanspraak, Pensioenverevening, BedragIneensKeuze, Uitgesteld
 ```
 **Kenmerken**: Bestaan bij gratie van wet. Hebben rechtsgevolgen.
 
-### 🟣 Groep 4: Berekende Informatie (KERN van Rules as Code)
+### 🟣 Groep 3: Berekende Informatie (KERN van Rules as Code)
 ```
 BedragIneensResultaat, Inkomensjaar, Belastingaanslag, Heffingskorting, ZvwBijdrage,
 Toeslag, Zorgtoeslag, Huurtoeslag, KindgebondenBudget, AIO, BijzondereNabetaling
 ```
 **Kenmerken**: Deterministisch. Traceerbaar naar bronregel. Dit is wat we in Regelspraak uitdrukken.
 
-### 🟤 Groep 5: Parameters
+### 🟤 Groep 4: Parameters
 ```
 Parameterset, Belastingtarief, HeffingskortingBedrag, ZvwTarief, Toeslaggrens, AOWBedrag
 ```
 **Kenmerken**: Externe feiten. Jaarlijks bijwerken. Systeem gebruikt ze, bepaalt ze niet.
 
-### 🔴 Groep 6: Validatie-output
+### 🔴 Groep 5: Validatie-output
 ```
 Geschiktheidsbeoordeling, Risicoprofiel
 ```
 **Kenmerken**: Ja/nee antwoorden. Classificaties. Resultaat van regeltoepassing.
 
-### ⚪ Groep 7: Meta-analyse
+### ⚪ Groep 6: Meta-analyse
 ```
 Berekeningsscenario, Scenariovergelijking, Signalering
 ```
 **Kenmerken**: Hulpmiddelen voor besluitvorming. "Wat als" en advies.
 
-> **Noot**: Groep 3 (🟡 Temporele feiten) is geen entiteitsgroep maar een attribuut-type (datums zoals `geboortedatum`, `keuzedatum`). Deze attributen horen bij hun bovenliggende entiteit.
 
 ---
 
@@ -280,7 +278,7 @@ Berekeningsscenario, Scenariovergelijking, Signalering
 Objecttype de Persoon (mv: Personen) (bezield)
     // 🟡 Groep 3: Temporeel feit
     de geboortedatum Datum;
-    // 🔴 Groep 6: Validatie-output (kenmerk)
+    // 🔴 Groep 5: Validatie-output (kenmerk)
     is AOW-gerechtigd kenmerk (bijvoeglijk);
     // 🟢 Groep 1: Attribuut
     het burgerservicenummer Tekst;
@@ -291,15 +289,15 @@ Objecttype de Persoon (mv: Personen) (bezield)
 ```typescript
 // Rules JSON → NORA/MIM → Context
 const persoon: NatuurlijkPersoon = {      // 🟢 Groep 1
-  leeftijd: input.profiel.leeftijd,       // 🟣 Groep 4 (afgeleid)
-  isAlleenstaand: input.huishouden === 'alleenstaand', // 🔴 Groep 6
+  leeftijd: input.profiel.leeftijd,       // 🟣 Groep 3 (afgeleid)
+  isAlleenstaand: input.huishouden === 'alleenstaand', // 🔴 Groep 5
 };
 ```
 
 ### Bij validatie tegen EK Nota
 
 ```typescript
-// 🟣 Groep 4: Berekende informatie - vergelijken met EK Nota tabellen
+// 🟣 Groep 3: Berekende informatie - vergelijken met EK Nota tabellen
 expect(result.inkomensjaar.brutoInkomen).toBeCloseTo(39400, -2);
 ```
 

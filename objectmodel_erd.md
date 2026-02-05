@@ -17,10 +17,10 @@ Zie ook: [`objectmodel_groepen.mmd`](objectmodel_groepen.mmd) voor een visueel d
 |-------|-------|------|--------------|------------|
 | 🟢 1 | Groen | **Real-world** | Fysieke/juridische entiteiten die onafhankelijk bestaan | NatuurlijkPersoon, Partner, Pensioenuitvoerder, Verblijfsobject |
 | 🔵 2 | Blauw | **Juridisch** | Bestaan bij gratie van wet/overeenkomst | Huishouden, Pensioenaanspraak, Pensioenverevening, BedragIneensKeuze, UitgesteldeBetaling |
-| 🟣 4 | Paars | **Berekend** | **KERN van Rules as Code** - output van regels | BedragIneensResultaat, Inkomensjaar, Belastingaanslag, Heffingskorting, Toeslag |
-| 🟤 5 | Bruin | **Parameters** | Externe feiten die jaarlijks wijzigen | Parameterset, Belastingtarief, Toeslaggrens, AOWBedrag |
-| 🔴 6 | Rood | **Validatie** | Ja/nee antwoorden van regeltoepassing | Geschiktheidsbeoordeling, Risicoprofiel |
-| ⚪ 7 | Grijs | **Meta-analyse** | Hulpmiddelen voor besluitvorming | Berekeningsscenario, Scenariovergelijking, Signalering |
+| 🟣 3 | Paars | **Berekend** | **KERN van Rules as Code** - output van regels | BedragIneensResultaat, Inkomensjaar, Belastingaanslag, Heffingskorting, Toeslag |
+| 🟤 4 | Bruin | **Parameters** | Externe feiten die jaarlijks wijzigen | Parameterset, Belastingtarief, Toeslaggrens, AOWBedrag |
+| 🔴 5 | Rood | **Validatie** | Ja/nee antwoorden van regeltoepassing | Geschiktheidsbeoordeling, Risicoprofiel |
+| ⚪ 6 | Grijs | **Meta-analyse** | Hulpmiddelen voor besluitvorming | Berekeningsscenario, Scenariovergelijking, Signalering |
 
 ## SBVR Kleurconventie (oorspronkelijk)
 
@@ -51,43 +51,43 @@ Zie ook: [`objectmodel_groepen.mmd`](objectmodel_groepen.mmd) voor een visueel d
 |----------|-------|--------------|
 | `BedragIneensKeuze` | 🔵 2 | De keuze voor 0-10% opname |
 | `UitgesteldeBetaling` | 🔵 2 | Optie voor betaling in januari volgend jaar |
-| `Geschiktheidsbeoordeling` | 🔴 6 | Validatie van voorwaarden |
+| `Geschiktheidsbeoordeling` | 🔴 5 | Validatie van voorwaarden |
 
 ### 🟣⚪ Scenario Berekeningen
 | Entiteit | Groep | Beschrijving |
 |----------|-------|--------------|
-| `Berekeningsscenario` | ⚪ 7 | Een specifiek opnamepercentage scenario |
-| `BedragIneensResultaat` | 🟣 4 | Bruto bedrag en pensioeneffecten |
-| `Inkomensjaar` | 🟣 4 | Inkomen per jaar (opnamejaar vs volgende jaren) |
+| `Berekeningsscenario` | ⚪ 6 | Een specifiek opnamepercentage scenario |
+| `BedragIneensResultaat` | 🟣 3 | Bruto bedrag en pensioeneffecten |
+| `Inkomensjaar` | 🟣 3 | Inkomen per jaar (opnamejaar vs volgende jaren) |
 
 ### 🟣 Belasting (Wet IB 2001)
 | Entiteit | Groep | Beschrijving |
 |----------|-------|--------------|
-| `Belastingaanslag` | 🟣 4 | Box 1 belasting berekening |
-| `Heffingskorting` | 🟣 4 | Algemene/ouderen/alleenstaande ouderenkorting |
+| `Belastingaanslag` | 🟣 3 | Box 1 belasting berekening |
+| `Heffingskorting` | 🟣 3 | Algemene/ouderen/alleenstaande ouderenkorting |
 
 ### 🟣 Toeslagen (AWIR / Wet zorgtoeslag / Wet huurtoeslag)
 | Entiteit | Groep | Beschrijving |
 |----------|-------|--------------|
-| `Toeslag` | 🟣 4 | Zorgtoeslag, huurtoeslag, etc. |
-| `BijzondereNabetaling` | 🟣 4 | Uitzondering art. 2b Besluit huurtoeslag |
+| `Toeslag` | 🟣 3 | Zorgtoeslag, huurtoeslag, etc. |
+| `BijzondereNabetaling` | 🟣 3 | Uitzondering art. 2b Besluit huurtoeslag |
 
 ### 🟤 Parameters (jaarlijks)
 | Entiteit | Groep | Beschrijving |
 |----------|-------|--------------|
-| `Parameterset` | 🟤 5 | Container voor jaarparameters |
-| `Belastingtarief` | 🟤 5 | Schijfgrenzen en tarieven |
-| `HeffingskortingBedrag` | 🟤 5 | Bedragen en afbouwgrenzen |
-| `ZvwTarief` | 🟤 5 | Zvw bijdrage parameters |
-| `Toeslaggrens` | 🟤 5 | Inkomensgrenzen per toeslag |
-| `AOWBedrag` | 🟤 5 | AOW bedragen per huishoudtype |
+| `Parameterset` | 🟤 4 | Container voor jaarparameters |
+| `Belastingtarief` | 🟤 4 | Schijfgrenzen en tarieven |
+| `HeffingskortingBedrag` | 🟤 4 | Bedragen en afbouwgrenzen |
+| `ZvwTarief` | 🟤 4 | Zvw bijdrage parameters |
+| `Toeslaggrens` | 🟤 4 | Inkomensgrenzen per toeslag |
+| `AOWBedrag` | 🟤 4 | AOW bedragen per huishoudtype |
 
 ### 🔴⚪ Advies & Risico
 | Entiteit | Groep | Beschrijving |
 |----------|-------|--------------|
-| `Risicoprofiel` | 🔴 6 | Classificatie financiële kwetsbaarheid |
-| `Signalering` | ⚪ 7 | Waarschuwingen en adviezen |
-| `Scenariovergelijking` | ⚪ 7 | Vergelijking 0%/5%/10% |
+| `Risicoprofiel` | 🔴 5 | Classificatie financiële kwetsbaarheid |
+| `Signalering` | ⚪ 6 | Waarschuwingen en adviezen |
+| `Scenariovergelijking` | ⚪ 6 | Vergelijking 0%/5%/10% |
 
 ---
 
