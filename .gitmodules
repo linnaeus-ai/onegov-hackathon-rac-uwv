@@ -1,0 +1,3 @@
+[submodule "rules-as-code-pension-starter"]
+	path = rules-as-code-pension-starter
+	url = https://github.com/mathisvfr/rules-as-code-pension-starter
