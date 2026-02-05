@@ -147,3 +147,16 @@ Regel Bereken beschikbaar inkomen
             het inkomen van het scenario min
             de Zvw bijdrage van het scenario min
             de belasting na heffingskortingen van het scenario.
+
+Regel Bereken besteedbaar inkomen
+    geldig altijd
+        Het besteedbaar inkomen van een Scenario moet berekend worden als
+            het beschikbaar inkomen van het scenario min
+            de jaarlijkse zorgkosten plus
+            de zorgtoeslag van het scenario.
+
+Regel Bereken besteedbaar inkomen incl huurtoeslag
+    geldig altijd
+        Het besteedbaar inkomen incl huurtoeslag van een Scenario moet berekend worden als
+            het besteedbaar inkomen van het scenario plus
+            de huurtoeslag van het scenario.

@@ -71,6 +71,8 @@ Objecttype het Scenario (mv: Scenarios)
 
     // PHASE 6: Resultaat
     het beschikbaar inkomen Bedrag;
+    het besteedbaar inkomen Bedrag;
+    het besteedbaar inkomen incl huurtoeslag Bedrag;
 
 // ============================================================================
 // FEITTYPES (Relaties)
@@ -124,3 +126,6 @@ Parameter de HT grens eerste: Bedrag
 Parameter de HT grens tweede: Bedrag
 Parameter de HT grens derde: Bedrag
 Parameter de HT maximum: Bedrag
+
+// Zorgkosten (zorgpremie + eigen risico)
+Parameter de jaarlijkse zorgkosten: Bedrag
