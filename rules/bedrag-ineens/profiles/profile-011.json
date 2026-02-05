@@ -34,7 +34,8 @@
     "HT grens eerste": 26000,
     "HT grens tweede": 32000,
     "HT grens derde": 38000,
-    "HT maximum": 2900
+    "HT maximum": 2900,
+    "jaarlijkse zorgkosten": 2100
   },
   "objects": {
     "personen": [

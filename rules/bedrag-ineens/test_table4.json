@@ -24,7 +24,8 @@
     "HT grens eerste": 26000,
     "HT grens tweede": 32000,
     "HT grens derde": 38000,
-    "HT maximum": 2900
+    "HT maximum": 2900,
+    "jaarlijkse zorgkosten": 2100
   },
   "objects": {
     "personen": [
@@ -64,7 +65,10 @@
       "inkomen": 33100,
       "belasting na heffingskortingen": 2300,
       "zorgtoeslag": 600,
-      "huurtoeslag": 500
+      "huurtoeslag": 500,
+      "beschikbaar inkomen": 29000,
+      "besteedbaar inkomen": 27500,
+      "besteedbaar inkomen incl huurtoeslag": 28000
     }
   }
 }
