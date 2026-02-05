@@ -83,7 +83,6 @@ function calculateBedragIneens(input) {
     'AOW inkomen': { type: 'number', value: input.aowInkomen },
     'aanvullend pensioen per maand': { type: 'number', value: input.pensioenPerMaand },
     'pensioenvermogen': { type: 'number', value: input.pensioenvermogen },
-    'overig inkomen': { type: 'number', value: input.overigInkomen || 0 },
     'huur per maand': { type: 'number', value: input.huurPerMaand || 0 }
   };
   context.createObject('Persoon', 'persoon1', persoonAttrs);

@@ -75,7 +75,6 @@ function convertProfile(bsn, profile) {
         "AOW inkomen": aowInkomen,
         "aanvullend pensioen per maand": pensioenPerMaand,
         "pensioenvermogen": pensioenvermogen,
-        "overig inkomen": 0,
         "huur per maand": 0
       }],
       scenarios: [
