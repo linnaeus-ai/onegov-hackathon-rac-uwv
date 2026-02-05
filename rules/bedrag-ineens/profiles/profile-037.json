@@ -85,6 +85,17 @@
         "is AOW gerechtigd": true,
         "is alleenstaand": false
       }
+    },
+    "Scenario": {
+      "scenario_0pct": {
+        "is jaar met opname": false
+      },
+      "scenario_5pct": {
+        "is jaar met opname": true
+      },
+      "scenario_10pct": {
+        "is jaar met opname": true
+      }
     }
   }
 }

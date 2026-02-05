@@ -31,7 +31,8 @@ const SHARED_PARAMETERS = {
   "HT grens eerste": 26000,
   "HT grens tweede": 32000,
   "HT grens derde": 38000,
-  "HT maximum": 2900
+  "HT maximum": 2900,
+  "jaarlijkse zorgkosten": 2100
 };
 
 const AOW_BASE = 19600; // Base AOW for 2024
@@ -94,6 +95,11 @@ function convertProfile(bsn, profile) {
           "is AOW gerechtigd": isAowGerechtigd,
           "is alleenstaand": isAlleenstaand
         }
+      },
+      Scenario: {
+        "scenario_0pct": { "is jaar met opname": false },
+        "scenario_5pct": { "is jaar met opname": true },
+        "scenario_10pct": { "is jaar met opname": true }
       }
     }
   };

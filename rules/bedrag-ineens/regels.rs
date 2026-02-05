@@ -32,12 +32,21 @@ Regel Bereken permanent verlies
 // PHASE 2: BRUTO INKOMEN
 // ============================================================================
 
-Regel Bereken inkomen
+// Initialiseer inkomen zonder bedrag ineens (baseline/jaar na opname)
+Regel Initialiseer inkomen
+    geldig altijd
+        Het inkomen van een Scenario moet berekend worden als
+            het AOW inkomen van zijn persoon plus
+            het resterend pensioen per jaar van het scenario.
+
+// Jaar met opname: voeg bedrag ineens toe aan inkomen
+Regel Bereken inkomen jaar met opname
     geldig altijd
         Het inkomen van een Scenario moet berekend worden als
             het AOW inkomen van zijn persoon plus
             het resterend pensioen per jaar van het scenario plus
-            het bedrag ineens van het scenario.
+            het bedrag ineens van het scenario
+        indien het scenario is jaar met opname.
 
 // ============================================================================
 // PHASE 3: BELASTING

@@ -39,7 +39,15 @@
     ],
     "scenarios": [
       {
-        "id": "scenario_10pct",
+        "id": "baseline",
+        "opname percentage": 0
+      },
+      {
+        "id": "jaar_met_opname",
+        "opname percentage": 10
+      },
+      {
+        "id": "jaar_na_opname",
         "opname percentage": 10
       }
     ]
@@ -47,7 +55,17 @@
   "relationships": [
     {
       "type": "scenario van persoon",
-      "scenario": "scenario_10pct",
+      "scenario": "baseline",
+      "persoon": "burger1"
+    },
+    {
+      "type": "scenario van persoon",
+      "scenario": "jaar_met_opname",
+      "persoon": "burger1"
+    },
+    {
+      "type": "scenario van persoon",
+      "scenario": "jaar_na_opname",
       "persoon": "burger1"
     }
   ],
@@ -57,18 +75,43 @@
         "is AOW gerechtigd": true,
         "is alleenstaand": true
       }
+    },
+    "Scenario": {
+      "baseline": {
+        "is jaar met opname": false
+      },
+      "jaar_met_opname": {
+        "is jaar met opname": true
+      },
+      "jaar_na_opname": {
+        "is jaar met opname": false
+      }
     }
   },
   "expected": {
-    "scenario_10pct": {
+    "baseline": {
+      "bedrag ineens": 0,
+      "inkomen": 26800,
+      "belasting na heffingskortingen": 900,
+      "zorgtoeslag": 1500,
+      "huurtoeslag": 2700,
+      "besteedbaar inkomen incl huurtoeslag": 26600
+    },
+    "jaar_met_opname": {
       "bedrag ineens": 13300,
       "inkomen": 39400,
       "belasting na heffingskortingen": 4000,
       "zorgtoeslag": 0,
       "huurtoeslag": 0,
-      "beschikbaar inkomen": 33300,
-      "besteedbaar inkomen": 31200,
-      "besteedbaar inkomen incl huurtoeslag": 31200
+      "besteedbaar inkomen incl huurtoeslag": 31300
+    },
+    "jaar_na_opname": {
+      "bedrag ineens": 13300,
+      "inkomen": 26100,
+      "belasting na heffingskortingen": 700,
+      "zorgtoeslag": 1500,
+      "huurtoeslag": 2900,
+      "besteedbaar inkomen incl huurtoeslag": 26300
     }
   }
 }
