@@ -1,3 +1,6 @@
 [submodule "rules-as-code-pension-starter"]
 	path = rules-as-code-pension-starter
 	url = https://github.com/mathisvfr/rules-as-code-pension-starter
+[submodule "regelspraak-ts"]
+	path = regelspraak-ts
+	url = https://github.com/yhavinga/regelspraak-ts.git
