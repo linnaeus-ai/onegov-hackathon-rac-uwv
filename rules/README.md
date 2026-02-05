@@ -20,6 +20,7 @@ De regels zijn geextraheerd uit:
 Het JSON-bestand is georganiseerd in de volgende secties:
 
 ### 1. **Metadata en Constanten**
+- Ingangsdatum wet: 2026-07-01
 - Belastingjaar parameters (2024)
 - AOW-leeftijd (67)
 - Maximaal percentage bedrag ineens (10%)
@@ -53,7 +54,17 @@ Het JSON-bestand is georganiseerd in de volgende secties:
 - **Huurtoeslag**: inkomensgrenzen €28.550 (alleenstaand AOW) / €38.800 (meerpersoonshuishouden AOW)
 - **Huurtoeslag bijzondere uitzondering**: bedrag ineens kan op verzoek worden uitgezonderd als bijzondere nabetaling
 - **AIO** (Aanvullende Inkomensvoorziening Ouderen): voor ouderen met onvolledige AOW-opbouw
-- **Toetsingsinkomen**: bedrag ineens telt alleen mee in jaar van ontvangst
+
+#### Lokale Regelingen
+- Kwijtschelding gemeentelijke belastingen
+- Minimaregelingen
+- Bijzondere bijstand
+
+#### Toetsingsinkomen
+- Componenten: AOW, aanvullend pensioen, bedrag ineens (alleen in jaar van ontvangst), overig inkomen
+- Bedrag ineens telt alleen mee in jaar van ontvangst
+- Jaar van ontvangst: hoger toetsingsinkomen, mogelijk verlies toeslagen
+- Jaren daarna: lager toetsingsinkomen door verlaagd pensioen, mogelijk hogere toeslagen
 
 ### 4. **Bijzondere Situaties**
 
@@ -140,6 +151,12 @@ Overheids- en externe tools die burgers kunnen gebruiken:
 - Pensioenduidelijkheid.nl
 - Mijnpensioenoverzicht.nl
 - Nibud
+
+### 13. **Disclaimer**
+- Dit bestand geeft GEEN financieel of juridisch advies
+- Berekeningen en regels zijn indicatief en niet bindend
+- Belasting- en toeslagparameters kunnen jaarlijks wijzigen
+- Raadpleeg altijd een financieel adviseur voor persoonlijk advies
 
 ## Gebruik
 
