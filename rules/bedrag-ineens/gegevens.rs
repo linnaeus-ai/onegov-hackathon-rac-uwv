@@ -57,7 +57,7 @@ Objecttype het Scenario (mv: Scenarios)
     de belasting eerste schijf Bedrag;
     de belasting tweede schijf Bedrag;
     de belasting derde schijf Bedrag;
-    de belasting box1 bruto Bedrag;
+    de belasting box1 Bedrag;
 
     // PHASE 4: Heffingskortingen
     de algemene heffingskorting Bedrag;
