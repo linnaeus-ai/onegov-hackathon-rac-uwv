@@ -105,10 +105,18 @@ Regel Bereken ouderenkorting met afbouw
              maal het OK afbouw percentage)
         indien het inkomen van het scenario is groter dan de OK afbouwgrens.
 
-Regel Bereken alleenstaande ouderenkorting
+Regel Initialiseer ouderenkorting
+    geldig altijd
+        De ouderenkorting van een Scenario moet geïnitialiseerd worden op 0 €.
+
+Regel Bereken alleenstaande ouderenkorting voor alleenstaanden
     geldig altijd
         De alleenstaande ouderenkorting van een Scenario moet gesteld worden op de AOK bedrag
         indien zijn persoon is alleenstaand.
+
+Regel Initialiseer alleenstaande ouderenkorting
+    geldig altijd
+        De alleenstaande ouderenkorting van een Scenario moet geïnitialiseerd worden op 0 €.
 
 Regel Bereken totale heffingskortingen
     geldig altijd
