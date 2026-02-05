@@ -117,10 +117,29 @@ Regel Bereken zorgtoeslag boven grens
         De zorgtoeslag van een Scenario moet gesteld worden op 0 €
         indien het inkomen van het scenario is groter of gelijk aan de ZT grens alleenstaand.
 
+Regel Bereken zorgtoeslag onder grens
+    geldig altijd
+        De zorgtoeslag van een Scenario moet berekend worden als
+            de maximale waarde van 0 € en
+            (de ZT maximum alleenstaand min
+             (de maximale waarde van 0 € en
+              (het inkomen van het scenario min de ZT drempel))
+             maal het ZT afbouw percentage)
+        indien het inkomen van het scenario is kleiner dan de ZT grens alleenstaand.
+
 Regel Bereken huurtoeslag boven grens
     geldig altijd
         De huurtoeslag van een Scenario moet gesteld worden op 0 €
         indien het inkomen van het scenario is groter dan de HT grens derde.
+
+Regel Bereken huurtoeslag onder grens
+    geldig altijd
+        De huurtoeslag van een Scenario moet berekend worden als
+            de maximale waarde van 0 € en
+            (de HT maximum maal
+             (de HT grens derde min het inkomen van het scenario) gedeeld door
+             (de HT grens derde min de HT grens eerste))
+        indien het inkomen van het scenario is kleiner of gelijk aan de HT grens derde.
 
 // === PHASE 6: Beschikbaar Inkomen ===
 Regel Bereken beschikbaar inkomen

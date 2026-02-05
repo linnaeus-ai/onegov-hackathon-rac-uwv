@@ -124,3 +124,4 @@ Parameter het ZT afbouw percentage: Numeriek
 Parameter de HT grens eerste: Bedrag
 Parameter de HT grens tweede: Bedrag
 Parameter de HT grens derde: Bedrag
+Parameter de HT maximum: Bedrag

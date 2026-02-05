@@ -1,6 +1,6 @@
 {
-  "name": "EK Nota Table 1: 10% bij 600/maand",
-  "description": "Alleenstaande AOW-gerechtigde met 600 euro pensioen per maand, 10% opname",
+  "name": "EK Nota Table 4: 5% bij 600/maand",
+  "description": "Alleenstaande AOW-gerechtigde met 600 euro pensioen per maand, 5% opname",
   "parameters": {
     "AOW bruto alleenstaand": 19600,
     "eerste schijfgrens": 40021,
@@ -32,22 +32,22 @@
         "id": "burger1",
         "AOW inkomen": 19600,
         "aanvullend pensioen per maand": 600,
-        "pensioenvermogen": 133000,
+        "pensioenvermogen": 134000,
         "overig inkomen": 0,
         "huur per maand": 576
       }
     ],
     "scenarios": [
       {
-        "id": "scenario_10pct",
-        "opname percentage": 10
+        "id": "scenario_5pct",
+        "opname percentage": 5
       }
     ]
   },
   "relationships": [
     {
       "type": "scenario van persoon",
-      "scenario": "scenario_10pct",
+      "scenario": "scenario_5pct",
       "persoon": "burger1"
     }
   ],
@@ -60,12 +60,12 @@
     }
   },
   "expected": {
-    "scenario_10pct": {
-      "bedrag ineens": 13300,
-      "inkomen": 39400,
-      "belasting na heffingskortingen": 4000,
-      "zorgtoeslag": 0,
-      "huurtoeslag": 0
+    "scenario_5pct": {
+      "bedrag ineens": 6700,
+      "inkomen": 33100,
+      "belasting na heffingskortingen": 2300,
+      "zorgtoeslag": 600,
+      "huurtoeslag": 500
     }
   }
 }
