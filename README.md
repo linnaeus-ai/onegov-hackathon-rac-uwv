@@ -33,6 +33,48 @@ Dit is de repository voor de OneGov DigiCampus Hackathon challenge over "Rules a
 - [EK Nota (PDF)](doc/EK%20Nota%20naar%20aanleiding%20van%20verslag%20Wet%20herziening%20bedrag%20ineens.pdf)
 - [EK Nota Rekenvoorbeelden (Markdown)](doc/07_EK_Nota_Rekenvoorbeelden.md)
 
+## Running the Application
+
+### Prerequisites
+- Node.js 18+ installed
+
+### Quick Start
+
+1. **Start the backend** (Terminal 1):
+```bash
+cd backend
+npm install
+npm start
+```
+The backend runs on http://localhost:3001
+
+2. **Start the frontend** (Terminal 2):
+```bash
+cd frontend
+npm install
+npm run dev
+```
+The frontend runs on http://localhost:5173 (or configured PORT)
+
+### Features
+- **Profile Selector**: Click the profile dropdown in the top-right corner to switch between 10 different citizen profiles
+- **Real Calculations**: Uses the Regelspraak rules to calculate tax, benefits, and net income impact
+- **Interactive Sliders**: Adjust the lump sum percentage (0-10%) to see real-time impact
+
+## Project Structure
+
+```
+├── backend/           # Express.js API server
+│   ├── server.js      # API endpoints
+│   └── rules.js       # Regelspraak rules implementation
+├── frontend/          # React + Vite frontend
+│   └── src/app/       # React components
+├── rules/             # Regelspraak rule definitions
+│   └── bedrag-ineens/ # Bedrag ineens rules
+└── rules-as-code-pension-starter/
+    └── data/          # Profile data (YAML)
+```
+
 ## Starter Repository
 
 De [rules-as-code-pension-starter](rules-as-code-pension-starter/) submodule bevat:
