@@ -10,9 +10,9 @@ Regel Bereken pensioen per jaar
         Het pensioen per jaar van een Scenario moet berekend worden als
             het aanvullend pensioen per maand van zijn persoon maal 12.
 
-Regel Bereken bruto bedrag ineens
+Regel Bereken bedrag ineens
     geldig altijd
-        Het bruto bedrag ineens van een Scenario moet berekend worden als
+        Het bedrag ineens van een Scenario moet berekend worden als
             het pensioenvermogen van zijn persoon maal
             het opname percentage van het scenario gedeeld door 100.
 
@@ -32,12 +32,12 @@ Regel Bereken permanent verlies
 // PHASE 2: BRUTO INKOMEN
 // ============================================================================
 
-Regel Bereken bruto inkomen
+Regel Bereken inkomen
     geldig altijd
-        Het bruto inkomen van een Scenario moet berekend worden als
+        Het inkomen van een Scenario moet berekend worden als
             het AOW inkomen van zijn persoon plus
             het resterend pensioen per jaar van het scenario plus
-            het bruto bedrag ineens van het scenario plus
+            het bedrag ineens van het scenario plus
             het overig inkomen van zijn persoon.
 
 // ============================================================================
@@ -47,20 +47,20 @@ Regel Bereken bruto inkomen
 Regel Bereken Zvw
     geldig altijd
         De Zvw bijdrage van een Scenario moet berekend worden als
-            de minimale waarde van het bruto inkomen van het scenario en de Zvw maximum
+            de minimale waarde van het inkomen van het scenario en de Zvw maximum
             maal het Zvw percentage.
 
 Regel Bereken belasting eerste schijf
     geldig altijd
         De belasting eerste schijf van een Scenario moet berekend worden als
-            de minimale waarde van het bruto inkomen van het scenario en de eerste schijfgrens
+            de minimale waarde van het inkomen van het scenario en de eerste schijfgrens
             maal het tarief eerste schijf AOW.
 
 Regel Bereken belasting tweede schijf
     geldig altijd
         De belasting tweede schijf van een Scenario moet berekend worden als
             de maximale waarde van 0 € en
-            (de minimale waarde van het bruto inkomen van het scenario en de tweede schijfgrens
+            (de minimale waarde van het inkomen van het scenario en de tweede schijfgrens
              min de eerste schijfgrens)
             maal het tarief tweede schijf.
 
@@ -68,7 +68,7 @@ Regel Bereken belasting derde schijf
     geldig altijd
         De belasting derde schijf van een Scenario moet berekend worden als
             de maximale waarde van 0 € en
-            (het bruto inkomen van het scenario min de tweede schijfgrens)
+            (het inkomen van het scenario min de tweede schijfgrens)
             maal het tarief derde schijf.
 
 Regel Bereken belasting box1 bruto
@@ -88,22 +88,22 @@ Regel Bereken algemene heffingskorting
             de maximale waarde van 0 € en
             (de AHK maximum AOW min
              (de maximale waarde van 0 € en
-              (het bruto inkomen van het scenario min de AHK afbouwgrens))
+              (het inkomen van het scenario min de AHK afbouwgrens))
              maal het AHK afbouw percentage AOW).
 
 Regel Bereken ouderenkorting onder grens
     geldig altijd
         De ouderenkorting van een Scenario moet gesteld worden op de OK maximum
-        indien het bruto inkomen van het scenario is kleiner of gelijk aan de OK afbouwgrens.
+        indien het inkomen van het scenario is kleiner of gelijk aan de OK afbouwgrens.
 
 Regel Bereken ouderenkorting met afbouw
     geldig altijd
         De ouderenkorting van een Scenario moet berekend worden als
             de maximale waarde van 0 € en
             (de OK maximum min
-             (het bruto inkomen van het scenario min de OK afbouwgrens)
+             (het inkomen van het scenario min de OK afbouwgrens)
              maal het OK afbouw percentage)
-        indien het bruto inkomen van het scenario is groter dan de OK afbouwgrens.
+        indien het inkomen van het scenario is groter dan de OK afbouwgrens.
 
 Regel Bereken alleenstaande ouderenkorting
     geldig altijd
@@ -139,21 +139,21 @@ Regel Bereken zorgtoeslag onder grens
             de maximale waarde van 0 € en
             (de ZT maximum alleenstaand min
              (de maximale waarde van 0 € en
-              (het bruto inkomen van het scenario min de ZT drempel))
+              (het inkomen van het scenario min de ZT drempel))
              maal het ZT afbouw percentage)
         indien hij aan alle volgende voorwaarden voldoet:
             - zijn persoon alleenstaand is
-            - het bruto inkomen van het scenario is kleiner dan de ZT grens alleenstaand.
+            - het inkomen van het scenario is kleiner dan de ZT grens alleenstaand.
 
 Regel Bereken zorgtoeslag boven grens
     geldig altijd
         De zorgtoeslag van een Scenario moet gesteld worden op 0 €
-        indien het bruto inkomen van het scenario is groter of gelijk aan de ZT grens alleenstaand.
+        indien het inkomen van het scenario is groter of gelijk aan de ZT grens alleenstaand.
 
 Regel Bereken huurtoeslag boven grens
     geldig altijd
         De huurtoeslag van een Scenario moet gesteld worden op 0 €
-        indien het bruto inkomen van het scenario is groter dan de HT grens derde.
+        indien het inkomen van het scenario is groter dan de HT grens derde.
 
 // ============================================================================
 // PHASE 6: NETTO INKOMEN
@@ -162,6 +162,6 @@ Regel Bereken huurtoeslag boven grens
 Regel Bereken netto inkomen
     geldig altijd
         Het netto inkomen van een Scenario moet berekend worden als
-            het bruto inkomen van het scenario min
+            het inkomen van het scenario min
             de Zvw bijdrage van het scenario min
             de belasting na heffingskortingen van het scenario.

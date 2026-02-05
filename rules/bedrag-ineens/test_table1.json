@@ -60,8 +60,8 @@
   },
   "expected": {
     "scenario_10pct": {
-      "bruto bedrag ineens": 13300,
-      "bruto inkomen": 39400,
+      "bedrag ineens": 13300,
+      "inkomen": 39400,
       "belasting na heffingskortingen": 4000,
       "zorgtoeslag": 0,
       "huurtoeslag": 0

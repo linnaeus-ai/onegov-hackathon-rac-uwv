@@ -45,12 +45,12 @@ Objecttype het Scenario (mv: Scenarios)
 
     // PHASE 1: Bedrag ineens basisberekeningen
     het pensioen per jaar Bedrag;
-    het bruto bedrag ineens Bedrag;
+    het bedrag ineens Bedrag;
     het resterend pensioen per jaar Bedrag;
     het permanent verlies per jaar Bedrag;
 
     // PHASE 2: Inkomen
-    het bruto inkomen Bedrag;
+    het inkomen Bedrag;
 
     // PHASE 3: Belasting
     de Zvw bijdrage Bedrag;
