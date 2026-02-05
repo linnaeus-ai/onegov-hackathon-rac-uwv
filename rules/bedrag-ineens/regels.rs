@@ -37,8 +37,7 @@ Regel Bereken inkomen
         Het inkomen van een Scenario moet berekend worden als
             het AOW inkomen van zijn persoon plus
             het resterend pensioen per jaar van het scenario plus
-            het bedrag ineens van het scenario plus
-            het overig inkomen van zijn persoon.
+            het bedrag ineens van het scenario.
 
 // ============================================================================
 // PHASE 3: BELASTING

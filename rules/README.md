@@ -61,7 +61,7 @@ Het JSON-bestand is georganiseerd in de volgende secties:
 - Bijzondere bijstand
 
 #### Toetsingsinkomen
-- Componenten: AOW, aanvullend pensioen, bedrag ineens (alleen in jaar van ontvangst), overig inkomen
+- Componenten: AOW, aanvullend pensioen, bedrag ineens (alleen in jaar van ontvangst)
 - Bedrag ineens telt alleen mee in jaar van ontvangst
 - Jaar van ontvangst: hoger toetsingsinkomen, mogelijk verlies toeslagen
 - Jaren daarna: lager toetsingsinkomen door verlaagd pensioen, mogelijk hogere toeslagen

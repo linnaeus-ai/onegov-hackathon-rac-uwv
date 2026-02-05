@@ -33,7 +33,6 @@ Objecttype de Persoon (mv: Personen) (bezield)
     het AOW inkomen Bedrag;
     het aanvullend pensioen per maand Bedrag;
     het pensioenvermogen Bedrag;
-    het overig inkomen Bedrag;
 
     // Wonen
     de huur per maand Bedrag;
