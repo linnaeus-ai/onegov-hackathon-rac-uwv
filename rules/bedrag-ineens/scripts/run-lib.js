@@ -3,31 +3,36 @@
  * Extracted from run.js for reuse in batch testing
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 // Import from regelspraak-ts dist
-const regelspraakPath = path.resolve(__dirname, '../../../regelspraak-ts/dist');
+const regelspraakPath = path.resolve(__dirname, "../../../regelspraak-ts/dist");
 const { Engine, Context } = require(regelspraakPath);
 
-const rulesDir = path.resolve(__dirname, '..');
+const rulesDir = path.resolve(__dirname, "..");
 
 function parseValue(data) {
-  if (typeof data === 'object' && data !== null && 'value' in data) {
-    return { type: 'number', value: data.value, unit: data.unit ? { name: data.unit } : undefined };
+  if (typeof data === "object" && data !== null && "value" in data) {
+    return {
+      type: "number",
+      value: data.value,
+      unit: data.unit ? { name: data.unit } : undefined,
+    };
   }
-  if (typeof data === 'number') return { type: 'number', value: data };
-  if (typeof data === 'boolean') return { type: 'boolean', value: data };
-  if (typeof data === 'string') {
-    if (/^\d{4}-\d{2}-\d{2}/.test(data)) return { type: 'date', value: new Date(data) };
-    return { type: 'string', value: data };
+  if (typeof data === "number") return { type: "number", value: data };
+  if (typeof data === "boolean") return { type: "boolean", value: data };
+  if (typeof data === "string") {
+    if (/^\d{4}-\d{2}-\d{2}/.test(data))
+      return { type: "date", value: new Date(data) };
+    return { type: "string", value: data };
   }
-  return { type: 'null', value: null };
+  return { type: "null", value: null };
 }
 
-function loadRules(regelsFile = 'regels.rs') {
-  const gegevens = fs.readFileSync(path.join(rulesDir, 'gegevens.rs'), 'utf-8');
-  const regels = fs.readFileSync(path.join(rulesDir, regelsFile), 'utf-8');
+function loadRules(regelsFile = "regels.rs") {
+  const gegevens = fs.readFileSync(path.join(rulesDir, "gegevens.rs"), "utf-8");
+  const regels = fs.readFileSync(path.join(rulesDir, regelsFile), "utf-8");
   const rulesText = `${gegevens}\n\n${regels}`;
 
   const engine = new Engine();
@@ -60,18 +65,18 @@ function runProfile(engineModel, profileData, options = {}) {
   for (const p of profileData.objects.personen || []) {
     const attrs = {};
     for (const [k, v] of Object.entries(p)) {
-      if (k !== 'id') attrs[k] = parseValue(v);
+      if (k !== "id") attrs[k] = parseValue(v);
     }
-    context.createObject('Persoon', p.id, attrs);
+    context.createObject("Persoon", p.id, attrs);
   }
 
   // Create Scenario objects
   for (const s of profileData.objects.scenarios || []) {
     const attrs = {};
     for (const [k, v] of Object.entries(s)) {
-      if (k !== 'id') attrs[k] = parseValue(v);
+      if (k !== "id") attrs[k] = parseValue(v);
     }
-    context.createObject('Scenario', s.id, attrs);
+    context.createObject("Scenario", s.id, attrs);
   }
 
   // Set kenmerken
@@ -87,13 +92,21 @@ function runProfile(engineModel, profileData, options = {}) {
 
   // Create relationships
   for (const rel of profileData.relationships || []) {
-    if (rel.type === 'scenario van persoon') {
-      const scenarioObj = context.getObjectsByType('Scenario').find(o => o.objectId === rel.scenario);
-      const persoonObj = context.getObjectsByType('Persoon').find(o => o.objectId === rel.persoon);
+    if (rel.type === "scenario van persoon") {
+      const scenarioObj = context
+        .getObjectsByType("Scenario")
+        .find((o) => o.objectId === rel.scenario);
+      const persoonObj = context
+        .getObjectsByType("Persoon")
+        .find((o) => o.objectId === rel.persoon);
 
       if (scenarioObj && persoonObj) {
-        context.addRelationship('scenario van persoon', scenarioObj, persoonObj);
-        scenarioObj.value['persoon'] = persoonObj;
+        context.addRelationship(
+          "scenario van persoon",
+          scenarioObj,
+          persoonObj,
+        );
+        scenarioObj.value["persoon"] = persoonObj;
       }
     }
   }
@@ -106,7 +119,7 @@ function runProfile(engineModel, profileData, options = {}) {
   }
 
   // Extract results
-  const scenarios = context.getObjectsByType('Scenario');
+  const scenarios = context.getObjectsByType("Scenario");
   const results = {};
 
   for (const s of scenarios) {
@@ -114,7 +127,7 @@ function runProfile(engineModel, profileData, options = {}) {
     const scenarioResult = {};
 
     for (const [key, val] of Object.entries(attrs)) {
-      if (key === 'persoon') continue; // Skip relationship reference
+      if (key === "persoon") continue; // Skip relationship reference
       const value = val?.value ?? val;
       if (value !== null && value !== undefined) {
         scenarioResult[key] = value;
@@ -130,15 +143,17 @@ function runProfile(engineModel, profileData, options = {}) {
 function extractKeyMetrics(scenarioResult) {
   // Extract the key metrics we care about for summary
   return {
-    'opname percentage': scenarioResult['opname percentage'],
-    'bedrag ineens': scenarioResult['bedrag ineens'],
-    'inkomen': scenarioResult['inkomen'],
-    'belasting na heffingskortingen': scenarioResult['belasting na heffingskortingen'],
-    'zorgtoeslag': scenarioResult['zorgtoeslag'],
-    'huurtoeslag': scenarioResult['huurtoeslag'],
-    'beschikbaar inkomen': scenarioResult['beschikbaar inkomen'],
-    'besteedbaar inkomen': scenarioResult['besteedbaar inkomen'],
-    'besteedbaar inkomen incl huurtoeslag': scenarioResult['besteedbaar inkomen incl huurtoeslag']
+    "opname percentage": scenarioResult["opname percentage"],
+    "bedrag ineens": scenarioResult["bedrag ineens"],
+    inkomen: scenarioResult["inkomen"],
+    "belasting na heffingskortingen":
+      scenarioResult["belasting na heffingskortingen"],
+    zorgtoeslag: scenarioResult["zorgtoeslag"],
+    huurtoeslag: scenarioResult["huurtoeslag"],
+    "beschikbaar inkomen": scenarioResult["beschikbaar inkomen"],
+    "besteedbaar inkomen": scenarioResult["besteedbaar inkomen"],
+    "besteedbaar inkomen incl huurtoeslag":
+      scenarioResult["besteedbaar inkomen incl huurtoeslag"],
   };
 }
 
@@ -146,5 +161,5 @@ module.exports = {
   loadRules,
   runProfile,
   extractKeyMetrics,
-  parseValue
+  parseValue,
 };
