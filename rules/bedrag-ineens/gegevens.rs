@@ -41,6 +41,8 @@ Objecttype de Persoon (mv: Personen) (bezield)
 Objecttype het Scenario (mv: Scenarios)
     // INPUT
     het opname percentage Numeriek;
+    // Kenmerk: true voor jaar van opname, false voor jaren erna
+    is jaar met opname kenmerk (bijvoeglijk);
 
     // PHASE 1: Bedrag ineens basisberekeningen
     het pensioen per jaar Bedrag;
