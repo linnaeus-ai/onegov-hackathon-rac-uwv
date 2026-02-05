@@ -30,6 +30,8 @@ Het JSON-bestand is georganiseerd in de volgende secties:
 - Timing-vereisten
 - Voorwaarden voor uitgestelde betaling
 - Uitsluiting hoog-laag pensioen
+- **Minimum resterend pensioen** (€632,63/jaar in 2026)
+- **Partner toestemming** indien nabestaandenpensioen daalt
 
 ### 3. **Berekeningsregels**
 
@@ -49,6 +51,8 @@ Het JSON-bestand is georganiseerd in de volgende secties:
 #### Toeslagberekeningen
 - **Zorgtoeslag**: inkomensgrenzen €37.496 (alleenstaand) / €47.368 (met partner)
 - **Huurtoeslag**: inkomensgrenzen €28.550 (alleenstaand AOW) / €38.800 (meerpersoonshuishouden AOW)
+- **Huurtoeslag bijzondere uitzondering**: bedrag ineens kan op verzoek worden uitgezonderd als bijzondere nabetaling
+- **AIO** (Aanvullende Inkomensvoorziening Ouderen): voor ouderen met onvolledige AOW-opbouw
 - **Toetsingsinkomen**: bedrag ineens telt alleen mee in jaar van ontvangst
 
 ### 4. **Bijzondere Situaties**
@@ -149,30 +153,50 @@ Dit JSON-bestand kan worden:
 
 ### Kritieke Regels om te Implementeren
 
-1. **Het 90-10-90 Patroon**
-   - Bij keuze voor bedrag ineens wordt het pensioen DIRECT verlaagd naar 90%
-   - Dit gebeurt op de pensioeningangsdatum, ook als betaling wordt uitgesteld
-   - Dit is contraintuitief maar wettelijk verplicht
+1. **Minimum Resterend Pensioen**
+   - Na opname moet minimaal €632,63/jaar (2026) aan pensioen resteren
+   - Dit is een harde wettelijke eis - controleer EERST of dit mogelijk is
+   - Formule: `(jaarlijks_pensioen * (1 - percentage/100)) >= 632.63`
 
-2. **Toetsingsinkomen Impact**
+2. **Het X-(100-X) Patroon**
+   - Bij keuze voor X% bedrag ineens wordt het pensioen DIRECT verlaagd naar (100-X)%
+   - Dit gebeurt op de pensioeningangsdatum, ook als betaling wordt uitgesteld
+   - Voorbeeld: 10% opname → 90% van oorspronkelijk pensioen levenslang
+
+3. **Toetsingsinkomen Impact**
    - Bedrag ineens telt als inkomen ALLEEN in het jaar van ontvangst
    - Dit kan tijdelijk diskwalificeren voor toeslagen
    - Het jaar erna kunnen toeslagen terugkeren (mogelijk hoger door lager pensioen)
 
-3. **Progressieve Belasting Impact**
+4. **Huurtoeslag Bijzondere Uitzondering**
+   - ALLEEN voor huurtoeslag kan het bedrag ineens op verzoek worden uitgezonderd
+   - Aanvraag bij Belastingdienst/Toeslagen als "bijzondere nabetaling"
+   - Dit geldt NIET voor zorgtoeslag, kindgebonden budget of AIO
+
+5. **AIO Impact**
+   - AIO-ontvangers zijn de meest kwetsbare groep
+   - Bedrag ineens telt als inkomen EN als vermogen (indien gespaard)
+   - Kan leiden tot volledige stopzetting AIO én terugvordering
+
+6. **Progressieve Belasting Impact**
    - Bedrag ineens wordt belast tegen het marginale tarief
    - Kan inkomen in hogere belastingschijf duwen
    - Vooral impactvol voor middeninkomens
 
-4. **Beperkingen Uitgestelde Betaling**
+7. **Beperkingen Uitgestelde Betaling**
    - Alleen beschikbaar als pensioen start in zelfde maand als AOW of eerste dag maand erna
    - Betaling in januari volgend op AOW-jaar
    - Pensioen toch direct verlaagd bij aanvang
 
-5. **Scheiding en Verevening**
+8. **Scheiding en Verevening**
    - Ex-partner ontvangt ook bedrag ineens uit verevend deel
    - Bijzonder partnerpensioen wordt niet geraakt
    - Deelnemer kent vaak niet de totale inkomenspositie van ex-partner
+
+9. **Partner Toestemming**
+   - Indien nabestaandenpensioen daalt door keuze voor bedrag ineens
+   - Partner moet expliciet toestemming geven
+   - Controleer dit in de intake-procedure
 
 ### Belangrijk voor Uitlegbaarheid
 
@@ -218,3 +242,4 @@ Dit is een werkende representatie voor de hackathon. Echte implementatie zou ver
 ---
 
 *Gegenereerd voor de DigiCampus Rules as Code Hackathon, februari 2025*
+*Versie 1.1.0 - Bijgewerkt met kritieke geschiktheidsregels en AIO*

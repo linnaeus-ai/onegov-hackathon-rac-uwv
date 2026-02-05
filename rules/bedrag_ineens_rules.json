@@ -2,8 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "id": "bedrag-ineens-regels-v1",
   "titel": "Bedrag Ineens Pensioenregels",
-  "versie": "1.0.0",
-  "ingangsdatum": "2025-01-01",
+  "versie": "1.1.0",
+  "ingangsdatum": "2026-07-01",
   "beschrijving": "Complete regelset voor het berekenen van bedrag ineens scenario's volgens de Wet herziening bedrag ineens",
 
   "metadata": {
@@ -15,7 +15,21 @@
       "Pensioenwet",
       "Wet bedrag ineens, RVU en verlofsparen (35555)",
       "Wet toekomst pensioenen (Wtp)"
-    ]
+    ],
+    "parameter_versioning": {
+      "beschrijving": "Belasting- en toeslagparameters wijzigen jaarlijks",
+      "huidige_parameter_jaar": 2024,
+      "verwachte_inwerkingtreding": "2026-07-01",
+      "update_vereist": "Parameters moeten worden bijgewerkt naar 2026-waarden voor productiegebruik",
+      "jaarlijks_te_updaten": [
+        "belastingschijven en tarieven",
+        "heffingskortingen bedragen en afbouwgrenzen",
+        "toeslaggrenzen (zorgtoeslag, huurtoeslag)",
+        "zvw maximum bijdrage-inkomen",
+        "minimum resterend pensioenbedrag",
+        "aio bijstandsnormen en vermogensgrenzen"
+      ]
+    }
   },
 
   "constanten": {
@@ -27,8 +41,19 @@
     "uitkeringspatroon": {
       "zonder_bedrag_ineens": "100-0-100",
       "met_bedrag_ineens": "90-10-90",
-      "toelichting": "Percentage patroon: initieel_pensioen-bedrag_ineens-resterend_pensioen",
-      "belangrijk": "Bij keuze voor bedrag ineens wordt het pensioen DIRECT verlaagd naar 90%, ook bij uitgestelde betaling"
+      "toelichting_patroon": "Patroon: [maandelijks_pensioen_%]-[bedrag_ineens_%]-[resterend_pensioen_%]",
+      "uitleg": {
+        "eerste_getal": "Percentage van oorspronkelijk pensioen dat maandelijks wordt uitgekeerd (bij 10% opname = 90%)",
+        "tweede_getal": "Percentage van pensioenwaarde dat als bedrag ineens wordt opgenomen (0-10%)",
+        "derde_getal": "Percentage van oorspronkelijk pensioen dat levenslang resteert (bij 10% opname = 90%)"
+      },
+      "formule": "Voor X% opname: (100-X)-X-(100-X)",
+      "voorbeelden": {
+        "0_procent": "100-0-100 (geen verandering)",
+        "5_procent": "95-5-95",
+        "10_procent": "90-10-90"
+      },
+      "belangrijk": "Bij keuze voor bedrag ineens wordt het pensioen DIRECT verlaagd naar (100-X)%, ook bij uitgestelde betaling"
     },
     "uitgestelde_betaling_maand": "januari",
     "uitgestelde_betaling_toelichting": "Uitbetaling in januari volgend op het jaar waarin AOW-leeftijd wordt bereikt"
@@ -62,6 +87,21 @@
           "regel": "onherroepelijke_keuze",
           "beschrijving": "De keuze is definitief en kan niet worden teruggedraaid",
           "voorwaarde": "keuze_is_definitief"
+        },
+        {
+          "regel": "minimum_resterend_pensioen",
+          "beschrijving": "Na opname moet minimaal het wettelijk minimum aan pensioen resteren",
+          "voorwaarde": "(jaarlijks_pensioen * (1 - bedrag_ineens_percentage / 100)) >= minimum_resterend_pensioen_bedrag",
+          "minimum_resterend_pensioen_bedrag_2026": 632.63,
+          "toelichting": "Dit bedrag wordt jaarlijks geindexeerd",
+          "wettelijke_basis": "Besluit uitvoering Pensioenwet"
+        },
+        {
+          "regel": "partner_toestemming",
+          "beschrijving": "Toestemming van partner vereist indien nabestaandenpensioen daalt",
+          "voorwaarde": "INDIEN nabestaandenpensioen_daalt DAN partner_toestemming_verkregen",
+          "toelichting": "Als het nabestaandenpensioen wordt verlaagd door de keuze voor bedrag ineens, moet de partner hier toestemming voor geven",
+          "wettelijke_basis": "Pensioenwet"
         }
       ]
     },
@@ -104,6 +144,21 @@
       ],
       "output": "bedrag_ineens_bruto",
       "toelichting": "De gekapitaliseerde pensioenwaarde wordt berekend op basis van actuariele tabellen",
+      "actuariele_conversie": {
+        "beschrijving": "Hoe maandelijks pensioen wordt omgerekend naar kapitaalwaarde",
+        "methode": "Contante waarde van toekomstige uitkeringen op basis van levensverwachting en rekenrente",
+        "indicatieve_factor": {
+          "aow_leeftijd_67": "Kapitaal ≈ 18.5 x jaarlijks pensioen",
+          "toelichting": "Deze factor is afhankelijk van geslacht, exacte leeftijd, en actuele sterfte- en rentetarieven",
+          "bron": "Afgeleid uit officiele rekenvoorbeelden EK Nota"
+        },
+        "afleiding_uit_voorbeelden": [
+          {"pensioen_maand": 600, "pensioen_jaar": 7200, "bedrag_ineens_10pct": 13300, "implied_kapitaal": 133000, "factor": 18.47},
+          {"pensioen_maand": 1200, "pensioen_jaar": 14400, "bedrag_ineens_10pct": 26700, "implied_kapitaal": 267000, "factor": 18.54},
+          {"pensioen_maand": 2100, "pensioen_jaar": 25200, "bedrag_ineens_10pct": 46700, "implied_kapitaal": 467000, "factor": 18.53}
+        ],
+        "waarschuwing": "De exacte kapitaalwaarde verschilt per pensioenuitvoerder; gebruik uitvoerder-specifieke waarde"
+      },
       "voorbeelden": {
         "pensioen_600_per_maand": {
           "maandelijks_pensioen": 600,
@@ -198,13 +253,18 @@
             "beschrijving": "Algemene heffingskorting",
             "maximaal_bedrag_2024": 3362,
             "afbouw_inkomen": 24813,
-            "afbouw_percentage": 0.06510
+            "afbouw_percentage": 0.06510,
+            "formule": "max(0, maximaal_bedrag - max(0, (verzamelinkomen - afbouw_inkomen) * afbouw_percentage))",
+            "voorbeeld": "Bij inkomen €40.000: 3362 - ((40000 - 24813) * 0.0651) = 3362 - 988 = €2374"
           },
           "ouderenkorting": {
             "beschrijving": "Ouderenkorting voor AOW-gerechtigden",
             "maximaal_bedrag_2024": 1835,
             "inkomensgrens": 44770,
-            "afbouw_percentage": 0.15
+            "afbouw_percentage": 0.15,
+            "formule": "INDIEN verzamelinkomen <= inkomensgrens DAN maximaal_bedrag ANDERS max(0, maximaal_bedrag - (verzamelinkomen - inkomensgrens) * afbouw_percentage)",
+            "eindgrens": "Ouderenkorting is €0 bij verzamelinkomen >= inkomensgrens + (maximaal_bedrag / afbouw_percentage) = 44770 + 12233 = €57003",
+            "voorbeeld": "Bij inkomen €50.000: 1835 - ((50000 - 44770) * 0.15) = 1835 - 785 = €1050"
           }
         }
       },
@@ -213,8 +273,14 @@
         "titel": "Inkomensafhankelijke Bijdrage Zorgverzekeringswet (Zvw)",
         "tarief_2024": 0.0545,
         "maximaal_bijdrage_inkomen_2024": 73031,
-        "berekening": "min(inkomen, maximaal_bijdrage_inkomen) * tarief",
-        "toelichting": "De Zvw-bijdrage wordt ingehouden door de pensioenuitvoerder"
+        "berekening": "min(totaal_inkomen, maximaal_bijdrage_inkomen) * tarief",
+        "formule": "zvw_bijdrage = min(aow + pensioen + bedrag_ineens, 73031) * 0.0545",
+        "toelichting": "De Zvw-bijdrage wordt ingehouden door de pensioenuitvoerder",
+        "randgeval_hoog_inkomen": {
+          "beschrijving": "Als het inkomen zonder bedrag ineens al boven €73.031 ligt",
+          "gevolg": "Het bedrag ineens voegt dan GEEN extra Zvw-bijdrage toe",
+          "voorbeeld": "Bij basisinkomen €80.000 + bedrag ineens €20.000: Zvw = €73.031 * 5.45% = €3.980 (niet €100.000 * 5.45%)"
+        }
       }
     },
 
@@ -270,7 +336,14 @@
           "afbouw": "Geleidelijke vermindering bij hoger inkomen",
           "kwaliteitskorting": "Toegepast voor goedkopere woningen"
         },
-        "impact": "Bedrag ineens verhoogt het toetsingsinkomen, waardoor huurtoeslag mogelijk vermindert of vervalt"
+        "impact": "Bedrag ineens verhoogt het toetsingsinkomen, waardoor huurtoeslag mogelijk vermindert of vervalt",
+        "bijzondere_uitzondering": {
+          "beschrijving": "Bedrag ineens kan op verzoek worden uitgezonderd als bijzondere nabetaling",
+          "voorwaarde": "Aanvraag bij Belastingdienst/Toeslagen",
+          "effect": "Bij goedkeuring telt bedrag ineens NIET mee voor huurtoeslag berekening",
+          "wettelijke_basis": "Artikel 2b Besluit op de huurtoeslag",
+          "belangrijk": "Dit geldt ALLEEN voor huurtoeslag, niet voor andere toeslagen"
+        }
       },
 
       "kindgebonden_budget": {
@@ -288,6 +361,29 @@
         "titel": "Kinderopvangtoeslag",
         "beschrijving": "Tegemoetkoming in kosten van kinderopvang",
         "impact": "Bedrag ineens kan leiden tot vermindering van kinderopvangtoeslag"
+      },
+
+      "aio": {
+        "titel": "Aanvullende Inkomensvoorziening Ouderen (AIO)",
+        "beschrijving": "Aanvulling op AOW voor ouderen met onvolledige AOW-opbouw of laag inkomen",
+        "geschiktheid": {
+          "leeftijd": "AOW-gerechtigd",
+          "inkomen": "Inkomen onder bijstandsnorm",
+          "vermogen": "Vermogen onder vrijstellingsgrens"
+        },
+        "berekening": {
+          "beschrijving": "Aanvulling tot bijstandsnorm, rekening houdend met inkomen en vermogen",
+          "bijstandsnorm_alleenstaand_2024": 15168,
+          "bijstandsnorm_samenwonend_2024": 21669,
+          "vermogensvrijstelling_alleenstaand_2024": 7605,
+          "vermogensvrijstelling_samenwonend_2024": 15210
+        },
+        "impact": {
+          "jaar_van_ontvangst": "Bedrag ineens telt als inkomen, kan leiden tot korting of verlies AIO",
+          "vermogenseffect": "Als bedrag ineens wordt gespaard, telt het mee als vermogen voor volgende jaren",
+          "terugvordering": "Mogelijk terugvordering van eerder ontvangen AIO"
+        },
+        "waarschuwing": "AIO-ontvangers behoren tot de meest kwetsbare groep; bedrag ineens is voor hen vaak zeer ongunstig"
       }
     },
 
