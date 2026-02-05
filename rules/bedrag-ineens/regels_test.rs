@@ -122,10 +122,10 @@ Regel Bereken huurtoeslag boven grens
         De huurtoeslag van een Scenario moet gesteld worden op 0 €
         indien het inkomen van het scenario is groter dan de HT grens derde.
 
-// === PHASE 6: Netto Inkomen ===
-Regel Bereken netto inkomen
+// === PHASE 6: Beschikbaar Inkomen ===
+Regel Bereken beschikbaar inkomen
     geldig altijd
-        Het netto inkomen van een Scenario moet berekend worden als
+        Het beschikbaar inkomen van een Scenario moet berekend worden als
             het inkomen van het scenario min
             de Zvw bijdrage van het scenario min
             de belasting na heffingskortingen van het scenario.

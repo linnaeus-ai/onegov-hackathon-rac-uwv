@@ -3,9 +3,17 @@
 ## Regelspraak Syntax Learnings
 
 ### Attribute Naming
-- Engine strips certain adjectives like "bruto" from attribute names
+- Engine strips dimension keywords: `bruto`, `netto`, `huidig jaar`, `vorig jaar`, `volgend jaar`
+- These are reserved for the dimensional data system (reading pre-populated nested structures)
+- Use distinct names to avoid collisions: `beschikbaar inkomen` not `netto inkomen`
 - Use simple names: `het bedrag ineens` not `het bruto bedrag ineens`
 - Check actual stored names in output to debug mismatches
+
+### Dimensional Attributes (Advanced)
+- Dimensional system is for **reading** pre-populated nested data, not computing/writing
+- Define with: `Dimensie de brutonettodimensie... gedimensioneerd met brutonettodimensie`
+- Input data structure: `inkomen: { bruto: 50000, netto: 35000 }`
+- For computing values: use distinct attribute names instead
 
 ### Kenmerk (Boolean Characteristics)
 - Definition: `is alleenstaand kenmerk (bijvoeglijk);`

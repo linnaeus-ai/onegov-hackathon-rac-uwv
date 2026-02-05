@@ -71,7 +71,7 @@ Objecttype het Scenario (mv: Scenarios)
     de huurtoeslag Bedrag;
 
     // PHASE 6: Resultaat
-    het netto inkomen Bedrag;
+    het beschikbaar inkomen Bedrag;
 
 // ============================================================================
 // FEITTYPES (Relaties)

@@ -71,9 +71,9 @@ Regel Bereken belasting derde schijf
             (het inkomen van het scenario min de tweede schijfgrens)
             maal het tarief derde schijf.
 
-Regel Bereken belasting box1 bruto
+Regel Bereken belasting box1
     geldig altijd
-        De belasting box1 bruto van een Scenario moet berekend worden als
+        De belasting box1 van een Scenario moet berekend worden als
             de belasting eerste schijf van het scenario plus
             de belasting tweede schijf van het scenario plus
             de belasting derde schijf van het scenario.
@@ -108,12 +108,7 @@ Regel Bereken ouderenkorting met afbouw
 Regel Bereken alleenstaande ouderenkorting
     geldig altijd
         De alleenstaande ouderenkorting van een Scenario moet gesteld worden op de AOK bedrag
-        indien zijn persoon alleenstaand is.
-
-Regel Bereken alleenstaande ouderenkorting nul
-    geldig altijd
-        De alleenstaande ouderenkorting van een Scenario moet gesteld worden op 0 €
-        indien zijn persoon niet alleenstaand is.
+        indien zijn persoon is alleenstaand.
 
 Regel Bereken totale heffingskortingen
     geldig altijd
@@ -126,24 +121,12 @@ Regel Bereken belasting na heffingskortingen
     geldig altijd
         De belasting na heffingskortingen van een Scenario moet berekend worden als
             de maximale waarde van 0 € en
-            (de belasting box1 bruto van het scenario min
+            (de belasting box1 van het scenario min
              de totale heffingskortingen van het scenario).
 
 // ============================================================================
 // PHASE 5: TOESLAGEN
 // ============================================================================
-
-Regel Bereken zorgtoeslag onder grens
-    geldig altijd
-        De zorgtoeslag van een Scenario moet berekend worden als
-            de maximale waarde van 0 € en
-            (de ZT maximum alleenstaand min
-             (de maximale waarde van 0 € en
-              (het inkomen van het scenario min de ZT drempel))
-             maal het ZT afbouw percentage)
-        indien hij aan alle volgende voorwaarden voldoet:
-            - zijn persoon alleenstaand is
-            - het inkomen van het scenario is kleiner dan de ZT grens alleenstaand.
 
 Regel Bereken zorgtoeslag boven grens
     geldig altijd
@@ -156,12 +139,12 @@ Regel Bereken huurtoeslag boven grens
         indien het inkomen van het scenario is groter dan de HT grens derde.
 
 // ============================================================================
-// PHASE 6: NETTO INKOMEN
+// PHASE 6: BESCHIKBAAR INKOMEN
 // ============================================================================
 
-Regel Bereken netto inkomen
+Regel Bereken beschikbaar inkomen
     geldig altijd
-        Het netto inkomen van een Scenario moet berekend worden als
+        Het beschikbaar inkomen van een Scenario moet berekend worden als
             het inkomen van het scenario min
             de Zvw bijdrage van het scenario min
             de belasting na heffingskortingen van het scenario.
