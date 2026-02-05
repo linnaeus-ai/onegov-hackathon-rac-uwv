@@ -9,17 +9,18 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 
 ---
 
-## Groepen Legenda
+## Groepen Legenda (Entiteitsniveau)
 
 | Groep | Kleur | Naam | Beschrijving |
 |-------|-------|------|--------------|
 | 🟢 1 | Groen | **Real-world entiteiten** | Fysieke of juridische entiteiten die onafhankelijk van het systeem bestaan |
 | 🔵 2 | Blauw | **Juridische constructen** | Abstracte entiteiten die bestaan bij gratie van wetgeving of overeenkomsten |
-| 🟡 3 | Geel | **Temporele feiten** | Gebeurtenissen en tijdstippen - wanneer dingen gebeuren |
 | 🟣 4 | Paars | **Berekende informatie** | Output van regels - de KERN van Rules as Code |
 | 🟤 5 | Bruin | **Parameters** | Externe feiten die jaarlijks/periodiek wijzigen |
 | 🔴 6 | Rood | **Validatie-output** | Resultaat van regeltoepassing (ja/nee, classificaties) |
 | ⚪ 7 | Grijs | **Meta-analyse** | Hulpmiddelen voor besluitvorming (scenario's, vergelijkingen, advies) |
+
+> **Noot**: Groep 3 (🟡 Temporele feiten) classificeert datum-attributen, geen entiteiten.
 
 ---
 
@@ -111,69 +112,57 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 
 ---
 
-## Temporele Feiten (Attributen)
-
-| Groep | Attribuut | Rules JSON | Wetgeving | Regelspraak | Op entiteit |
-|-------|-----------|------------|-----------|-------------|-------------|
-| 🟡 3 | `geboortedatum` | - | BRP | `de geboortedatum` | NatuurlijkPersoon |
-| 🟡 3 | `pensioeningangsdatum` | - | Pensioenwet | `de pensioeningangsdatum` | Pensioenaanspraak |
-| 🟡 3 | `keuzedatum` | - | Pensioenwet art. 69a | `de keuzedatum` | BedragIneensKeuze |
-| 🟡 3 | `geplandeBetaaldatum` | - | Wet herziening bedrag ineens | `de geplande betaaldatum` | UitgesteldeBetaling |
-| 🟡 3 | `geldigVanaf` / `geldigTot` | - | - | `geldig vanaf` / `geldig tot` | Parameterset |
-
----
-
 ## Attribuut Mapping
 
 ### NatuurlijkPersoon / Persoon (🟢 Groep 1)
 
-| Groep | NORA/MIM attribuut | Rules JSON | Wetgeving | Regelspraak | EK Nota kolom |
-|-------|--------------------|------------|-----------|-------------|---------------|
-| 🟢 1 | `burgerservicenummer` | - | BRP: "BSN" | `het burgerservicenummer` | - |
-| 🟡 3 | `geboortedatum` | - | BRP: "geboortedatum" | `de geboortedatum` | - |
-| 🟣 4 | `leeftijd` | - | - | `de leeftijd` | - |
-| 🔴 6 | `isAOWGerechtigd` | `isAowGerechtigd` | Algemene Ouderdomswet | `is AOW-gerechtigd (kenmerk)` | - |
-| 🔴 6 | `isAlleenstaand` | `huishouden: 'alleenstaand'` | AWIR | `is alleenstaand (kenmerk)` | - |
-| 🟢 1 | `aowOpbouwpercentage` | - | AOW art. 7 | `het AOW-opbouwpercentage` | - |
+| NORA/MIM attribuut | Rules JSON | Wetgeving | Regelspraak | EK Nota kolom |
+|--------------------|------------|-----------|-------------|---------------|
+| `burgerservicenummer` | - | BRP: "BSN" | `het burgerservicenummer` | - |
+| `geboortedatum` | - | BRP: "geboortedatum" | `de geboortedatum` | - |
+| `leeftijd` | - | - | `de leeftijd` | - |
+| `isAOWGerechtigd` | `isAowGerechtigd` | Algemene Ouderdomswet | `is AOW-gerechtigd (kenmerk)` | - |
+| `isAlleenstaand` | `huishouden: 'alleenstaand'` | AWIR | `is alleenstaand (kenmerk)` | - |
+| `aowOpbouwpercentage` | - | AOW art. 7 | `het AOW-opbouwpercentage` | - |
 
 ### Pensioenaanspraak (🔵 Groep 2)
 
-| Groep | NORA/MIM attribuut | Rules JSON | Wetgeving | Regelspraak | EK Nota kolom |
-|-------|--------------------|------------|-----------|-------------|---------------|
-| 🔵 2 | `maandelijksBedrag` | `maandelijks_aanvullend_pensioen` | Pensioenwet | `het aanvullend pensioen per maand` | "Aanvullend pensioen" |
-| 🟣 4 | `jaarlijksBedrag` | `jaarlijks_aanvullend_pensioen` | - | `het aanvullend pensioen per jaar` | - |
-| 🔵 2 | `gekapitaliseerdeWaarde` | `pensioenvermogen` (implicit) | Pensioenwet | `het pensioenvermogen` | - |
-| 🟡 3 | `ingangsdatum` | - | Pensioenwet | `de pensioeningangsdatum` | - |
-| 🔴 6 | `isVerevend` | `bijzondere_situaties.scheiding_verevening` | WVPS | `is verevend pensioen (kenmerk)` | - |
+| NORA/MIM attribuut | Rules JSON | Wetgeving | Regelspraak | EK Nota kolom |
+|--------------------|------------|-----------|-------------|---------------|
+| `maandelijksBedrag` | `maandelijks_aanvullend_pensioen` | Pensioenwet | `het aanvullend pensioen per maand` | "Aanvullend pensioen" |
+| `jaarlijksBedrag` | `jaarlijks_aanvullend_pensioen` | - | `het aanvullend pensioen per jaar` | - |
+| `gekapitaliseerdeWaarde` | `pensioenvermogen` (implicit) | Pensioenwet | `het pensioenvermogen` | - |
+| `ingangsdatum` | - | Pensioenwet | `de pensioeningangsdatum` | - |
+| `isVerevend` | `bijzondere_situaties.scheiding_verevening` | WVPS | `is verevend pensioen (kenmerk)` | - |
 
 ### Inkomensjaar (🟣 Groep 4)
 
-| Groep | NORA/MIM attribuut | Rules JSON | Wetgeving | Regelspraak | EK Nota kolom |
-|-------|--------------------|------------|-----------|-------------|---------------|
-| 🟣 4 | `aowUitkering` | `aow_jaarlijks` | AOW | `het AOW-inkomen` | "AOW" |
-| 🟣 4 | `aanvullendPensioen` | `jaarlijks_aanvullend_pensioen` | - | `het aanvullend pensioen per jaar` | "Aanvullend pensioen" |
-| 🟣 4 | `bedragIneens` | `bedrag_ineens` | Pensioenwet art. 69a | `het bedrag ineens` | "Bedrag ineens" |
-| 🟣 4 | `brutoInkomen` | `bruto_inkomen` | - | `het bruto inkomen jaar opname` | "Bruto-inkomen" |
-| 🟣 4 | `toetsingsinkomen` | `toetsingsinkomen` | AWIR art. 8 | `het toetsingsinkomen jaar opname` | - |
+| NORA/MIM attribuut | Rules JSON | Wetgeving | Regelspraak | EK Nota kolom |
+|--------------------|------------|-----------|-------------|---------------|
+| `aowUitkering` | `aow_jaarlijks` | AOW | `het AOW-inkomen` | "AOW" |
+| `aanvullendPensioen` | `jaarlijks_aanvullend_pensioen` | - | `het aanvullend pensioen per jaar` | "Aanvullend pensioen" |
+| `bedragIneens` | `bedrag_ineens` | Pensioenwet art. 69a | `het bedrag ineens` | "Bedrag ineens" |
+| `brutoInkomen` | `bruto_inkomen` | - | `het bruto inkomen jaar opname` | "Bruto-inkomen" |
+| `toetsingsinkomen` | `toetsingsinkomen` | AWIR art. 8 | `het toetsingsinkomen jaar opname` | - |
 
 ### Belastingaanslag (🟣 Groep 4)
 
-| Groep | NORA/MIM attribuut | Rules JSON | Wetgeving | Regelspraak | EK Nota kolom |
-|-------|--------------------|------------|-----------|-------------|---------------|
-| 🟣 4 | `belastingBox1Bruto` | `belasting` | Wet IB 2001 | `de belasting box 1 bruto` | - |
-| 🟣 4 | `zvwBijdrage` | `zvw_bijdrage` | Zvw art. 45 | `de inkomensafhankelijke bijdrage Zvw` | "Inkomensafhankelijke bijdrage Zvw" |
-| 🟣 4 | `totaleHeffingskortingen` | - | Wet IB 2001 Hfdst 8 | `de totale heffingskortingen` | - |
-| 🟣 4 | `belastingNaKortingen` | - | - | `de belasting na heffingskortingen` | "Totaal te betalen belasting na heffingskortingen" |
-| 🟣 4 | `nettoInkomen` | `netto_inkomen` | - | `het netto inkomen` | "Netto-inkomen" |
+| NORA/MIM attribuut | Rules JSON | Wetgeving | Regelspraak | EK Nota kolom |
+|--------------------|------------|-----------|-------------|---------------|
+| `belastingBox1Bruto` | `belasting` | Wet IB 2001 | `de belasting box 1 bruto` | - |
+| `zvwBijdrage` | `zvw_bijdrage` | Zvw art. 45 | `de inkomensafhankelijke bijdrage Zvw` | "Inkomensafhankelijke bijdrage Zvw" |
+| `totaleHeffingskortingen` | - | Wet IB 2001 Hfdst 8 | `de totale heffingskortingen` | - |
+| `belastingNaKortingen` | - | - | `de belasting na heffingskortingen` | "Totaal te betalen belasting na heffingskortingen" |
+| `nettoInkomen` | `netto_inkomen` | - | `het netto inkomen` | "Netto-inkomen" |
 
 ### Toeslag (🟣 Groep 4)
 
-| Groep | NORA/MIM attribuut | Rules JSON | Wetgeving | Regelspraak | EK Nota kolom |
-|-------|--------------------|------------|-----------|-------------|---------------|
-| 🟣 4 | `bedragZonderOpname` | `zorgtoeslag` (baseline) | - | `de zorgtoeslag zonder opname` | "Zorgtoeslag" (kolom geen bedrag ineens) |
-| 🟣 4 | `bedragMetOpname` | - | - | `de zorgtoeslag met opname` | "Zorgtoeslag" (kolom met bedrag ineens) |
-| 🟣 4 | `verlies` | - | - | `het zorgtoeslag verlies` | Verschil tussen kolommen |
-| 🔴 6 | `vervaltVolledig` | - | - | `vervalt volledig (kenmerk)` | Waarde = 0 vs > 0 |
+| NORA/MIM attribuut | Rules JSON | Wetgeving | Regelspraak | EK Nota kolom |
+|--------------------|------------|-----------|-------------|---------------|
+| `bedragZonderOpname` | `zorgtoeslag` (baseline) | - | `de zorgtoeslag zonder opname` | "Zorgtoeslag" (kolom geen bedrag ineens) |
+| `bedragMetOpname` | - | - | `de zorgtoeslag met opname` | "Zorgtoeslag" (kolom met bedrag ineens) |
+| `verlies` | - | - | `het zorgtoeslag verlies` | Verschil tussen kolommen |
+| `vervaltVolledig` | - | - | `vervalt volledig (kenmerk)` | Waarde = 0 vs > 0 |
 
 ---
 
@@ -239,7 +228,7 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 
 ---
 
-## Overzicht per Groep
+## Overzicht Entiteiten per Groep
 
 ### 🟢 Groep 1: Real-world Entiteiten
 ```
@@ -252,12 +241,6 @@ NatuurlijkPersoon, Partner, Pensioenuitvoerder, Verblijfsobject
 Huishouden, Pensioenaanspraak, Pensioenverevening, BedragIneensKeuze, UitgesteldeBetaling
 ```
 **Kenmerken**: Bestaan bij gratie van wet. Hebben rechtsgevolgen.
-
-### 🟡 Groep 3: Temporele Feiten
-```
-geboortedatum, pensioeningangsdatum, keuzedatum, geplandeBetaaldatum, geldigVanaf/geldigTot
-```
-**Kenmerken**: Attributen (geen entiteiten). Immutable zodra vastgesteld.
 
 ### 🟣 Groep 4: Berekende Informatie (KERN van Rules as Code)
 ```
@@ -283,6 +266,8 @@ Geschiktheidsbeoordeling, Risicoprofiel
 Berekeningsscenario, Scenariovergelijking, Signalering
 ```
 **Kenmerken**: Hulpmiddelen voor besluitvorming. "Wat als" en advies.
+
+> **Noot**: Groep 3 (🟡 Temporele feiten) is geen entiteitsgroep maar een attribuut-type (datums zoals `geboortedatum`, `keuzedatum`). Deze attributen horen bij hun bovenliggende entiteit.
 
 ---
 

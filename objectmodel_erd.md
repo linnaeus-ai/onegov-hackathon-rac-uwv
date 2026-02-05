@@ -9,7 +9,7 @@ Gebaseerd op de volgende standaarden:
 - **BAG** - Basisregistraties Adressen en Gebouwen
 - **RSGB/RGBZ** - Gemeentelijk Gegevensmodel
 
-## Ontologische Classificatie: De Zeven Informatiegroepen
+## Ontologische Classificatie: Zes Entiteitsgroepen
 
 Zie ook: [`objectmodel_groepen.mmd`](objectmodel_groepen.mmd) voor een visueel diagram met kleuren.
 
@@ -17,7 +17,6 @@ Zie ook: [`objectmodel_groepen.mmd`](objectmodel_groepen.mmd) voor een visueel d
 |-------|-------|------|--------------|------------|
 | 🟢 1 | Groen | **Real-world** | Fysieke/juridische entiteiten die onafhankelijk bestaan | NatuurlijkPersoon, Partner, Pensioenuitvoerder, Verblijfsobject |
 | 🔵 2 | Blauw | **Juridisch** | Bestaan bij gratie van wet/overeenkomst | Huishouden, Pensioenaanspraak, Pensioenverevening, BedragIneensKeuze, UitgesteldeBetaling |
-| 🟡 3 | Geel | **Temporeel** | Gebeurtenissen en tijdstippen (attributen) | geboortedatum, pensioeningangsdatum, keuzedatum |
 | 🟣 4 | Paars | **Berekend** | **KERN van Rules as Code** - output van regels | BedragIneensResultaat, Inkomensjaar, Belastingaanslag, Heffingskorting, Toeslag |
 | 🟤 5 | Bruin | **Parameters** | Externe feiten die jaarlijks wijzigen | Parameterset, Belastingtarief, Toeslaggrens, AOWBedrag |
 | 🔴 6 | Rood | **Validatie** | Ja/nee antwoorden van regeltoepassing | Geschiktheidsbeoordeling, Risicoprofiel |
