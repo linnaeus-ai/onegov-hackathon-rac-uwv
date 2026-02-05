@@ -9,72 +9,86 @@ Gebaseerd op de volgende standaarden:
 - **BAG** - Basisregistraties Adressen en Gebouwen
 - **RSGB/RGBZ** - Gemeentelijk Gegevensmodel
 
-## SBVR Kleurconventie
+## Ontologische Classificatie: De Zeven Informatiegroepen
+
+Zie ook: [`objectmodel_groepen.mmd`](objectmodel_groepen.mmd) voor een visueel diagram met kleuren.
+
+| Groep | Kleur | Naam | Beschrijving | Entiteiten |
+|-------|-------|------|--------------|------------|
+| 🟢 1 | Groen | **Real-world** | Fysieke/juridische entiteiten die onafhankelijk bestaan | NatuurlijkPersoon, Partner, Pensioenuitvoerder, Verblijfsobject |
+| 🔵 2 | Blauw | **Juridisch** | Bestaan bij gratie van wet/overeenkomst | Huishouden, Pensioenaanspraak, Pensioenverevening, BedragIneensKeuze, UitgesteldeBetaling |
+| 🟡 3 | Geel | **Temporeel** | Gebeurtenissen en tijdstippen (attributen) | geboortedatum, pensioeningangsdatum, keuzedatum |
+| 🟣 4 | Paars | **Berekend** | **KERN van Rules as Code** - output van regels | BedragIneensResultaat, Inkomensjaar, Belastingaanslag, Heffingskorting, Toeslag |
+| 🟤 5 | Bruin | **Parameters** | Externe feiten die jaarlijks wijzigen | Parameterset, Belastingtarief, Toeslaggrens, AOWBedrag |
+| 🔴 6 | Rood | **Validatie** | Ja/nee antwoorden van regeltoepassing | Geschiktheidsbeoordeling, Risicoprofiel |
+| ⚪ 7 | Grijs | **Meta-analyse** | Hulpmiddelen voor besluitvorming | Berekeningsscenario, Scenariovergelijking, Signalering |
+
+## SBVR Kleurconventie (oorspronkelijk)
 
 | Kleur | Concept | Beschrijving |
 |-------|---------|--------------|
 | **Groen** | Noun concepts | Objecttypes / Entiteiten |
 | **Blauw** | Verb concepts | Feittypes / Relaties |
 
-## Entiteiten Overzicht
+## Entiteiten Overzicht per Domein
 
-### Kern (BRP/RSGB aligned)
-| Entiteit | Beschrijving |
-|----------|--------------|
-| `NatuurlijkPersoon` | De burger/gepensioneerde (BRP: Ingeschreven natuurlijk persoon) |
-| `Huishouden` | Samenstelling van het huishouden |
-| `Verblijfsobject` | Woning/adres (BAG-term) |
-| `Partner` | Toeslagpartner |
+### 🟢🔵 Kern (BRP/RSGB aligned)
+| Entiteit | Groep | Beschrijving |
+|----------|-------|--------------|
+| `NatuurlijkPersoon` | 🟢 1 | De burger/gepensioneerde (BRP: Ingeschreven natuurlijk persoon) |
+| `Huishouden` | 🔵 2 | Samenstelling van het huishouden |
+| `Verblijfsobject` | 🟢 1 | Woning/adres (BAG-term) |
+| `Partner` | 🟢 1 | Toeslagpartner |
 
-### Pensioen (Pensioenregister aligned)
-| Entiteit | Beschrijving |
-|----------|--------------|
-| `Pensioenuitvoerder` | Pensioenfonds of verzekeraar |
-| `Pensioenaanspraak` | Recht op pensioen |
-| `Pensioenverevening` | Verdeling bij scheiding (WVPS) |
+### 🟢🔵 Pensioen (Pensioenregister aligned)
+| Entiteit | Groep | Beschrijving |
+|----------|-------|--------------|
+| `Pensioenuitvoerder` | 🟢 1 | Pensioenfonds of verzekeraar |
+| `Pensioenaanspraak` | 🔵 2 | Recht op pensioen |
+| `Pensioenverevening` | 🔵 2 | Verdeling bij scheiding (WVPS) |
 
-### Bedrag Ineens (Pensioenwet art. 69a)
-| Entiteit | Beschrijving |
-|----------|--------------|
-| `BedragIneensKeuze` | De keuze voor 0-10% opname |
-| `UitgesteldeBetaling` | Optie voor betaling in januari volgend jaar |
-| `Geschiktheidsbeoordeling` | Validatie van voorwaarden |
+### 🔵🔴 Bedrag Ineens (Pensioenwet art. 69a)
+| Entiteit | Groep | Beschrijving |
+|----------|-------|--------------|
+| `BedragIneensKeuze` | 🔵 2 | De keuze voor 0-10% opname |
+| `UitgesteldeBetaling` | 🔵 2 | Optie voor betaling in januari volgend jaar |
+| `Geschiktheidsbeoordeling` | 🔴 6 | Validatie van voorwaarden |
 
-### Scenario Berekeningen
-| Entiteit | Beschrijving |
-|----------|--------------|
-| `Berekeningsscenario` | Een specifiek opnamepercentage scenario |
-| `BedragIneensResultaat` | Bruto bedrag en pensioeneffecten |
-| `Inkomensjaar` | Inkomen per jaar (opnamejaar vs volgende jaren) |
+### 🟣⚪ Scenario Berekeningen
+| Entiteit | Groep | Beschrijving |
+|----------|-------|--------------|
+| `Berekeningsscenario` | ⚪ 7 | Een specifiek opnamepercentage scenario |
+| `BedragIneensResultaat` | 🟣 4 | Bruto bedrag en pensioeneffecten |
+| `Inkomensjaar` | 🟣 4 | Inkomen per jaar (opnamejaar vs volgende jaren) |
 
-### Belasting (Wet IB 2001)
-| Entiteit | Beschrijving |
-|----------|--------------|
-| `Belastingaanslag` | Box 1 belasting berekening |
-| `Heffingskorting` | Algemene/ouderen/alleenstaande ouderenkorting |
+### 🟣 Belasting (Wet IB 2001)
+| Entiteit | Groep | Beschrijving |
+|----------|-------|--------------|
+| `Belastingaanslag` | 🟣 4 | Box 1 belasting berekening |
+| `Heffingskorting` | 🟣 4 | Algemene/ouderen/alleenstaande ouderenkorting |
 
-### Toeslagen (AWIR / Wet zorgtoeslag / Wet huurtoeslag)
-| Entiteit | Beschrijving |
-|----------|--------------|
-| `Toeslag` | Zorgtoeslag, huurtoeslag, etc. |
-| `BijzondereNabetaling` | Uitzondering art. 2b Besluit huurtoeslag |
+### 🟣 Toeslagen (AWIR / Wet zorgtoeslag / Wet huurtoeslag)
+| Entiteit | Groep | Beschrijving |
+|----------|-------|--------------|
+| `Toeslag` | 🟣 4 | Zorgtoeslag, huurtoeslag, etc. |
+| `BijzondereNabetaling` | 🟣 4 | Uitzondering art. 2b Besluit huurtoeslag |
 
-### Parameters (jaarlijks)
-| Entiteit | Beschrijving |
-|----------|--------------|
-| `Parameterset` | Container voor jaarparameters |
-| `Belastingtarief` | Schijfgrenzen en tarieven |
-| `HeffingskortingBedrag` | Bedragen en afbouwgrenzen |
-| `ZvwTarief` | Zvw bijdrage parameters |
-| `Toeslaggrens` | Inkomensgrenzen per toeslag |
-| `AOWBedrag` | AOW bedragen per huishoudtype |
+### 🟤 Parameters (jaarlijks)
+| Entiteit | Groep | Beschrijving |
+|----------|-------|--------------|
+| `Parameterset` | 🟤 5 | Container voor jaarparameters |
+| `Belastingtarief` | 🟤 5 | Schijfgrenzen en tarieven |
+| `HeffingskortingBedrag` | 🟤 5 | Bedragen en afbouwgrenzen |
+| `ZvwTarief` | 🟤 5 | Zvw bijdrage parameters |
+| `Toeslaggrens` | 🟤 5 | Inkomensgrenzen per toeslag |
+| `AOWBedrag` | 🟤 5 | AOW bedragen per huishoudtype |
 
-### Advies & Risico
-| Entiteit | Beschrijving |
-|----------|--------------|
-| `Risicoprofiel` | Classificatie financiële kwetsbaarheid |
-| `Signalering` | Waarschuwingen en adviezen |
-| `Scenariovergelijking` | Vergelijking 0%/5%/10% |
+### 🔴⚪ Advies & Risico
+| Entiteit | Groep | Beschrijving |
+|----------|-------|--------------|
+| `Risicoprofiel` | 🔴 6 | Classificatie financiële kwetsbaarheid |
+| `Signalering` | ⚪ 7 | Waarschuwingen en adviezen |
+| `Scenariovergelijking` | ⚪ 7 | Vergelijking 0%/5%/10% |
 
 ---
 
@@ -326,6 +340,8 @@ erDiagram
 
 ## Gerelateerde Documenten
 
+- [`objectmodel_groepen.mmd`](objectmodel_groepen.mmd) - **Flowchart met gekleurde groepen** (visuele classificatie)
+- [`objectmodel_erd.mmd`](objectmodel_erd.mmd) - ERD diagram (alleen entiteiten en relaties)
 - [`begrippen_mapping.md`](begrippen_mapping.md) - Rosetta Stone mapping NORA ↔ Rules JSON ↔ Wetgeving ↔ Regelspraak
 - [`rules/bedrag_ineens_rules.json`](rules/bedrag_ineens_rules.json) - Volledige regelset
 - [`PLAN_MVP_v2.md`](PLAN_MVP_v2.md) - Implementatie plan met regelspraak

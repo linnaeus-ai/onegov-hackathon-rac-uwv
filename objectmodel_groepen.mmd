@@ -1,0 +1,119 @@
+flowchart TB
+    subgraph G1["🟢 GROEP 1: REAL-WORLD ENTITEITEN"]
+        direction LR
+        NP[NatuurlijkPersoon]
+        PA[Partner]
+        PU[Pensioenuitvoerder]
+        VO[Verblijfsobject]
+    end
+
+    subgraph G2["🔵 GROEP 2: JURIDISCHE CONSTRUCTEN"]
+        direction LR
+        HH[Huishouden]
+        PEN[Pensioenaanspraak]
+        PV[Pensioenverevening]
+        BIK[BedragIneensKeuze]
+        UB[UitgesteldeBetaling]
+    end
+
+    subgraph G4["🟣 GROEP 4: BEREKENDE INFORMATIE"]
+        direction LR
+        BIR[BedragIneensResultaat]
+        IJ[Inkomensjaar]
+        BA[Belastingaanslag]
+        HK[Heffingskorting]
+        TS[Toeslag]
+        BN[BijzondereNabetaling]
+    end
+
+    subgraph G5["🟤 GROEP 5: PARAMETERS"]
+        direction LR
+        PS[Parameterset]
+        BT[Belastingtarief]
+        HKB[HeffingskortingBedrag]
+        ZT[ZvwTarief]
+        TG[Toeslaggrens]
+        AOW[AOWBedrag]
+    end
+
+    subgraph G6["🔴 GROEP 6: VALIDATIE"]
+        direction LR
+        GB[Geschiktheidsbeoordeling]
+        RP[Risicoprofiel]
+    end
+
+    subgraph G7["⚪ GROEP 7: META-ANALYSE"]
+        direction LR
+        BS[Berekeningsscenario]
+        SV[Scenariovergelijking]
+        SIG[Signalering]
+    end
+
+    NP --> HH
+    NP --> PA
+    NP --> PEN
+    NP --> BIK
+    NP --> RP
+    NP --> BS
+
+    PEN --> PU
+    PEN --> PV
+
+    BIK --> UB
+    BIK --> GB
+
+    BS --> BIR
+    BS --> IJ
+    BS --> TS
+    BS --> SIG
+
+    IJ --> BA
+    BA --> HK
+    TS --> BN
+
+    PS --> BT
+    PS --> HKB
+    PS --> ZT
+    PS --> TG
+    PS --> AOW
+
+    SV --> BS
+
+    style G1 fill:#90EE90,stroke:#228B22,stroke-width:3px
+    style G2 fill:#87CEEB,stroke:#4169E1,stroke-width:3px
+    style G4 fill:#DDA0DD,stroke:#8B008B,stroke-width:3px
+    style G5 fill:#DEB887,stroke:#8B4513,stroke-width:3px
+    style G6 fill:#FFA07A,stroke:#DC143C,stroke-width:3px
+    style G7 fill:#D3D3D3,stroke:#696969,stroke-width:3px
+
+    style NP fill:#98FB98
+    style PA fill:#98FB98
+    style PU fill:#98FB98
+    style VO fill:#98FB98
+
+    style HH fill:#ADD8E6
+    style PEN fill:#ADD8E6
+    style PV fill:#ADD8E6
+    style BIK fill:#ADD8E6
+    style UB fill:#ADD8E6
+
+    style BIR fill:#E6E6FA
+    style IJ fill:#E6E6FA
+    style BA fill:#E6E6FA
+    style HK fill:#E6E6FA
+    style TS fill:#E6E6FA
+    style BN fill:#E6E6FA
+
+    style PS fill:#F5DEB3
+    style BT fill:#F5DEB3
+    style HKB fill:#F5DEB3
+    style ZT fill:#F5DEB3
+    style TG fill:#F5DEB3
+    style AOW fill:#F5DEB3
+
+    style GB fill:#FFB6C1
+    style RP fill:#FFB6C1
+
+    style BS fill:#C0C0C0
+    style SV fill:#C0C0C0
+    style SIG fill:#C0C0C0
