@@ -7,6 +7,16 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 - **Regelspraak**: Gegevensspraak objecttype-namen
 - **Groep**: Ontologische classificatie (zie legenda)
 
+## Implementatiestatus
+
+> **Let op:** De daadwerkelijke Regelspraak implementatie in `rules/bedrag-ineens/gegevens.rs` gebruikt **vereenvoudigde namen** en een **subset van entiteiten**. De mapping hieronder toont zowel de conceptuele NORA-termen als de werkelijke implementatie.
+
+| Legenda | Betekenis |
+|---------|-----------|
+| ✅ | Volledig geïmplementeerd in gegevens.rs |
+| ⚡ | Vereenvoudigd geïmplementeerd (als attribuut of kenmerk) |
+| ❌ | Niet geïmplementeerd in MVP |
+
 ---
 
 ## Groepen Legenda (Entiteitsniveau)
@@ -25,44 +35,44 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 
 ## Kern Entiteiten
 
-| Groep | NORA/MIM | Rules JSON | Wetgeving/Bron | Regelspraak | Definitie |
-|-------|----------|------------|----------------|-------------|-----------|
-| 🟢 1 | `NatuurlijkPersoon` | `profiel` | BRP: "Ingeschreven natuurlijk persoon" | `de Natuurlijk persoon (bezield)` | Een mens die rechtssubject kan zijn |
-| 🔵 2 | `Huishouden` | `huishouden` | AWIR: "huishouden" | `het Huishouden` | Personen die samen een woning bewonen |
-| 🟢 1 | `Verblijfsobject` | `huurwoning` | BAG: "Verblijfsobject" | `het Verblijfsobject` | De kleinste eenheid waaraan een adres wordt toegekend |
-| 🟢 1 | `Partner` | `toeslagpartner` | AWIR art. 3: "partner" | `de Partner (bezield)` | Degene met wie men samenwoont en gezamenlijk huishouden voert |
+| Groep | NORA/MIM | Rules JSON | Wetgeving/Bron | Regelspraak (conceptueel) | **gegevens.rs** | Status |
+|-------|----------|------------|----------------|---------------------------|-----------------|--------|
+| 🟢 1 | `NatuurlijkPersoon` | `profiel` | BRP: "Ingeschreven natuurlijk persoon" | `de Natuurlijk persoon (bezield)` | `de Persoon (bezield)` | ✅ |
+| 🔵 2 | `Huishouden` | `huishouden` | AWIR: "huishouden" | `het Huishouden` | `is alleenstaand` kenmerk | ⚡ |
+| 🟢 1 | `Verblijfsobject` | `huurwoning` | BAG: "Verblijfsobject" | `het Verblijfsobject` | `huur per maand` attribuut | ⚡ |
+| 🟢 1 | `Partner` | `toeslagpartner` | AWIR art. 3: "partner" | `de Partner (bezield)` | — | ❌ |
 
 ---
 
 ## Pensioen Entiteiten
 
-| Groep | NORA/MIM | Rules JSON | Wetgeving/Bron | Regelspraak | Definitie |
-|-------|----------|------------|----------------|-------------|-----------|
-| 🟢 1 | `Pensioenuitvoerder` | - | Pensioenwet art. 1: "pensioenuitvoerder" | `de Pensioenuitvoerder` | Pensioenfonds, verzekeraar of PPI |
-| 🔵 2 | `Pensioenaanspraak` | `maandelijks_aanvullend_pensioen`, `pensioenvermogen` | Pensioenwet: "pensioenaanspraak" | `de Pensioenaanspraak` | Het recht op een nog niet ingegaan pensioen |
-| 🔵 2 | `Pensioenverevening` | `bijzondere_situaties.scheiding_verevening` | WVPS: "verevening" | `de Pensioenverevening` | Verdeling van pensioenrechten bij scheiding |
+| Groep | NORA/MIM | Rules JSON | Wetgeving/Bron | Regelspraak (conceptueel) | **gegevens.rs** | Status |
+|-------|----------|------------|----------------|---------------------------|-----------------|--------|
+| 🟢 1 | `Pensioenuitvoerder` | - | Pensioenwet art. 1: "pensioenuitvoerder" | `de Pensioenuitvoerder` | — | ❌ |
+| 🔵 2 | `Pensioenaanspraak` | `maandelijks_aanvullend_pensioen`, `pensioenvermogen` | Pensioenwet: "pensioenaanspraak" | `de Pensioenaanspraak` | `aanvullend pensioen per maand`, `pensioenvermogen` | ⚡ |
+| 🔵 2 | `Pensioenverevening` | `bijzondere_situaties.scheiding_verevening` | WVPS: "verevening" | `de Pensioenverevening` | — | ❌ |
 
 ---
 
 ## Bedrag Ineens Entiteiten
 
-| Groep | NORA/MIM | Rules JSON | Wetgeving/Bron | Regelspraak | Definitie |
-|-------|----------|------------|----------------|-------------|-----------|
-| 🔵 2 | `BedragIneensKeuze` | `bedrag_ineens_percentage` | Pensioenwet art. 69a: "bedrag ineens" | `de Bedrag ineens keuze` | Keuze om max 10% van pensioenwaarde als eenmalig bedrag op te nemen |
-| 🔵 2 | `UitgesteldeBetaling` | `geschiktheid.uitgestelde_betaling` | Wet herziening bedrag ineens: "uitgestelde uitbetaling" | `de Uitgestelde betaling` | Optie om betaling uit te stellen naar januari volgend op AOW-jaar |
-| 🔴 5 | `Geschiktheidsbeoordeling` | `geschiktheid.bedrag_ineens.voorwaarden` | Pensioenwet art. 69a lid 2 | `de Geschiktheidsbeoordeling` | Toets of aan alle voorwaarden is voldaan |
-| 🟣 3 | `BedragIneensResultaat` | `berekeningen.bedrag_ineens_hoogte` | Pensioenwet art. 69a | `het Bedrag ineens resultaat` | Berekend bruto bedrag en pensioeneffecten |
+| Groep | NORA/MIM | Rules JSON | Wetgeving/Bron | Regelspraak (conceptueel) | **gegevens.rs** | Status |
+|-------|----------|------------|----------------|---------------------------|-----------------|--------|
+| 🔵 2 | `BedragIneensKeuze` | `bedrag_ineens_percentage` | Pensioenwet art. 69a: "bedrag ineens" | `de Bedrag ineens keuze` | `opname percentage` in Scenario | ⚡ |
+| 🔵 2 | `UitgesteldeBetaling` | `geschiktheid.uitgestelde_betaling` | Wet herziening bedrag ineens: "uitgestelde uitbetaling" | `de Uitgestelde betaling` | — | ❌ |
+| 🔴 5 | `Geschiktheidsbeoordeling` | `geschiktheid.bedrag_ineens.voorwaarden` | Pensioenwet art. 69a lid 2 | `de Geschiktheidsbeoordeling` | — | ❌ |
+| 🟣 3 | `BedragIneensResultaat` | `berekeningen.bedrag_ineens_hoogte` | Pensioenwet art. 69a | `het Bedrag ineens resultaat` | `bedrag ineens`, `resterend pensioen per jaar`, `permanent verlies per jaar` | ✅ |
 
 ---
 
 ## Inkomen & Belasting Entiteiten
 
-| Groep | NORA/MIM | Rules JSON | Wetgeving/Bron | Regelspraak | Definitie |
-|-------|----------|------------|----------------|-------------|-----------|
-| 🟣 3 | `Inkomensjaar` | `bruto_inkomen`, `toetsingsinkomen` | BRI: "geregistreerd inkomen", AWIR art. 8: "toetsingsinkomen" | `het Inkomensjaar` | Het (berekende) inkomen over een kalenderjaar |
-| 🟣 3 | `Belastingaanslag` | `berekeningen.belasting` | Wet IB 2001: "aanslag inkomstenbelasting" | `de Belastingaanslag` | De berekende belasting over een jaar |
-| 🟣 3 | `Heffingskorting` | `heffingskortingen` | Wet IB 2001 art. 8.1: "heffingskorting" | `de Heffingskorting` | Berekende korting op de verschuldigde belasting |
-| 🟣 3 | `ZvwBijdrage` | `zvw_bijdrage` | Zvw art. 45 | `de Zvw-bijdrage` | Berekende inkomensafhankelijke Zvw-bijdrage |
+| Groep | NORA/MIM | Rules JSON | Wetgeving/Bron | Regelspraak (conceptueel) | **gegevens.rs** | Status |
+|-------|----------|------------|----------------|---------------------------|-----------------|--------|
+| 🟣 3 | `Inkomensjaar` | `bruto_inkomen`, `toetsingsinkomen` | BRI: "geregistreerd inkomen", AWIR art. 8: "toetsingsinkomen" | `het Inkomensjaar` | `bruto inkomen`, `is jaar met opname` | ⚡ |
+| 🟣 3 | `Belastingaanslag` | `berekeningen.belasting` | Wet IB 2001: "aanslag inkomstenbelasting" | `de Belastingaanslag` | `belasting box1`, `belasting na heffingskortingen` | ✅ |
+| 🟣 3 | `Heffingskorting` | `heffingskortingen` | Wet IB 2001 art. 8.1: "heffingskorting" | `de Heffingskorting` | `algemene heffingskorting`, `ouderenkorting`, `alleenstaande ouderenkorting` | ✅ |
+| 🟣 3 | `ZvwBijdrage` | `zvw_bijdrage` | Zvw art. 45 | `de Zvw-bijdrage` | `Zvw bijdrage` | ✅ |
 
 ### Heffingskorting Subtypen
 
@@ -76,14 +86,14 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 
 ## Toeslag Entiteiten
 
-| Groep | NORA/MIM | Rules JSON | Wetgeving/Bron | Regelspraak | Definitie |
-|-------|----------|------------|----------------|-------------|-----------|
-| 🟣 3 | `Toeslag` | `toeslagen` | AWIR: "tegemoetkoming" | `de Toeslag` | Berekende inkomensafhankelijke overheidsbijdrage |
-| 🟣 3 | `Zorgtoeslag` | `toeslagen.zorgtoeslag` | Wet zorgtoeslag art. 1 | `de Zorgtoeslag` | Berekende tegemoetkoming zorgverzekering |
-| 🟣 3 | `Huurtoeslag` | `toeslagen.huurtoeslag` | Wet huurtoeslag art. 1 | `de Huurtoeslag` | Berekende tegemoetkoming huurkosten |
-| 🟣 3 | `KindgebondenBudget` | `toeslagen.kindgebonden_budget` | Wet kindgebonden budget | `het Kindgebonden budget` | Berekende bijdrage voor ouders met kinderen |
-| 🟣 3 | `AIO` | `toeslagen.aio` | Participatiewet: "AIO-aanvulling" | `de AIO` | Berekende aanvullende inkomensvoorziening ouderen |
-| 🟣 3 | `BijzondereNabetaling` | `huurtoeslag.bijzondere_uitzondering` | Besluit huurtoeslag art. 2b | `de Bijzondere nabetaling` | Uitzondering waardoor bedrag ineens niet meetelt voor huurtoeslag |
+| Groep | NORA/MIM | Rules JSON | Wetgeving/Bron | Regelspraak (conceptueel) | **gegevens.rs** | Status |
+|-------|----------|------------|----------------|---------------------------|-----------------|--------|
+| 🟣 3 | `Toeslag` | `toeslagen` | AWIR: "tegemoetkoming" | `de Toeslag` | — | ⚡ |
+| 🟣 3 | `Zorgtoeslag` | `toeslagen.zorgtoeslag` | Wet zorgtoeslag art. 1 | `de Zorgtoeslag` | `zorgtoeslag` in Scenario | ✅ |
+| 🟣 3 | `Huurtoeslag` | `toeslagen.huurtoeslag` | Wet huurtoeslag art. 1 | `de Huurtoeslag` | `huurtoeslag` in Scenario | ✅ |
+| 🟣 3 | `KindgebondenBudget` | `toeslagen.kindgebonden_budget` | Wet kindgebonden budget | `het Kindgebonden budget` | — | ❌ |
+| 🟣 3 | `AIO` | `toeslagen.aio` | Participatiewet: "AIO-aanvulling" | `de AIO` | — | ❌ |
+| 🟣 3 | `BijzondereNabetaling` | `huurtoeslag.bijzondere_uitzondering` | Besluit huurtoeslag art. 2b | `de Bijzondere nabetaling` | — | ❌ |
 
 ---
 
@@ -102,12 +112,12 @@ Dit document biedt een **Rosetta Stone** voor het vertalen tussen:
 
 ## Scenario & Advies Entiteiten
 
-| Groep | NORA/MIM | Rules JSON | Wetgeving/Bron | Regelspraak | Definitie |
-|-------|----------|------------|----------------|-------------|-----------|
-| ⚪ 6 | `Berekeningsscenario` | `scenarios` | - | `het Berekeningsscenario` | Hypothetische berekening voor specifiek opnamepercentage |
-| ⚪ 6 | `Scenariovergelijking` | `scenarios` | - | `de Scenariovergelijking` | Vergelijking van 0%/5%/10% scenario's naast elkaar |
-| ⚪ 6 | `Signalering` | `risicofactoren.*.risicos` | - | `de Signalering` | Waarschuwing of advies voor de gebruiker |
-| 🔴 5 | `Risicoprofiel` | `risicofactoren.financieel_kwetsbare_groepen` | - | `het Risicoprofiel` | Classificatie van financiële kwetsbaarheid |
+| Groep | NORA/MIM | Rules JSON | Wetgeving/Bron | Regelspraak (conceptueel) | **gegevens.rs** | Status |
+|-------|----------|------------|----------------|---------------------------|-----------------|--------|
+| ⚪ 6 | `Berekeningsscenario` | `scenarios` | - | `het Berekeningsscenario` | `het Scenario` | ✅ |
+| ⚪ 6 | `Scenariovergelijking` | `scenarios` | - | `de Scenariovergelijking` | Via meerdere Scenario runs | ⚡ |
+| ⚪ 6 | `Signalering` | `risicofactoren.*.risicos` | - | `de Signalering` | — | ❌ |
+| 🔴 5 | `Risicoprofiel` | `risicofactoren.financieel_kwetsbare_groepen` | - | `het Risicoprofiel` | — | ❌ |
 
 ---
 
@@ -273,6 +283,7 @@ Berekeningsscenario, Scenariovergelijking, Signalering
 
 ### Bij implementatie in Regelspraak
 
+**Conceptueel (NORA-conform):**
 ```regelspraak
 Objecttype de Natuurlijk persoon (mv: Natuurlijke personen) (bezield)
     de geboortedatum Datum;
@@ -280,6 +291,17 @@ Objecttype de Natuurlijk persoon (mv: Natuurlijke personen) (bezield)
     het burgerservicenummer Tekst;
     de leeftijd Numeriek (niet-negatief geheel getal) met eenheid jr;
     het AOW-opbouwpercentage Numeriek (getal met 2 decimalen);
+```
+
+**Werkelijke implementatie (gegevens.rs):**
+```regelspraak
+Objecttype de Persoon (mv: Personen) (bezield)
+    is AOW gerechtigd kenmerk (bijvoeglijk);
+    is alleenstaand kenmerk (bijvoeglijk);
+    het AOW inkomen Bedrag;
+    het aanvullend pensioen per maand Bedrag;
+    het pensioenvermogen Bedrag;
+    de huur per maand Bedrag;
 ```
 
 ### Bij mapping van Rules JSON input

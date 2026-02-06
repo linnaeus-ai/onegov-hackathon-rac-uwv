@@ -1,5 +1,29 @@
 # Objectmodel ERD: Bedrag Ineens Regelset
 
+## Implementation Status
+
+> **Dit document beschrijft het volledige conceptuele domeinmodel.** De daadwerkelijke Regelspraak implementatie in `rules/bedrag-ineens/gegevens.rs` is een **vereenvoudigde subset** gericht op de kernberekeningen.
+
+| Aspect | ERD (dit document) | gegevens.rs (implementatie) |
+|--------|--------------------|-----------------------------|
+| Doel | Volledig NORA/MIM-conform domeinmodel | MVP berekeningsengine |
+| Entiteiten | 25+ | 2 (Persoon, Scenario) |
+| Naamgeving | CamelCase (`NatuurlijkPersoon`) | Nederlands met spaties (`de Persoon`) |
+| Scope | Eligibility, partners, risico's, meerdere uitvoerders | Alleen kernberekeningen voor alleenstaande AOW'ers |
+
+### Implementatiestatus per Entiteitsgroep
+
+| Groep | Status | Toelichting |
+|-------|--------|-------------|
+| 🟢 Real-world | **Gedeeltelijk** | `NatuurlijkPersoon` → `Persoon` (vereenvoudigd) |
+| 🔵 Juridisch | **Minimaal** | Alleen kenmerk `is alleenstaand`, geen aparte entiteiten |
+| 🟣 Berekend | **Volledig** | Alle berekeningen in `Scenario` object |
+| 🟤 Parameters | **Volledig** | Alle parameters als losse `Parameter` declaraties |
+| 🔴 Validatie | **Niet geïmplementeerd** | Geen eligibility checks |
+| ⚪ Meta-analyse | **Niet geïmplementeerd** | Geen risicoprofielen of signaleringen |
+
+---
+
 ## NORA/MIM Conforme Naamgeving
 
 Gebaseerd op de volgende standaarden:
@@ -32,62 +56,62 @@ Zie ook: [`objectmodel_groepen.mmd`](objectmodel_groepen.mmd) voor een visueel d
 ## Entiteiten Overzicht per Domein
 
 ### 🟢🔵 Kern (BRP/RSGB aligned)
-| Entiteit | Groep | Beschrijving |
-|----------|-------|--------------|
-| `NatuurlijkPersoon` | 🟢 1 | De burger/gepensioneerde (BRP: Ingeschreven natuurlijk persoon) |
-| `Huishouden` | 🔵 2 | Samenstelling van het huishouden |
-| `Verblijfsobject` | 🟢 1 | Woning/adres (BAG-term) |
-| `Partner` | 🟢 1 | Toeslagpartner |
+| Entiteit | Groep | Beschrijving | Implementatie |
+|----------|-------|--------------|---------------|
+| `NatuurlijkPersoon` | 🟢 1 | De burger/gepensioneerde (BRP: Ingeschreven natuurlijk persoon) | ✅ `Persoon` |
+| `Huishouden` | 🔵 2 | Samenstelling van het huishouden | ⚡ `is alleenstaand` kenmerk |
+| `Verblijfsobject` | 🟢 1 | Woning/adres (BAG-term) | ⚡ `huur per maand` attribuut |
+| `Partner` | 🟢 1 | Toeslagpartner | ❌ Niet geïmplementeerd |
 
 ### 🟢🔵 Pensioen (Pensioenregister aligned)
-| Entiteit | Groep | Beschrijving |
-|----------|-------|--------------|
-| `Pensioenuitvoerder` | 🟢 1 | Pensioenfonds of verzekeraar |
-| `Pensioenaanspraak` | 🔵 2 | Recht op pensioen |
-| `Pensioenverevening` | 🔵 2 | Verdeling bij scheiding (WVPS) |
+| Entiteit | Groep | Beschrijving | Implementatie |
+|----------|-------|--------------|---------------|
+| `Pensioenuitvoerder` | 🟢 1 | Pensioenfonds of verzekeraar | ❌ Niet geïmplementeerd |
+| `Pensioenaanspraak` | 🔵 2 | Recht op pensioen | ⚡ `aanvullend pensioen per maand`, `pensioenvermogen` |
+| `Pensioenverevening` | 🔵 2 | Verdeling bij scheiding (WVPS) | ❌ Niet geïmplementeerd |
 
 ### 🔵🔴 Bedrag Ineens (Pensioenwet art. 69a)
-| Entiteit | Groep | Beschrijving |
-|----------|-------|--------------|
-| `BedragIneensKeuze` | 🔵 2 | De keuze voor 0-10% opname |
-| `UitgesteldeBetaling` | 🔵 2 | Optie voor betaling in januari volgend jaar |
-| `Geschiktheidsbeoordeling` | 🔴 5 | Validatie van voorwaarden |
+| Entiteit | Groep | Beschrijving | Implementatie |
+|----------|-------|--------------|---------------|
+| `BedragIneensKeuze` | 🔵 2 | De keuze voor 0-10% opname | ⚡ `opname percentage` in Scenario |
+| `UitgesteldeBetaling` | 🔵 2 | Optie voor betaling in januari volgend jaar | ❌ Niet geïmplementeerd |
+| `Geschiktheidsbeoordeling` | 🔴 5 | Validatie van voorwaarden | ❌ Niet geïmplementeerd |
 
 ### 🟣⚪ Scenario Berekeningen
-| Entiteit | Groep | Beschrijving |
-|----------|-------|--------------|
-| `Berekeningsscenario` | ⚪ 6 | Een specifiek opnamepercentage scenario |
-| `BedragIneensResultaat` | 🟣 3 | Bruto bedrag en pensioeneffecten |
-| `Inkomensjaar` | 🟣 3 | Inkomen per jaar (opnamejaar vs volgende jaren) |
+| Entiteit | Groep | Beschrijving | Implementatie |
+|----------|-------|--------------|---------------|
+| `Berekeningsscenario` | ⚪ 6 | Een specifiek opnamepercentage scenario | ✅ `Scenario` |
+| `BedragIneensResultaat` | 🟣 3 | Bruto bedrag en pensioeneffecten | ✅ Attributen in `Scenario` |
+| `Inkomensjaar` | 🟣 3 | Inkomen per jaar (opnamejaar vs volgende jaren) | ⚡ `is jaar met opname` kenmerk |
 
 ### 🟣 Belasting (Wet IB 2001)
-| Entiteit | Groep | Beschrijving |
-|----------|-------|--------------|
-| `Belastingaanslag` | 🟣 3 | Box 1 belasting berekening |
-| `Heffingskorting` | 🟣 3 | Algemene/ouderen/alleenstaande ouderenkorting |
+| Entiteit | Groep | Beschrijving | Implementatie |
+|----------|-------|--------------|---------------|
+| `Belastingaanslag` | 🟣 3 | Box 1 belasting berekening | ✅ Attributen in `Scenario` |
+| `Heffingskorting` | 🟣 3 | Algemene/ouderen/alleenstaande ouderenkorting | ✅ Attributen in `Scenario` |
 
 ### 🟣 Toeslagen (AWIR / Wet zorgtoeslag / Wet huurtoeslag)
-| Entiteit | Groep | Beschrijving |
-|----------|-------|--------------|
-| `Toeslag` | 🟣 3 | Zorgtoeslag, huurtoeslag, etc. |
-| `BijzondereNabetaling` | 🟣 3 | Uitzondering art. 2b Besluit huurtoeslag |
+| Entiteit | Groep | Beschrijving | Implementatie |
+|----------|-------|--------------|---------------|
+| `Toeslag` | 🟣 3 | Zorgtoeslag, huurtoeslag, etc. | ✅ Attributen in `Scenario` |
+| `BijzondereNabetaling` | 🟣 3 | Uitzondering art. 2b Besluit huurtoeslag | ❌ Niet geïmplementeerd |
 
 ### 🟤 Parameters (jaarlijks)
-| Entiteit | Groep | Beschrijving |
-|----------|-------|--------------|
-| `Parameterset` | 🟤 4 | Container voor jaarparameters |
-| `Belastingtarief` | 🟤 4 | Schijfgrenzen en tarieven |
-| `HeffingskortingBedrag` | 🟤 4 | Bedragen en afbouwgrenzen |
-| `ZvwTarief` | 🟤 4 | Zvw bijdrage parameters |
-| `Toeslaggrens` | 🟤 4 | Inkomensgrenzen per toeslag |
-| `AOWBedrag` | 🟤 4 | AOW bedragen per huishoudtype |
+| Entiteit | Groep | Beschrijving | Implementatie |
+|----------|-------|--------------|---------------|
+| `Parameterset` | 🟤 4 | Container voor jaarparameters | ⚡ Losse `Parameter` declaraties |
+| `Belastingtarief` | 🟤 4 | Schijfgrenzen en tarieven | ✅ Parameters |
+| `HeffingskortingBedrag` | 🟤 4 | Bedragen en afbouwgrenzen | ✅ Parameters |
+| `ZvwTarief` | 🟤 4 | Zvw bijdrage parameters | ✅ Parameters |
+| `Toeslaggrens` | 🟤 4 | Inkomensgrenzen per toeslag | ✅ Parameters |
+| `AOWBedrag` | 🟤 4 | AOW bedragen per huishoudtype | ✅ Parameter (alleen alleenstaand) |
 
 ### 🔴⚪ Advies & Risico
-| Entiteit | Groep | Beschrijving |
-|----------|-------|--------------|
-| `Risicoprofiel` | 🔴 5 | Classificatie financiële kwetsbaarheid |
-| `Signalering` | ⚪ 6 | Waarschuwingen en adviezen |
-| `Scenariovergelijking` | ⚪ 6 | Vergelijking 0%/5%/10% |
+| Entiteit | Groep | Beschrijving | Implementatie |
+|----------|-------|--------------|---------------|
+| `Risicoprofiel` | 🔴 5 | Classificatie financiële kwetsbaarheid | ❌ Niet geïmplementeerd |
+| `Signalering` | ⚪ 6 | Waarschuwingen en adviezen | ❌ Niet geïmplementeerd |
+| `Scenariovergelijking` | ⚪ 6 | Vergelijking 0%/5%/10% | ⚡ Via meerdere Scenario runs |
 
 ---
 
