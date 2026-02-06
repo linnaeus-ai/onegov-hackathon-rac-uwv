@@ -310,15 +310,6 @@ export default function App() {
                         {optimalResult.lifeExpectancy} jaar
                       </span>
                     </div>
-                    <div className="flex justify-between text-green-700">
-                      <span>Levenslang voordeel</span>
-                      <span className="font-medium">
-                        €
-                        {optimalResult.results
-                          .find((r) => r.percentage === optimalResult.optimal)
-                          ?.lifetimeEquity?.toLocaleString() || "0"}
-                      </span>
-                    </div>
                   </div>
                 </div>
               </div>
