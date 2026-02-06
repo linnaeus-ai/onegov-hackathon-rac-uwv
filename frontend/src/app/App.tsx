@@ -1,28 +1,53 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Header } from './components/Header';
-import { Calculator } from './components/Calculator';
-import { ImpactCard } from './components/ImpactCard';
-import { ImpactModal } from './components/ImpactModal';
-import { TrendingUp, Wallet, ShieldCheck, ArrowRightLeft, Info, AlertTriangle, Loader2, CheckCircle2 } from 'lucide-react';
-import { motion } from 'motion/react';
-import { fetchProfiles, calculate, calculateOptimal, type Profile, type CalculationResponse, type OptimalResponse } from './api';
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { Header } from "./components/Header";
+import { Calculator } from "./components/Calculator";
+import { ImpactCard } from "./components/ImpactCard";
+import { ImpactModal } from "./components/ImpactModal";
+import {
+  TrendingUp,
+  Wallet,
+  ShieldCheck,
+  ArrowRightLeft,
+  Info,
+  AlertTriangle,
+  Loader2,
+  CheckCircle2,
+  Gift,
+} from "lucide-react";
+import { motion } from "motion/react";
+import {
+  fetchProfiles,
+  calculate,
+  calculateOptimal,
+  type Profile,
+  type CalculationResponse,
+  type OptimalResponse,
+} from "./api";
 
 export default function App() {
   const [lumpsum, setLumpsum] = useState(5);
   const [years, setYears] = useState(25);
-  const [activeModal, setActiveModal] = useState<'income' | 'tax' | null>(null);
+  const [activeModal, setActiveModal] = useState<
+    "income" | "tax" | "benefits" | null
+  >(null);
 
   // Profile state
   const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
+    null,
+  );
   const [isLoadingProfiles, setIsLoadingProfiles] = useState(true);
   const [isCalculating, setIsCalculating] = useState(false);
-  const [calculation, setCalculation] = useState<CalculationResponse | null>(null);
+  const [calculation, setCalculation] = useState<CalculationResponse | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
 
   // Optimal calculation state
   const [isCalculatingOptimal, setIsCalculatingOptimal] = useState(false);
-  const [optimalResult, setOptimalResult] = useState<OptimalResponse | null>(null);
+  const [optimalResult, setOptimalResult] = useState<OptimalResponse | null>(
+    null,
+  );
 
   // Load profiles on mount
   useEffect(() => {
@@ -35,8 +60,10 @@ export default function App() {
         }
       })
       .catch((err) => {
-        console.error('Failed to load profiles:', err);
-        setError('Kon profielen niet laden. Zorg dat de backend draait op localhost:3001');
+        console.error("Failed to load profiles:", err);
+        setError(
+          "Kon profielen niet laden. Zorg dat de backend draait op localhost:3001",
+        );
       })
       .finally(() => setIsLoadingProfiles(false));
   }, []);
@@ -51,8 +78,8 @@ export default function App() {
     calculate(selectedProfileId, lumpsum)
       .then(setCalculation)
       .catch((err) => {
-        console.error('Calculation failed:', err);
-        setError('Berekening mislukt');
+        console.error("Calculation failed:", err);
+        setError("Berekening mislukt");
       })
       .finally(() => setIsCalculating(false));
   }, [selectedProfileId, lumpsum]);
@@ -77,9 +104,9 @@ export default function App() {
         incomeChartData: [],
         taxChartData: [],
         pensioenvermogen: 0,
-        beschikbaarInkomen: 0,
+        nettoInkomen: 0,
         zorgtoeslag: 0,
-        huurtoeslag: 0
+        huurtoeslag: 0,
       };
     }
 
@@ -87,30 +114,44 @@ export default function App() {
 
     // Calculate the ongoing monthly income AFTER the lump sum year
     // This is lower because the pension is permanently reduced
-    const ongoingMonthly = Math.round(baseline.maandelijksBeschikbaarInkomen - result.maandelijksVerlies);
+    const ongoingMonthly = Math.round(
+      baseline.maandelijksNettoInkomen - result.maandelijksVerlies,
+    );
 
     return {
       lumpsumAmount: result.bedragIneens,
-      baseMonthly: Math.round(baseline.maandelijksBeschikbaarInkomen),
-      newMonthly: Math.round(result.maandelijksBeschikbaarInkomen),
+      baseMonthly: Math.round(baseline.maandelijksNettoInkomen),
+      newMonthly: Math.round(result.maandelijksNettoInkomen),
       ongoingMonthly: ongoingMonthly, // Permanent monthly income after lump sum
       taxImpact: Math.round(comparison.belastingVerschil),
       netLumpsum: Math.round(comparison.nettoUitkering),
       reductionMonthly: Math.round(result.maandelijksVerlies),
       pensioenvermogen: profile.pensioenvermogen,
-      beschikbaarInkomen: result.beschikbaarInkomen,
+      nettoInkomen: result.nettoInkomen,
       zorgtoeslag: result.zorgtoeslag,
       huurtoeslag: result.huurtoeslag,
       // Show 3 scenarios: current, year of withdrawal, and ongoing after
       incomeChartData: [
-        { name: 'Zonder opname', waarde: Math.round(baseline.maandelijksBeschikbaarInkomen) },
-        { name: 'Jaar van opname', waarde: Math.round(result.maandelijksBeschikbaarInkomen) },
-        { name: 'Jaren erna', waarde: ongoingMonthly },
+        {
+          name: "Zonder opname",
+          waarde: Math.round(baseline.maandelijksNettoInkomen),
+        },
+        {
+          name: "Jaar van opname",
+          waarde: Math.round(result.maandelijksNettoInkomen),
+        },
+        { name: "Jaren erna", waarde: ongoingMonthly },
       ],
       taxChartData: [
-        { name: 'Normaal', waarde: Math.round(baseline.belastingNaHeffingskortingen) },
-        { name: 'Met bedrag ineens', waarde: Math.round(result.belastingNaHeffingskortingen) },
-      ]
+        {
+          name: "Normaal",
+          waarde: Math.round(baseline.belastingNaHeffingskortingen),
+        },
+        {
+          name: "Met bedrag ineens",
+          waarde: Math.round(result.belastingNaHeffingskortingen),
+        },
+      ],
     };
   }, [calculation]);
 
@@ -130,8 +171,8 @@ export default function App() {
       // Set the optimal percentage
       setLumpsum(result.optimal);
     } catch (err) {
-      console.error('Optimal calculation failed:', err);
-      setError('Kon optimale keuze niet berekenen');
+      console.error("Optimal calculation failed:", err);
+      setError("Kon optimale keuze niet berekenen");
     } finally {
       setIsCalculatingOptimal(false);
     }
@@ -141,7 +182,7 @@ export default function App() {
     setSelectedProfileId(id);
   }, []);
 
-  const selectedProfile = profiles.find(p => p.id === selectedProfileId);
+  const selectedProfile = profiles.find((p) => p.id === selectedProfileId);
 
   return (
     <div className="min-h-screen bg-[#f8fafc] font-sans text-gray-900 flex flex-col">
@@ -169,15 +210,17 @@ export default function App() {
                 Bedrag ineens berekenen
               </h1>
               <p className="text-gray-500 max-w-2xl">
-                Ontdek wat de gevolgen zijn als u een deel van uw pensioen in één keer laat uitbetalen.
-                U kunt maximaal 10% van uw opgebouwde ouderdomspensioen opnemen.
+                Ontdek wat de gevolgen zijn als u een deel van uw pensioen in
+                één keer laat uitbetalen. U kunt maximaal 10% van uw opgebouwde
+                ouderdomspensioen opnemen.
               </p>
               {selectedProfile && (
                 <p className="text-sm text-blue-600 mt-2">
                   Berekening voor: <strong>{selectedProfile.name}</strong>
                   {calculation?.profile.pensioenvermogen ? (
                     <span className="text-gray-500 ml-2">
-                      (Pensioenvermogen: €{calculation.profile.pensioenvermogen.toLocaleString()})
+                      (Pensioenvermogen: €
+                      {calculation.profile.pensioenvermogen.toLocaleString()})
                     </span>
                   ) : null}
                 </p>
@@ -206,27 +249,40 @@ export default function App() {
             {/* Profile Info Card */}
             {calculation?.profile && (
               <div className="bg-white rounded-xl border border-gray-100 p-4">
-                <h3 className="font-bold text-gray-900 text-sm mb-3">Profielgegevens</h3>
+                <h3 className="font-bold text-gray-900 text-sm mb-3">
+                  Profielgegevens
+                </h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-500">Leeftijd</span>
-                    <span className="font-medium">{calculation.profile.age} jaar</span>
+                    <span className="font-medium">
+                      {calculation.profile.age} jaar
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">AOW-gerechtigd</span>
-                    <span className="font-medium">{calculation.profile.isAOWGerechtigd ? 'Ja' : 'Nee'}</span>
+                    <span className="font-medium">
+                      {calculation.profile.isAOWGerechtigd ? "Ja" : "Nee"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">Alleenstaand</span>
-                    <span className="font-medium">{calculation.profile.isAlleenstaand ? 'Ja' : 'Nee'}</span>
+                    <span className="font-medium">
+                      {calculation.profile.isAlleenstaand ? "Ja" : "Nee"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">Pensioenvermogen</span>
-                    <span className="font-medium">€{calculation.profile.pensioenvermogen.toLocaleString()}</span>
+                    <span className="font-medium">
+                      €{calculation.profile.pensioenvermogen.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-500">Pensioen/maand</span>
-                    <span className="font-medium">€{calculation.profile.aanvullendPensioenPerMaand.toLocaleString()}</span>
+                    <span className="font-medium">
+                      €
+                      {calculation.profile.aanvullendPensioenPerMaand.toLocaleString()}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -241,8 +297,12 @@ export default function App() {
                 </h3>
                 <div className="space-y-3">
                   <div className="text-center py-2">
-                    <span className="text-3xl font-bold text-green-700">{optimalResult.optimal}%</span>
-                    <p className="text-sm text-green-600 mt-1">Optimale opname</p>
+                    <span className="text-3xl font-bold text-green-700">
+                      {optimalResult.optimal}%
+                    </span>
+                    <p className="text-sm text-green-600 mt-1">
+                      Optimale opname
+                    </p>
                   </div>
                   <p className="text-xs text-green-700 leading-relaxed">
                     {optimalResult.recommendation.reason}
@@ -250,12 +310,17 @@ export default function App() {
                   <div className="pt-2 border-t border-green-200 space-y-1 text-xs">
                     <div className="flex justify-between text-green-700">
                       <span>Verwachte leeftijd</span>
-                      <span className="font-medium">{optimalResult.lifeExpectancy} jaar</span>
+                      <span className="font-medium">
+                        {optimalResult.lifeExpectancy} jaar
+                      </span>
                     </div>
                     <div className="flex justify-between text-green-700">
                       <span>Levenslang voordeel</span>
                       <span className="font-medium">
-                        €{optimalResult.results.find(r => r.percentage === optimalResult.optimal)?.lifetimeEquity.toLocaleString()}
+                        €
+                        {optimalResult.results
+                          .find((r) => r.percentage === optimalResult.optimal)
+                          ?.lifetimeEquity?.toLocaleString() || "0"}
                       </span>
                     </div>
                   </div>
@@ -269,7 +334,9 @@ export default function App() {
             {isCalculating && (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                <span className="ml-2 text-gray-500">Berekening wordt uitgevoerd...</span>
+                <span className="ml-2 text-gray-500">
+                  Berekening wordt uitgevoerd...
+                </span>
               </div>
             )}
 
@@ -277,16 +344,20 @@ export default function App() {
               <>
                 <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white p-6 rounded-xl shadow-lg relative overflow-hidden">
                   <div className="relative z-10">
-                    <p className="text-blue-100 text-sm font-medium mb-1">Geschatte eenmalige bruto opname</p>
-                    <h3 className="text-3xl font-bold mb-4">€{results.lumpsumAmount.toLocaleString()}</h3>
+                    <p className="text-blue-100 text-sm font-medium mb-1">
+                      Geschatte eenmalige bruto opname
+                    </p>
+                    <h3 className="text-3xl font-bold mb-4">
+                      €{results.lumpsumAmount.toLocaleString()}
+                    </h3>
                     <div className="space-y-3">
                       <div className="flex justify-between text-sm py-2 border-t border-white/10">
-                        <span className="opacity-80">Netto bedrag (na belasting)</span>
-                        <span className="font-bold">€{results.netLumpsum.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between text-sm py-2 border-t border-white/10">
-                        <span className="opacity-80">Extra belasting in jaar van opname</span>
-                        <span className="font-bold text-orange-300">€{results.taxImpact.toLocaleString()}</span>
+                        <span className="opacity-80">
+                          Netto bedrag (na belasting)
+                        </span>
+                        <span className="font-bold">
+                          €{results.netLumpsum.toLocaleString()}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -305,28 +376,64 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <ImpactCard
                       type="income"
                       title="Levenslang Inkomen"
                       description="Effect op uw maandelijkse pensioenuitkering vanaf uw pensioendatum."
-                      value={results.reductionMonthly > 0 ? `- €${results.reductionMonthly} /mnd` : 'Geen wijziging'}
-                      trend={results.reductionMonthly > 0 ? "Daling" : "Neutraal"}
-                      onClick={() => setActiveModal('income')}
+                      value={
+                        results.reductionMonthly > 0
+                          ? `- €${results.reductionMonthly} /mnd`
+                          : "Geen wijziging"
+                      }
+                      trend={
+                        results.reductionMonthly > 0 ? "Daling" : "Neutraal"
+                      }
+                      onClick={() => setActiveModal("income")}
                     />
                     <ImpactCard
                       type="tax"
                       title="Belastingdruk"
                       description="Extra belasting die u betaalt in het jaar van de eenmalige opname."
-                      value={results.taxImpact > 0 ? `+ €${results.taxImpact.toLocaleString()}` : 'Geen extra belasting'}
+                      value={
+                        results.taxImpact > 0
+                          ? `+ €${results.taxImpact.toLocaleString()}`
+                          : "Geen extra belasting"
+                      }
                       trend={results.taxImpact > 0 ? "Toename" : "Neutraal"}
-                      onClick={() => setActiveModal('tax')}
+                      onClick={() => setActiveModal("tax")}
+                    />
+                    <ImpactCard
+                      type="benefits"
+                      title="Toeslagen"
+                      description="Impact op zorgtoeslag en huurtoeslag door hoger inkomen in opnamejaar."
+                      value={
+                        calculation &&
+                        calculation.baseline.zorgtoeslag +
+                          calculation.baseline.huurtoeslag >
+                          calculation.result.zorgtoeslag +
+                            calculation.result.huurtoeslag
+                          ? `- €${Math.round(calculation.baseline.zorgtoeslag + calculation.baseline.huurtoeslag - (calculation.result.zorgtoeslag + calculation.result.huurtoeslag)).toLocaleString()}`
+                          : "Geen wijziging"
+                      }
+                      trend={
+                        calculation &&
+                        calculation.baseline.zorgtoeslag +
+                          calculation.baseline.huurtoeslag >
+                          calculation.result.zorgtoeslag +
+                            calculation.result.huurtoeslag
+                          ? "Daling"
+                          : "Neutraal"
+                      }
+                      onClick={() => setActiveModal("benefits")}
                     />
                   </div>
 
                   {/* Quick Summary Table */}
                   <div className="bg-white rounded-xl border border-gray-100 p-6 overflow-hidden">
-                    <h3 className="font-bold text-gray-900 mb-4">Overzicht scenario</h3>
+                    <h3 className="font-bold text-gray-900 mb-4">
+                      Overzicht scenario
+                    </h3>
                     <div className="overflow-x-auto">
                       <table className="w-full text-left">
                         <thead>
@@ -339,44 +446,119 @@ export default function App() {
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                           <tr>
-                            <td className="py-4 text-sm font-medium">Beschikbaar inkomen /mnd</td>
-                            <td className="py-4 text-sm">€{results.baseMonthly.toLocaleString()}</td>
-                            <td className="py-4 text-sm font-bold">€{results.newMonthly.toLocaleString()}</td>
+                            <td className="py-4 text-sm font-medium">
+                              Beschikbaar inkomen /mnd
+                            </td>
+                            <td className="py-4 text-sm">
+                              €{results.baseMonthly.toLocaleString()}
+                            </td>
+                            <td className="py-4 text-sm font-bold">
+                              €{results.newMonthly.toLocaleString()}
+                            </td>
                             <td className="py-4 text-sm text-red-500 font-bold text-right">
-                              {results.reductionMonthly > 0 ? `- €${results.reductionMonthly}` : '€0'}
+                              {results.reductionMonthly > 0
+                                ? `- €${results.reductionMonthly}`
+                                : "€0"}
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-4 text-sm font-medium">Belasting (jaar)</td>
-                            <td className="py-4 text-sm">€{Math.round(calculation.baseline.belastingNaHeffingskortingen).toLocaleString()}</td>
-                            <td className="py-4 text-sm font-bold">€{Math.round(calculation.result.belastingNaHeffingskortingen).toLocaleString()}</td>
-                            <td className={`py-4 text-sm font-bold text-right ${results.taxImpact > 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                              {results.taxImpact > 0 ? `+ €${results.taxImpact.toLocaleString()}` : '€0'}
+                            <td className="py-4 text-sm font-medium">
+                              Belasting (jaar)
+                            </td>
+                            <td className="py-4 text-sm">
+                              €
+                              {Math.round(
+                                calculation.baseline
+                                  .belastingNaHeffingskortingen,
+                              ).toLocaleString()}
+                            </td>
+                            <td className="py-4 text-sm font-bold">
+                              €
+                              {Math.round(
+                                calculation.result.belastingNaHeffingskortingen,
+                              ).toLocaleString()}
+                            </td>
+                            <td
+                              className={`py-4 text-sm font-bold text-right ${results.taxImpact > 0 ? "text-red-500" : "text-gray-400"}`}
+                            >
+                              {results.taxImpact > 0
+                                ? `+ €${results.taxImpact.toLocaleString()}`
+                                : "€0"}
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-4 text-sm font-medium">Zorgtoeslag (jaar)</td>
-                            <td className="py-4 text-sm">€{Math.round(calculation.baseline.zorgtoeslag).toLocaleString()}</td>
-                            <td className="py-4 text-sm font-bold">€{Math.round(calculation.result.zorgtoeslag).toLocaleString()}</td>
-                            <td className={`py-4 text-sm font-bold text-right ${calculation.result.zorgtoeslag < calculation.baseline.zorgtoeslag ? 'text-red-500' : 'text-green-500'}`}>
-                              {calculation.result.zorgtoeslag - calculation.baseline.zorgtoeslag >= 0 ? '+ ' : '- '}
-                              €{Math.abs(Math.round(calculation.result.zorgtoeslag - calculation.baseline.zorgtoeslag)).toLocaleString()}
+                            <td className="py-4 text-sm font-medium">
+                              Zorgtoeslag (jaar)
+                            </td>
+                            <td className="py-4 text-sm">
+                              €
+                              {Math.round(
+                                calculation.baseline.zorgtoeslag,
+                              ).toLocaleString()}
+                            </td>
+                            <td className="py-4 text-sm font-bold">
+                              €
+                              {Math.round(
+                                calculation.result.zorgtoeslag,
+                              ).toLocaleString()}
+                            </td>
+                            <td
+                              className={`py-4 text-sm font-bold text-right ${calculation.result.zorgtoeslag < calculation.baseline.zorgtoeslag ? "text-red-500" : "text-green-500"}`}
+                            >
+                              {calculation.result.zorgtoeslag -
+                                calculation.baseline.zorgtoeslag >=
+                              0
+                                ? "+ "
+                                : "- "}
+                              €
+                              {Math.abs(
+                                Math.round(
+                                  calculation.result.zorgtoeslag -
+                                    calculation.baseline.zorgtoeslag,
+                                ),
+                              ).toLocaleString()}
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-4 text-sm font-medium">Huurtoeslag (jaar)</td>
-                            <td className="py-4 text-sm">€{Math.round(calculation.baseline.huurtoeslag).toLocaleString()}</td>
-                            <td className="py-4 text-sm font-bold">€{Math.round(calculation.result.huurtoeslag).toLocaleString()}</td>
-                            <td className={`py-4 text-sm font-bold text-right ${calculation.result.huurtoeslag < calculation.baseline.huurtoeslag ? 'text-red-500' : 'text-green-500'}`}>
-                              {calculation.result.huurtoeslag - calculation.baseline.huurtoeslag >= 0 ? '+ ' : '- '}
-                              €{Math.abs(Math.round(calculation.result.huurtoeslag - calculation.baseline.huurtoeslag)).toLocaleString()}
+                            <td className="py-4 text-sm font-medium">
+                              Huurtoeslag (jaar)
+                            </td>
+                            <td className="py-4 text-sm">
+                              €
+                              {Math.round(
+                                calculation.baseline.huurtoeslag,
+                              ).toLocaleString()}
+                            </td>
+                            <td className="py-4 text-sm font-bold">
+                              €
+                              {Math.round(
+                                calculation.result.huurtoeslag,
+                              ).toLocaleString()}
+                            </td>
+                            <td
+                              className={`py-4 text-sm font-bold text-right ${calculation.result.huurtoeslag < calculation.baseline.huurtoeslag ? "text-red-500" : "text-green-500"}`}
+                            >
+                              {calculation.result.huurtoeslag -
+                                calculation.baseline.huurtoeslag >=
+                              0
+                                ? "+ "
+                                : "- "}
+                              €
+                              {Math.abs(
+                                Math.round(
+                                  calculation.result.huurtoeslag -
+                                    calculation.baseline.huurtoeslag,
+                                ),
+                              ).toLocaleString()}
                             </td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
                     <p className="mt-4 text-[10px] text-gray-400">
-                      * Berekeningen zijn gebaseerd op de Regelspraak regels voor bedrag ineens. De werkelijke bedragen kunnen afwijken.
+                      * Berekeningen zijn gebaseerd op de Regelspraak regels
+                      voor bedrag ineens. De werkelijke bedragen kunnen
+                      afwijken.
                     </p>
                   </div>
                 </div>
@@ -390,8 +572,10 @@ export default function App() {
           <div className="bg-orange-50 border border-orange-100 p-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-start gap-3 text-orange-800 text-sm backdrop-blur-sm bg-orange-50/95">
             <AlertTriangle className="w-5 h-5 shrink-0 text-orange-600 mt-0.5" />
             <p>
-              <strong>Belangrijke waarschuwing:</strong> De getoonde berekeningen zijn indicatief en gebaseerd op algemene aannames.
-              De werkelijke bedragen kunnen afwijken door persoonlijke omstandigheden of toekomstige wijzigingen in wet- en regelgeving.
+              <strong>Belangrijke waarschuwing:</strong> De getoonde
+              berekeningen zijn indicatief en gebaseerd op algemene aannames. De
+              werkelijke bedragen kunnen afwijken door persoonlijke
+              omstandigheden of toekomstige wijzigingen in wet- en regelgeving.
               Aan deze berekening kunnen geen rechten worden ontleend.
             </p>
           </div>
@@ -402,45 +586,64 @@ export default function App() {
         isOpen={!!activeModal}
         onClose={() => setActiveModal(null)}
         type={activeModal}
-        data={activeModal === 'income' ? {
-          // Basic values
-          lumpsumAmount: results.lumpsumAmount,
-          baseMonthly: results.baseMonthly,
-          newMonthly: results.newMonthly,
-          ongoingMonthly: results.ongoingMonthly, // Permanent monthly income after lump sum
-          reductionMonthly: results.reductionMonthly,
-          chartData: results.incomeChartData,
-          // Calculation details
-          percentage: lumpsum,
-          pensioenvermogen: calculation?.profile.pensioenvermogen || 0,
-          pensioenPerMaand: calculation?.profile.aanvullendPensioenPerMaand || 0,
-          pensioenPerJaar: calculation?.result.pensioenPerJaar || 0,
-          resterendPensioenPerJaar: calculation?.result.resterendPensioenPerJaar || 0,
-          permanentVerliesPerJaar: calculation?.result.permanentVerliesPerJaar || 0,
-          years: years,
-          currentAge: calculation?.profile.age || 67
-        } : {
-          // Basic values
-          lumpsumAmount: results.lumpsumAmount,
-          taxImpact: results.taxImpact,
-          netLumpsum: results.netLumpsum,
-          chartData: results.taxChartData,
-          // Calculation details
-          percentage: lumpsum,
-          inkomen: calculation?.result.inkomen || 0,
-          baselineInkomen: calculation?.baseline.inkomen || 0,
-          belastingBox1: calculation?.result.belastingBox1 || 0,
-          baselineBelastingBox1: calculation?.baseline.belastingBox1 || 0,
-          totaleHeffingskortingen: calculation?.result.totaleHeffingskortingen || 0,
-          baselineHeffingskortingen: calculation?.baseline.totaleHeffingskortingen || 0,
-          belastingNaHeffingskortingen: calculation?.result.belastingNaHeffingskortingen || 0,
-          baselineBelasting: calculation?.baseline.belastingNaHeffingskortingen || 0,
-          // Benefits impact
-          zorgtoeslag: calculation?.result.zorgtoeslag || 0,
-          baselineZorgtoeslag: calculation?.baseline.zorgtoeslag || 0,
-          huurtoeslag: calculation?.result.huurtoeslag || 0,
-          baselineHuurtoeslag: calculation?.baseline.huurtoeslag || 0
-        }}
+        data={
+          activeModal === "income"
+            ? {
+                // Basic values
+                lumpsumAmount: results.lumpsumAmount,
+                baseMonthly: results.baseMonthly,
+                newMonthly: results.newMonthly,
+                ongoingMonthly: results.ongoingMonthly, // Permanent monthly income after lump sum
+                reductionMonthly: results.reductionMonthly,
+                chartData: results.incomeChartData,
+                // Calculation details
+                percentage: lumpsum,
+                pensioenvermogen: calculation?.profile.pensioenvermogen || 0,
+                pensioenPerMaand:
+                  calculation?.profile.aanvullendPensioenPerMaand || 0,
+                pensioenPerJaar: calculation?.result.pensioenPerJaar || 0,
+                resterendPensioenPerJaar:
+                  calculation?.result.resterendPensioenPerJaar || 0,
+                permanentVerliesPerJaar:
+                  calculation?.result.permanentVerliesPerJaar || 0,
+                years: years,
+                currentAge: calculation?.profile.age || 67,
+              }
+            : activeModal === "tax"
+              ? {
+                  // Basic values
+                  lumpsumAmount: results.lumpsumAmount,
+                  taxImpact: results.taxImpact,
+                  netLumpsum: results.netLumpsum,
+                  chartData: results.taxChartData,
+                  // Calculation details
+                  percentage: lumpsum,
+                  brutoInkomen: calculation?.result.brutoInkomen || 0,
+                  baselineBrutoInkomen: calculation?.baseline.brutoInkomen || 0,
+                  belastingBox1: calculation?.result.belastingBox1 || 0,
+                  baselineBelastingBox1:
+                    calculation?.baseline.belastingBox1 || 0,
+                  totaleHeffingskortingen:
+                    calculation?.result.totaleHeffingskortingen || 0,
+                  baselineHeffingskortingen:
+                    calculation?.baseline.totaleHeffingskortingen || 0,
+                  belastingNaHeffingskortingen:
+                    calculation?.result.belastingNaHeffingskortingen || 0,
+                  baselineBelasting:
+                    calculation?.baseline.belastingNaHeffingskortingen || 0,
+                }
+              : {
+                  // Benefits data
+                  lumpsumAmount: results.lumpsumAmount,
+                  brutoInkomen: calculation?.result.brutoInkomen || 0,
+                  baselineBrutoInkomen: calculation?.baseline.brutoInkomen || 0,
+                  zorgtoeslag: calculation?.result.zorgtoeslag || 0,
+                  baselineZorgtoeslag: calculation?.baseline.zorgtoeslag || 0,
+                  huurtoeslag: calculation?.result.huurtoeslag || 0,
+                  baselineHuurtoeslag: calculation?.baseline.huurtoeslag || 0,
+                  percentage: lumpsum,
+                }
+        }
       />
 
       {/* Footer */}
@@ -448,11 +651,14 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="text-blue-500" />
-            <span className="text-white font-bold text-lg">Mijn Pensioen Dashboard</span>
+            <span className="text-white font-bold text-lg">
+              Mijn Pensioen Dashboard
+            </span>
           </div>
           <p className="text-sm leading-relaxed max-w-2xl">
-            Dit dashboard helpt u bij het maken van een weloverwogen beslissing over uw pensioen.
-            Het is een initiatief van de Nederlandse pensioenuitvoerders in samenwerking met UWV.
+            Dit dashboard helpt u bij het maken van een weloverwogen beslissing
+            over uw pensioen. Het is een initiatief van de Nederlandse
+            pensioenuitvoerders in samenwerking met UWV.
           </p>
         </div>
       </footer>

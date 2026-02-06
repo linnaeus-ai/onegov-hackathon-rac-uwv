@@ -1,9 +1,9 @@
 import React from 'react';
-import { TrendingDown, ReceiptText, ChevronRight, ArrowRight } from 'lucide-react';
+import { TrendingDown, ReceiptText, ChevronRight, ArrowRight, Gift } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface ImpactCardProps {
-  type: 'income' | 'tax';
+  type: 'income' | 'tax' | 'benefits';
   title: string;
   description: string;
   value: string;
@@ -13,7 +13,34 @@ interface ImpactCardProps {
 
 export function ImpactCard({ type, title, description, value, trend, onClick }: ImpactCardProps) {
   const isIncome = type === 'income';
+  const isBenefits = type === 'benefits';
   const isNeutral = trend === 'Neutraal';
+
+  const getIcon = () => {
+    if (isIncome) return <TrendingDown className="w-6 h-6" />;
+    if (isBenefits) return <Gift className="w-6 h-6" />;
+    return <ReceiptText className="w-6 h-6" />;
+  };
+
+  const getColorClasses = () => {
+    if (isNeutral) return 'bg-gray-100 text-gray-500';
+    if (isIncome) return 'bg-green-50 text-green-600';
+    if (isBenefits) return 'bg-purple-50 text-purple-600';
+    return 'bg-red-50 text-red-600';
+  };
+
+  const getValueColor = () => {
+    if (isNeutral) return 'text-gray-500';
+    if (isIncome) return 'text-gray-900';
+    if (isBenefits) return 'text-purple-600';
+    return 'text-red-600';
+  };
+
+  const getTrendColor = () => {
+    if (isNeutral) return 'text-gray-400';
+    if (isIncome || isBenefits) return 'text-orange-500';
+    return 'text-red-500';
+  };
 
   return (
     <motion.button
@@ -22,8 +49,8 @@ export function ImpactCard({ type, title, description, value, trend, onClick }: 
       className="w-full text-left bg-white p-6 rounded-xl border border-gray-100 shadow-sm transition-all flex flex-col justify-between group h-full"
     >
       <div>
-        <div className={`p-3 rounded-xl w-fit mb-4 ${isNeutral ? 'bg-gray-100 text-gray-500' : (isIncome ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600')}`}>
-          {isIncome ? <TrendingDown className="w-6 h-6" /> : <ReceiptText className="w-6 h-6" />}
+        <div className={`p-3 rounded-xl w-fit mb-4 ${getColorClasses()}`}>
+          {getIcon()}
         </div>
         <h3 className="text-lg font-bold text-gray-900 mb-1">{title}</h3>
         <p className="text-sm text-gray-500 mb-6">{description}</p>
@@ -33,14 +60,14 @@ export function ImpactCard({ type, title, description, value, trend, onClick }: 
         <div className="flex items-end justify-between">
           <div>
             <span className="text-xs font-semibold text-gray-400 uppercase block mb-1">Impact</span>
-            <span className={`text-2xl font-bold ${isNeutral ? 'text-gray-500' : (isIncome ? 'text-gray-900' : 'text-red-600')}`}>{value}</span>
+            <span className={`text-2xl font-bold ${getValueColor()}`}>{value}</span>
           </div>
-          <div className={`flex items-center gap-1 text-sm font-medium ${isNeutral ? 'text-gray-400' : (isIncome ? 'text-orange-500' : 'text-red-500')}`}>
+          <div className={`flex items-center gap-1 text-sm font-medium ${getTrendColor()}`}>
             {trend}
             {!isNeutral && <ArrowRight className="w-4 h-4" />}
           </div>
         </div>
-        
+
         <div className="pt-4 border-t border-gray-50 flex items-center justify-between text-blue-600 font-medium text-sm group-hover:gap-2 transition-all">
           Bekijk details
           <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

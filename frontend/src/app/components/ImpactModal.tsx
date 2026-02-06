@@ -1,13 +1,154 @@
-import React from 'react';
-import { X, Info, AlertTriangle, TrendingDown, ReceiptText, ArrowDown, ArrowRight, Coins, Calendar, Percent, PiggyBank, Receipt, Heart, Home, ChevronDown } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Info, AlertTriangle, TrendingDown, ReceiptText, ArrowDown, ArrowRight, Coins, Calendar, Percent, PiggyBank, Receipt, Heart, Home, ChevronDown, Gift, FileText, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 interface ImpactModalProps {
   isOpen: boolean;
   onClose: () => void;
-  type: 'income' | 'tax' | null;
+  type: 'income' | 'tax' | 'benefits' | null;
   data: any;
+}
+
+// Rule references from regels.rs
+const RULES = {
+  pensioenPerJaar: {
+    name: "Bereken pensioen per jaar",
+    text: "Het pensioen per jaar van een Scenario moet berekend worden als het aanvullend pensioen per maand van zijn persoon maal 12.",
+    line: 8
+  },
+  bedragIneens: {
+    name: "Bereken bedrag ineens",
+    text: "Het bedrag ineens van een Scenario moet berekend worden als het pensioenvermogen van zijn persoon maal het opname percentage van het scenario gedeeld door 100.",
+    line: 13
+  },
+  resterendPensioen: {
+    name: "Bereken resterend pensioen",
+    text: "Het resterend pensioen per jaar van een Scenario moet berekend worden als het pensioen per jaar van het scenario maal (100 min het opname percentage van het scenario) gedeeld door 100.",
+    line: 19
+  },
+  permanentVerlies: {
+    name: "Bereken permanent verlies",
+    text: "Het permanent verlies per jaar van een Scenario moet berekend worden als het pensioen per jaar van het scenario min het resterend pensioen per jaar van het scenario.",
+    line: 25
+  },
+  brutoInkomen: {
+    name: "Bereken bruto inkomen jaar met opname",
+    text: "Het bruto inkomen van een Scenario moet berekend worden als het AOW inkomen van zijn persoon plus het resterend pensioen per jaar van het scenario plus het bedrag ineens van het scenario indien het scenario is jaar met opname.",
+    line: 43
+  },
+  zvw: {
+    name: "Bereken Zvw",
+    text: "De Zvw bijdrage van een Scenario moet berekend worden als de minimale waarde van het bruto inkomen van het scenario en de Zvw maximum maal het Zvw percentage.",
+    line: 55
+  },
+  belastingEersteSchijf: {
+    name: "Bereken belasting eerste schijf",
+    text: "De belasting eerste schijf van een Scenario moet berekend worden als de minimale waarde van het bruto inkomen van het scenario en de eerste schijfgrens maal het tarief eerste schijf AOW.",
+    line: 61
+  },
+  belastingTweedeSchijf: {
+    name: "Bereken belasting tweede schijf",
+    text: "De belasting tweede schijf van een Scenario moet berekend worden als de maximale waarde van 0 € en (de minimale waarde van het bruto inkomen van het scenario en de tweede schijfgrens min de eerste schijfgrens) maal het tarief tweede schijf.",
+    line: 67
+  },
+  belastingDerdeSchijf: {
+    name: "Bereken belasting derde schijf",
+    text: "De belasting derde schijf van een Scenario moet berekend worden als de maximale waarde van 0 € en (het bruto inkomen van het scenario min de tweede schijfgrens) maal het tarief derde schijf.",
+    line: 75
+  },
+  belastingBox1: {
+    name: "Bereken belasting box1",
+    text: "De belasting box1 van een Scenario moet berekend worden als de belasting eerste schijf van het scenario plus de belasting tweede schijf van het scenario plus de belasting derde schijf van het scenario.",
+    line: 82
+  },
+  ahk: {
+    name: "Bereken algemene heffingskorting",
+    text: "De algemene heffingskorting van een Scenario moet berekend worden als de maximale waarde van 0 € en (de AHK maximum AOW min (de maximale waarde van 0 € en (het bruto inkomen van het scenario min de AHK afbouwgrens)) maal het AHK afbouw percentage AOW).",
+    line: 93
+  },
+  ouderenkorting: {
+    name: "Bereken ouderenkorting met afbouw",
+    text: "De ouderenkorting van een Scenario moet berekend worden als de maximale waarde van 0 € en (de OK maximum min (het bruto inkomen van het scenario min de OK afbouwgrens) maal het OK afbouw percentage) indien het bruto inkomen van het scenario is groter dan de OK afbouwgrens.",
+    line: 107
+  },
+  zorgtoeslag: {
+    name: "Bereken zorgtoeslag onder grens",
+    text: "De zorgtoeslag van een Scenario moet berekend worden als de maximale waarde van 0 € en (de ZT maximum alleenstaand min (de maximale waarde van 0 € en (het bruto inkomen van het scenario min de ZT drempel)) maal het ZT afbouw percentage) indien het bruto inkomen van het scenario is kleiner dan de ZT grens alleenstaand.",
+    line: 152
+  },
+  zorgtoeslagBoven: {
+    name: "Bereken zorgtoeslag boven grens",
+    text: "De zorgtoeslag van een Scenario moet gesteld worden op 0 € indien het bruto inkomen van het scenario is groter of gelijk aan de ZT grens alleenstaand.",
+    line: 147
+  },
+  huurtoeslag: {
+    name: "Bereken huurtoeslag onder grens",
+    text: "De huurtoeslag van een Scenario moet berekend worden als de maximale waarde van 0 € en (de HT maximum maal (de HT grens derde min het bruto inkomen van het scenario) gedeeld door (de HT grens derde min de HT grens eerste)) indien het bruto inkomen van het scenario is kleiner of gelijk aan de HT grens derde.",
+    line: 168
+  },
+  huurtoeslagBoven: {
+    name: "Bereken huurtoeslag boven grens",
+    text: "De huurtoeslag van een Scenario moet gesteld worden op 0 € indien het bruto inkomen van het scenario is groter dan de HT grens derde.",
+    line: 162
+  }
+};
+
+// Rule reference component with collapsible functionality
+function RuleReference({
+  ruleName,
+  ruleText,
+  line
+}: {
+  ruleName: string;
+  ruleText: string;
+  line: number;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <div className="mb-2">
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full flex items-center gap-2 px-3 py-2 bg-white/70 hover:bg-white border border-gray-200 hover:border-blue-300 rounded-lg transition-all text-left group"
+      >
+        <FileText className="w-4 h-4 text-blue-500 group-hover:text-blue-600 shrink-0" />
+        <span className="text-xs font-medium text-gray-700 group-hover:text-blue-700 flex-1">
+          {isExpanded ? 'Verberg Regelspraak regel' : 'Bekijk Regelspraak regel'}
+        </span>
+        <ChevronRight
+          className={`w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-transform ${
+            isExpanded ? 'rotate-90' : ''
+          }`}
+        />
+      </button>
+
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="bg-white/90 border border-gray-200 border-t-0 rounded-b-lg p-3 -mt-1">
+              <div className="flex items-start gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-semibold text-gray-700 mb-2">
+                    Regel: {ruleName}
+                  </div>
+                  <div className="text-xs text-gray-700 italic leading-relaxed bg-gray-50 rounded p-2">
+                    "{ruleText}"
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 // Step component for calculation flow
@@ -18,7 +159,8 @@ function CalculationStep({
   formula,
   result,
   icon: Icon,
-  color = 'blue'
+  color = 'blue',
+  rule
 }: {
   step: number;
   title: string;
@@ -27,6 +169,7 @@ function CalculationStep({
   result: string;
   icon: React.ElementType;
   color?: 'blue' | 'green' | 'orange' | 'red' | 'purple';
+  rule?: { name: string; text: string; line: number };
 }) {
   const colors = {
     blue: 'bg-blue-50 border-blue-200 text-blue-700',
@@ -57,13 +200,20 @@ function CalculationStep({
             </span>
             <h4 className="font-bold text-sm">{title}</h4>
           </div>
-          <p className="text-xs opacity-80 mb-2">{description}</p>
+          <p className="text-xs opacity-80 mb-3">{description}</p>
           {formula && (
-            <div className="bg-white/50 rounded-lg px-3 py-2 font-mono text-xs mb-2">
+            <div className="bg-white/50 rounded-lg px-3 py-2 font-mono text-xs mb-3">
               {formula}
             </div>
           )}
-          <div className="text-lg font-bold">{result}</div>
+          <div className="text-lg font-bold mb-3">{result}</div>
+          {rule && (
+            <RuleReference
+              ruleName={rule.name}
+              ruleText={rule.text}
+              line={rule.line}
+            />
+          )}
         </div>
       </div>
     </div>
@@ -120,6 +270,7 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
   if (!isOpen || !type) return null;
 
   const isIncome = type === 'income';
+  const isBenefits = type === 'benefits';
 
   return (
     <AnimatePresence>
@@ -139,14 +290,24 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
           className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col"
         >
           {/* Header */}
-          <div className={`p-6 flex items-center justify-between border-b shrink-0 ${isIncome ? 'bg-green-50' : 'bg-red-50'}`}>
+          <div className={`p-6 flex items-center justify-between border-b shrink-0 ${
+            isIncome ? 'bg-green-50' : isBenefits ? 'bg-purple-50' : 'bg-red-50'
+          }`}>
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${isIncome ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                {isIncome ? <TrendingDown className="w-6 h-6" /> : <ReceiptText className="w-6 h-6" />}
+              <div className={`p-2 rounded-lg ${
+                isIncome ? 'bg-green-100 text-green-700' :
+                isBenefits ? 'bg-purple-100 text-purple-700' :
+                'bg-red-100 text-red-700'
+              }`}>
+                {isIncome ? <TrendingDown className="w-6 h-6" /> :
+                 isBenefits ? <Gift className="w-6 h-6" /> :
+                 <ReceiptText className="w-6 h-6" />}
               </div>
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  {isIncome ? 'Hoe beïnvloedt dit uw inkomen?' : 'Hoe beïnvloedt dit uw belasting?'}
+                  {isIncome ? 'Hoe beïnvloedt dit uw inkomen?' :
+                   isBenefits ? 'Hoe beïnvloedt dit uw toeslagen?' :
+                   'Hoe beïnvloedt dit uw belasting?'}
                 </h2>
                 <p className="text-sm text-gray-500">
                   Stap voor stap uitleg van de berekening
@@ -207,6 +368,7 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                     result={`€${data.lumpsumAmount.toLocaleString()} bruto ontvangst`}
                     icon={Percent}
                     color="green"
+                    rule={RULES.bedragIneens}
                   />
 
                   <StepConnector />
@@ -219,6 +381,7 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                     result={`€${data.pensioenPerJaar.toLocaleString()} per jaar`}
                     icon={Calendar}
                     color="blue"
+                    rule={RULES.pensioenPerJaar}
                   />
 
                   <StepConnector />
@@ -231,6 +394,7 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                     result={`€${data.resterendPensioenPerJaar.toLocaleString()} per jaar resterend`}
                     icon={TrendingDown}
                     color="orange"
+                    rule={RULES.resterendPensioen}
                   />
 
                   <StepConnector />
@@ -243,6 +407,7 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                     result={`- €${data.reductionMonthly} per maand`}
                     icon={AlertTriangle}
                     color="red"
+                    rule={RULES.permanentVerlies}
                   />
                 </div>
 
@@ -335,6 +500,166 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                   )}
                 </div>
               </>
+            ) : isBenefits ? (
+              // BENEFITS EXPLANATION
+              <>
+                {/* Summary */}
+                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-4 border border-purple-200">
+                  <h3 className="font-bold text-purple-900 mb-2 flex items-center gap-2">
+                    <Info className="w-5 h-5" />
+                    Samenvatting
+                  </h3>
+                  <p className="text-sm text-purple-800">
+                    Door <strong>€{data.lumpsumAmount.toLocaleString()}</strong> bedrag ineens op te nemen,
+                    stijgt uw inkomen tijdelijk naar <strong>€{Math.round(data.brutoInkomen).toLocaleString()}</strong>.
+                    Hierdoor kunnen uw toeslagen in het jaar van opname worden verminderd of vervallen.
+                  </p>
+                </div>
+
+                {/* Calculation Steps */}
+                <div className="space-y-2">
+                  <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                    <Gift className="w-5 h-5 text-purple-600" />
+                    Berekening toeslagen stap voor stap
+                  </h3>
+
+                  <CalculationStep
+                    step={1}
+                    title="Zorgtoeslag berekening"
+                    description="Zorgtoeslag wordt afgebouwd bij hoger inkomen en vervalt volledig boven de inkomensgrens."
+                    formula={
+                      data.brutoInkomen >= 37496
+                        ? `Inkomen €${Math.round(data.brutoInkomen).toLocaleString()} ≥ €37.496 → Geen zorgtoeslag`
+                        : `€1.800 - max(0, €${Math.round(data.brutoInkomen).toLocaleString()} - €25.437) × 13,22% = €${Math.round(data.zorgtoeslag).toLocaleString()}`
+                    }
+                    result={`€${Math.round(data.zorgtoeslag).toLocaleString()} zorgtoeslag`}
+                    icon={Heart}
+                    color="purple"
+                    rule={data.brutoInkomen >= 37496 ? RULES.zorgtoeslagBoven : RULES.zorgtoeslag}
+                  />
+
+                  <StepConnector />
+
+                  <CalculationStep
+                    step={2}
+                    title="Huurtoeslag berekening"
+                    description="Huurtoeslag neemt lineair af met het inkomen en vervalt boven de inkomensgrens."
+                    formula={
+                      data.brutoInkomen > 38000
+                        ? `Inkomen €${Math.round(data.brutoInkomen).toLocaleString()} > €38.000 → Geen huurtoeslag`
+                        : `€2.900 × (€38.000 - €${Math.round(data.brutoInkomen).toLocaleString()}) / (€38.000 - €26.000) = €${Math.round(data.huurtoeslag).toLocaleString()}`
+                    }
+                    result={`€${Math.round(data.huurtoeslag).toLocaleString()} huurtoeslag`}
+                    icon={Home}
+                    color="blue"
+                    rule={data.brutoInkomen > 38000 ? RULES.huurtoeslagBoven : RULES.huurtoeslag}
+                  />
+                </div>
+
+                {/* Comparison */}
+                <div className="grid grid-cols-2 gap-4">
+                  <ImpactBox
+                    label="Zorgtoeslag (jaar van opname)"
+                    before={`€${Math.round(data.baselineZorgtoeslag).toLocaleString()}`}
+                    after={`€${Math.round(data.zorgtoeslag).toLocaleString()}`}
+                    difference={
+                      data.zorgtoeslag < data.baselineZorgtoeslag
+                        ? `- €${Math.round(data.baselineZorgtoeslag - data.zorgtoeslag).toLocaleString()} verlies`
+                        : 'Geen wijziging'
+                    }
+                  />
+                  <ImpactBox
+                    label="Huurtoeslag (jaar van opname)"
+                    before={`€${Math.round(data.baselineHuurtoeslag).toLocaleString()}`}
+                    after={`€${Math.round(data.huurtoeslag).toLocaleString()}`}
+                    difference={
+                      data.huurtoeslag < data.baselineHuurtoeslag
+                        ? `- €${Math.round(data.baselineHuurtoeslag - data.huurtoeslag).toLocaleString()} verlies`
+                        : 'Geen wijziging'
+                    }
+                  />
+                </div>
+
+                {/* Chart */}
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <h4 className="font-bold text-gray-900 mb-4">Vergelijking toeslagen</h4>
+                  <div className="h-48">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={[
+                          {
+                            name: 'Zorgtoeslag',
+                            Normaal: Math.round(data.baselineZorgtoeslag),
+                            'Met opname': Math.round(data.zorgtoeslag)
+                          },
+                          {
+                            name: 'Huurtoeslag',
+                            Normaal: Math.round(data.baselineHuurtoeslag),
+                            'Met opname': Math.round(data.huurtoeslag)
+                          }
+                        ]}
+                        layout="vertical"
+                      >
+                        <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e5e7eb" />
+                        <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} />
+                        <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} width={100} />
+                        <Tooltip
+                          formatter={(value: number) => [`€${value.toLocaleString()}`, '']}
+                          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                        />
+                        <Bar dataKey="Normaal" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={20} />
+                        <Bar dataKey="Met opname" fill="#a855f7" radius={[0, 4, 4, 0]} barSize={20} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Important note */}
+                <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
+                  <div className="flex gap-3">
+                    <AlertTriangle className="w-5 h-5 text-orange-600 shrink-0" />
+                    <div>
+                      <h4 className="font-bold text-orange-900 text-sm mb-1">Let op: Tijdelijk effect</h4>
+                      <p className="text-sm text-orange-800">
+                        Dit verlies aan toeslagen geldt <strong>alleen voor het jaar van opname</strong>. In de jaren
+                        daarna keert uw inkomen terug naar het normale niveau (zonder het bedrag ineens) en herstellen
+                        uw toeslagen zich.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Threshold visualization */}
+                {(data.brutoInkomen >= 37496 || data.brutoInkomen > 38000) && (
+                  <div className="bg-red-50 rounded-xl p-4 border border-red-200">
+                    <h4 className="font-bold text-red-900 mb-2 flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5" />
+                      U overschrijdt een inkomensgrens
+                    </h4>
+                    <p className="text-sm text-red-800 mb-3">
+                      Door de opname komt uw inkomen boven de drempel voor toeslagen:
+                    </p>
+                    <div className="space-y-2">
+                      {data.brutoInkomen >= 37496 && (
+                        <div className="bg-white rounded-lg p-3">
+                          <div className="text-sm font-medium text-red-900">Zorgtoeslag vervalt</div>
+                          <div className="text-xs text-red-700 mt-1">
+                            Uw inkomen (€{Math.round(data.brutoInkomen).toLocaleString()}) ligt boven de grens van €37.496
+                          </div>
+                        </div>
+                      )}
+                      {data.brutoInkomen > 38000 && (
+                        <div className="bg-white rounded-lg p-3">
+                          <div className="text-sm font-medium text-red-900">Huurtoeslag vervalt</div>
+                          <div className="text-xs text-red-700 mt-1">
+                            Uw inkomen (€{Math.round(data.brutoInkomen).toLocaleString()}) ligt boven de grens van €38.000
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
             ) : (
               // TAX EXPLANATION
               <>
@@ -346,10 +671,8 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                   </h3>
                   <p className="text-sm text-red-800">
                     Door <strong>€{data.lumpsumAmount.toLocaleString()}</strong> bedrag ineens op te nemen,
-                    stijgt uw inkomen in dat jaar. Hierdoor betaalt u <strong>€{data.taxImpact.toLocaleString()}</strong> meer belasting.
-                    {data.baselineZorgtoeslag > data.zorgtoeslag && (
-                      <> Ook verliest u mogelijk recht op toeslagen.</>
-                    )}
+                    stijgt uw inkomen in dat jaar. Hierdoor betaalt u <strong>€{data.taxImpact.toLocaleString()}</strong> meer belasting
+                    in het jaar van opname.
                   </p>
                 </div>
 
@@ -364,7 +687,7 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                     step={1}
                     title="Uw normale jaarinkomen"
                     description="Dit is uw inkomen zonder bedrag ineens (AOW + pensioen + overig)."
-                    result={`€${Math.round(data.baselineInkomen).toLocaleString()} per jaar`}
+                    result={`€${Math.round(data.baselineBrutoInkomen).toLocaleString()} per jaar`}
                     icon={Coins}
                     color="blue"
                   />
@@ -375,10 +698,11 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                     step={2}
                     title="Inkomen met bedrag ineens"
                     description="In het jaar van opname wordt het bedrag ineens bij uw inkomen geteld."
-                    formula={`€${Math.round(data.baselineInkomen).toLocaleString()} + €${data.lumpsumAmount.toLocaleString()} = €${Math.round(data.inkomen).toLocaleString()}`}
-                    result={`€${Math.round(data.inkomen).toLocaleString()} totaal inkomen`}
+                    formula={`€${Math.round(data.baselineBrutoInkomen).toLocaleString()} + €${data.lumpsumAmount.toLocaleString()} = €${Math.round(data.brutoInkomen).toLocaleString()}`}
+                    result={`€${Math.round(data.brutoInkomen).toLocaleString()} totaal inkomen`}
                     icon={TrendingDown}
                     color="orange"
+                    rule={RULES.brutoInkomen}
                   />
 
                   <StepConnector />
@@ -391,6 +715,7 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                     result={`€${Math.round(data.belastingBox1).toLocaleString()} bruto belasting`}
                     icon={Receipt}
                     color="red"
+                    rule={RULES.belastingBox1}
                   />
 
                   <StepConnector />
@@ -403,6 +728,7 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                     result={`€${Math.round(data.totaleHeffingskortingen).toLocaleString()} aan kortingen`}
                     icon={Percent}
                     color="green"
+                    rule={RULES.ahk}
                   />
 
                   <StepConnector />
@@ -435,56 +761,6 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                   />
                 </div>
 
-                {/* Benefits Impact */}
-                {(data.baselineZorgtoeslag > 0 || data.baselineHuurtoeslag > 0) && (
-                  <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
-                    <h4 className="font-bold text-orange-900 mb-3 flex items-center gap-2">
-                      <AlertTriangle className="w-5 h-5" />
-                      Effect op toeslagen
-                    </h4>
-                    <p className="text-sm text-orange-800 mb-4">
-                      Door het hogere inkomen in het jaar van opname kunnen uw toeslagen vervallen of worden verminderd.
-                    </p>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white rounded-lg p-3">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Heart className="w-4 h-4 text-pink-500" />
-                          <span className="text-sm font-medium text-gray-700">Zorgtoeslag</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-500">€{Math.round(data.baselineZorgtoeslag).toLocaleString()}</span>
-                          <ArrowRight className="w-4 h-4 text-gray-300" />
-                          <span className={`font-bold ${data.zorgtoeslag < data.baselineZorgtoeslag ? 'text-red-600' : 'text-gray-900'}`}>
-                            €{Math.round(data.zorgtoeslag).toLocaleString()}
-                          </span>
-                        </div>
-                        {data.zorgtoeslag < data.baselineZorgtoeslag && (
-                          <div className="text-xs text-red-600 mt-1">
-                            - €{Math.round(data.baselineZorgtoeslag - data.zorgtoeslag).toLocaleString()} verlies
-                          </div>
-                        )}
-                      </div>
-                      <div className="bg-white rounded-lg p-3">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Home className="w-4 h-4 text-blue-500" />
-                          <span className="text-sm font-medium text-gray-700">Huurtoeslag</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-500">€{Math.round(data.baselineHuurtoeslag).toLocaleString()}</span>
-                          <ArrowRight className="w-4 h-4 text-gray-300" />
-                          <span className={`font-bold ${data.huurtoeslag < data.baselineHuurtoeslag ? 'text-red-600' : 'text-gray-900'}`}>
-                            €{Math.round(data.huurtoeslag).toLocaleString()}
-                          </span>
-                        </div>
-                        {data.huurtoeslag < data.baselineHuurtoeslag && (
-                          <div className="text-xs text-red-600 mt-1">
-                            - €{Math.round(data.baselineHuurtoeslag - data.huurtoeslag).toLocaleString()} verlies
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 {/* Chart */}
                 <div className="bg-gray-50 rounded-xl p-4">

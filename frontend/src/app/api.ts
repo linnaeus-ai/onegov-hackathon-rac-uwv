@@ -26,7 +26,7 @@ export interface CalculationResult {
   resterendPensioenPerJaar: number;
   permanentVerliesPerJaar: number;
   // Phase 2
-  inkomen: number;
+  brutoInkomen: number;
   // Phase 3
   zvwBijdrage: number;
   belastingBox1: number;
@@ -37,10 +37,10 @@ export interface CalculationResult {
   zorgtoeslag: number;
   huurtoeslag: number;
   // Phase 6
-  beschikbaarInkomen: number;
+  nettoInkomen: number;
   // Additional
-  maandelijksInkomen: number;
-  maandelijksBeschikbaarInkomen: number;
+  maandelijksBrutoInkomen: number;
+  maandelijksNettoInkomen: number;
   maandelijksVerlies: number;
 }
 
