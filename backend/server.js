@@ -1,8 +1,9 @@
-import express from 'express';
-import cors from 'cors';
-import { readFileSync } from 'fs';
-import { parse } from 'yaml';
-import { calculateScenario, PARAMETERS } from './rules-engine.js';
+const express = require('express');
+const cors = require('cors');
+const { readFileSync, existsSync } = require('fs');
+const { parse } = require('yaml');
+const { resolve, join } = require('path');
+const { calculateScenario, PARAMETERS } = require('./rules-engine.js');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -10,8 +11,13 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// Load profiles from YAML
-const profilesPath = '../rules-as-code-pension-starter/data/Hackathon_profiles.yaml';
+// Serve static files from public folder (built frontend)
+app.use(express.static(join(__dirname, 'public')));
+
+// Load profiles from YAML - try local copy first, then fall back to original location
+const localProfilesPath = join(__dirname, 'data', 'Hackathon_profiles.yaml');
+const originalProfilesPath = resolve(__dirname, '../rules-as-code-pension-starter/data/Hackathon_profiles.yaml');
+const profilesPath = existsSync(localProfilesPath) ? localProfilesPath : originalProfilesPath;
 let profiles = {};
 
 try {
@@ -279,6 +285,11 @@ app.get('/api/parameters', (req, res) => {
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', profiles: Object.keys(profiles).length });
+});
+
+// SPA fallback - serve index.html for any non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
