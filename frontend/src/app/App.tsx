@@ -130,17 +130,13 @@ export default function App() {
       nettoInkomen: result.nettoInkomen,
       zorgtoeslag: result.zorgtoeslag,
       huurtoeslag: result.huurtoeslag,
-      // Show 3 scenarios: current, year of withdrawal, and ongoing after
+      // Show comparison: current income vs permanent income after lump sum
       incomeChartData: [
         {
           name: "Zonder opname",
           waarde: Math.round(baseline.maandelijksNettoInkomen),
         },
-        {
-          name: "Jaar van opname",
-          waarde: Math.round(result.maandelijksNettoInkomen),
-        },
-        { name: "Jaren erna", waarde: ongoingMonthly },
+        { name: "Na opname", waarde: ongoingMonthly },
       ],
       taxChartData: [
         {

@@ -413,12 +413,11 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
 
                 {/* Visual Impact */}
                 <div className="bg-gray-50 rounded-xl p-4">
-                  <h4 className="font-bold text-gray-900 mb-4">Vergelijking maandinkomen over tijd</h4>
+                  <h4 className="font-bold text-gray-900 mb-4">Vergelijking maandinkomen</h4>
                   <p className="text-sm text-gray-600 mb-4">
-                    Let op: in het jaar van opname ontvangt u eenmalig het bedrag ineens, waardoor uw inkomen hoger lijkt.
-                    Maar in alle jaren daarna is uw maandinkomen <strong>permanent lager</strong>.
+                    Door het bedrag ineens op te nemen wordt uw maandelijkse pensioenuitkering <strong>permanent lager</strong>.
                   </p>
-                  <div className="h-56">
+                  <div className="h-40">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={data.chartData} layout="vertical">
                         <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e5e7eb" />
@@ -432,7 +431,7 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                           {data.chartData.map((entry: any, index: number) => (
                             <Cell
                               key={`cell-${index}`}
-                              fill={index === 0 ? '#3b82f6' : index === 1 ? '#22c55e' : '#ef4444'}
+                              fill={index === 0 ? '#3b82f6' : '#ef4444'}
                             />
                           ))}
                         </Bar>
@@ -442,15 +441,11 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                   <div className="flex gap-4 mt-3 text-xs">
                     <div className="flex items-center gap-1">
                       <div className="w-3 h-3 rounded bg-blue-500"></div>
-                      <span className="text-gray-600">Referentie (geen opname)</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="w-3 h-3 rounded bg-green-500"></div>
-                      <span className="text-gray-600">Eenmalig hoger (incl. bedrag ineens)</span>
+                      <span className="text-gray-600">Huidige situatie (geen opname)</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <div className="w-3 h-3 rounded bg-red-500"></div>
-                      <span className="text-gray-600">Permanent lager</span>
+                      <span className="text-gray-600">Na opname (permanent lager)</span>
                     </div>
                   </div>
                 </div>
