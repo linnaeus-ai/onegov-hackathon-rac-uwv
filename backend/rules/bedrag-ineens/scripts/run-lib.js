@@ -132,11 +132,11 @@ function extractKeyMetrics(scenarioResult) {
   return {
     'opname percentage': scenarioResult['opname percentage'],
     'bedrag ineens': scenarioResult['bedrag ineens'],
-    'inkomen': scenarioResult['inkomen'],
+    'bruto inkomen': scenarioResult['bruto inkomen'],
     'belasting na heffingskortingen': scenarioResult['belasting na heffingskortingen'],
     'zorgtoeslag': scenarioResult['zorgtoeslag'],
     'huurtoeslag': scenarioResult['huurtoeslag'],
-    'beschikbaar inkomen': scenarioResult['beschikbaar inkomen'],
+    'netto inkomen': scenarioResult['netto inkomen'],
     'besteedbaar inkomen': scenarioResult['besteedbaar inkomen'],
     'besteedbaar inkomen incl huurtoeslag': scenarioResult['besteedbaar inkomen incl huurtoeslag']
   };

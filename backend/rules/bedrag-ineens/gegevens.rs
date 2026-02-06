@@ -51,7 +51,7 @@ Objecttype het Scenario (mv: Scenarios)
     het permanent verlies per jaar Bedrag;
 
     // PHASE 2: Inkomen
-    het inkomen Bedrag;
+    het bruto inkomen Bedrag;
 
     // PHASE 3: Belasting
     de Zvw bijdrage Bedrag;
@@ -72,7 +72,7 @@ Objecttype het Scenario (mv: Scenarios)
     de huurtoeslag Bedrag;
 
     // PHASE 6: Resultaat
-    het beschikbaar inkomen Bedrag;
+    het netto inkomen Bedrag;
     het besteedbaar inkomen Bedrag;
     het besteedbaar inkomen incl huurtoeslag Bedrag;
 

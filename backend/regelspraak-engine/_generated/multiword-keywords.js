@@ -4,7 +4,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.multiWordKeywords = void 0;
 exports.multiWordKeywords = {
-    "generated": "2026-02-06T07:50:25.285Z",
+    "generated": "2026-02-06T09:27:00.668Z",
     "source": "grammar/RegelSpraakLexer.g4",
     "totalMultiWords": 129,
     "byFirstWord": {

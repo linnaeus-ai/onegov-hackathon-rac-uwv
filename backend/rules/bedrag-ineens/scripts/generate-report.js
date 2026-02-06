@@ -40,9 +40,9 @@ function main() {
     const name = profile.name.replace(/^Profile \d+: /, '').substring(0, 33);
     const pv = formatCurrency(profile.input.pensioenvermogen);
 
-    const s0 = profile.results?.scenario_0pct?.['beschikbaar inkomen'];
-    const s5 = profile.results?.scenario_5pct?.['beschikbaar inkomen'];
-    const s10 = profile.results?.scenario_10pct?.['beschikbaar inkomen'];
+    const s0 = profile.results?.scenario_0pct?.['netto inkomen'];
+    const s5 = profile.results?.scenario_5pct?.['netto inkomen'];
+    const s10 = profile.results?.scenario_10pct?.['netto inkomen'];
 
     console.log(
       name.padEnd(35) +
@@ -54,7 +54,7 @@ function main() {
   }
 
   console.log('-'.repeat(80));
-  console.log('\nLegend: PV = Pensioenvermogen, 0%/5%/10% = Beschikbaar inkomen at each withdrawal level\n');
+  console.log('\nLegend: PV = Pensioenvermogen, 0%/5%/10% = Netto inkomen at each withdrawal level\n');
 
   // Impact analysis
   console.log('IMPACT ANALYSIS');
@@ -65,8 +65,8 @@ function main() {
   let neutralImpact = 0;
 
   for (const profile of passed) {
-    const s0 = profile.results?.scenario_0pct?.['beschikbaar inkomen'] || 0;
-    const s10 = profile.results?.scenario_10pct?.['beschikbaar inkomen'] || 0;
+    const s0 = profile.results?.scenario_0pct?.['netto inkomen'] || 0;
+    const s10 = profile.results?.scenario_10pct?.['netto inkomen'] || 0;
     const diff = s10 - s0;
 
     if (diff > 100) {

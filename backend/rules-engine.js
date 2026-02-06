@@ -194,7 +194,7 @@ function calculateScenario(persoon, opnamePercentage, isJaarMetOpname = true) {
   const bedragIneens = getValue(attrs['bedrag ineens']);
   const resterendPensioenPerJaar = getValue(attrs['resterend pensioen per jaar']);
   const permanentVerliesPerJaar = getValue(attrs['permanent verlies per jaar']);
-  const inkomen = getValue(attrs['inkomen']);
+  const brutoInkomen = getValue(attrs['bruto inkomen']);
   const zvwBijdrage = getValue(attrs['Zvw bijdrage']);
   const belastingEersteSchijf = getValue(attrs['belasting eerste schijf']);
   const belastingTweedeSchijf = getValue(attrs['belasting tweede schijf']);
@@ -207,7 +207,7 @@ function calculateScenario(persoon, opnamePercentage, isJaarMetOpname = true) {
   const belastingNaHeffingskortingen = getValue(attrs['belasting na heffingskortingen']);
   const zorgtoeslag = getValue(attrs['zorgtoeslag']);
   const huurtoeslag = getValue(attrs['huurtoeslag']);
-  const beschikbaarInkomen = getValue(attrs['beschikbaar inkomen']);
+  const nettoInkomen = getValue(attrs['netto inkomen']);
 
   return {
     // Phase 1
@@ -217,7 +217,7 @@ function calculateScenario(persoon, opnamePercentage, isJaarMetOpname = true) {
     permanentVerliesPerJaar: round(permanentVerliesPerJaar),
 
     // Phase 2
-    inkomen: round(inkomen),
+    brutoInkomen: round(brutoInkomen),
 
     // Phase 3
     zvwBijdrage: round(zvwBijdrage),
@@ -238,13 +238,13 @@ function calculateScenario(persoon, opnamePercentage, isJaarMetOpname = true) {
     huurtoeslag: round(huurtoeslag),
 
     // Phase 6
-    beschikbaarInkomen: round(beschikbaarInkomen),
+    nettoInkomen: round(nettoInkomen),
 
     // Additional useful values
-    maandelijksInkomen: round(inkomen / 12),
-    maandelijksBeschikbaarInkomen: round(beschikbaarInkomen / 12),
+    maandelijksBrutoInkomen: round(brutoInkomen / 12),
+    maandelijksNettoInkomen: round(nettoInkomen / 12),
     maandelijksVerlies: round(permanentVerliesPerJaar / 12),
-    nettoUitkeringSchatting: round(bedragIneens - (belastingNaHeffingskortingen * (bedragIneens / (inkomen || 1))))
+    nettoUitkeringSchatting: round(bedragIneens - (belastingNaHeffingskortingen * (bedragIneens / (brutoInkomen || 1))))
   };
 }
 
