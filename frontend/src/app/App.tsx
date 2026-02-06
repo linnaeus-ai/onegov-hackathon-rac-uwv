@@ -449,7 +449,7 @@ export default function App() {
                               €{results.baseMonthly.toLocaleString()}
                             </td>
                             <td className="py-4 text-sm font-bold">
-                              €{results.newMonthly.toLocaleString()}
+                              €{results.ongoingMonthly.toLocaleString()}
                             </td>
                             <td className="py-4 text-sm text-red-500 font-bold text-right">
                               {results.reductionMonthly > 0
