@@ -1,6 +1,11 @@
 // In development with Vite proxy, use relative URL. In production, use environment variable.
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
+// Log API configuration on load
+console.log('[API Config] Base URL:', API_BASE);
+console.log('[API Config] VITE_API_URL:', import.meta.env.VITE_API_URL);
+console.log('[API Config] Mode:', import.meta.env.MODE);
+
 export interface Profile {
   id: string;
   name: string;
@@ -58,9 +63,22 @@ export interface CalculationResponse {
 }
 
 export async function fetchProfiles(): Promise<Profile[]> {
-  const response = await fetch(`${API_BASE}/profiles`);
-  if (!response.ok) throw new Error('Failed to fetch profiles');
-  return response.json();
+  try {
+    console.log('[API] Fetching profiles from:', `${API_BASE}/profiles`);
+    const response = await fetch(`${API_BASE}/profiles`);
+    console.log('[API] Response status:', response.status, response.statusText);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch profiles: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log('[API] Received profiles:', data.length);
+    return data;
+  } catch (error) {
+    console.error('[API] Error fetching profiles:', error);
+    throw error;
+  }
 }
 
 export async function fetchProfileDetails(id: string): Promise<ProfileDetails> {
