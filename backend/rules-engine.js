@@ -3,18 +3,18 @@
  * Uses the actual .rs rule files via the regelspraak-ts engine
  */
 
-import { readFileSync } from 'fs';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
+const { readFileSync, existsSync } = require('fs');
+const { resolve, join } = require('path');
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// Import from regelspraak-ts dist - try local copy first, then fall back to original location
+const localRegelspraakPath = join(__dirname, 'regelspraak-dist');
+const originalRegelspraakPath = resolve(__dirname, '../regelspraak-ts/dist');
+const regelspraakPath = existsSync(localRegelspraakPath) ? localRegelspraakPath : originalRegelspraakPath;
 
-// Import from regelspraak-ts dist
-const regelspraakPath = resolve(__dirname, '../regelspraak-ts/dist');
 let Engine, Context;
 
 try {
-  const regelspraak = await import(regelspraakPath + '/index.js');
+  const regelspraak = require(regelspraakPath + '/index.js');
   Engine = regelspraak.Engine;
   Context = regelspraak.Context;
 } catch (e) {
@@ -23,13 +23,15 @@ try {
   process.exit(1);
 }
 
-// Paths to rule files
-const rulesDir = resolve(__dirname, '../rules/bedrag-ineens');
+// Paths to rule files - try local copy first, then fall back to original location
+const localRulesDir = join(__dirname, 'rules/bedrag-ineens');
+const originalRulesDir = resolve(__dirname, '../rules/bedrag-ineens');
+const rulesDir = existsSync(localRulesDir) ? localRulesDir : originalRulesDir;
 const gegevensPath = resolve(rulesDir, 'gegevens.rs');
 const regelsPath = resolve(rulesDir, 'regels.rs');
 
 // Parameters (2024 values from EK Nota)
-export const PARAMETERS = {
+const PARAMETERS = {
   'AOW bruto alleenstaand': 19600,
   'eerste schijfgrens': 40021,
   'tweede schijfgrens': 75518,
@@ -129,7 +131,7 @@ function getValue(val) {
  * @param {boolean} isJaarMetOpname - Whether this is the year of withdrawal
  * @returns {Object} All calculated values
  */
-export function calculateScenario(persoon, opnamePercentage, isJaarMetOpname = true) {
+function calculateScenario(persoon, opnamePercentage, isJaarMetOpname = true) {
   const { engine, model } = loadRules();
   const context = new Context(model);
 
@@ -256,3 +258,5 @@ try {
 } catch (e) {
   console.error('Warning: Could not load rules on startup:', e.message);
 }
+
+module.exports = { calculateScenario, PARAMETERS };

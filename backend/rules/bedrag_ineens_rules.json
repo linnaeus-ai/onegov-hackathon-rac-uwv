@@ -1,0 +1,1083 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "id": "bedrag-ineens-regels-v1",
+  "titel": "Bedrag Ineens Pensioenregels",
+  "versie": "1.1.0",
+  "ingangsdatum": "2026-07-01",
+  "beschrijving": "Complete regelset voor het berekenen van bedrag ineens scenario's volgens de Wet herziening bedrag ineens",
+
+  "metadata": {
+    "bron": "Wet herziening bedrag ineens",
+    "jurisdictie": "Nederland",
+    "wettelijke_referentie": "Kamerstukken 36154",
+    "laatst_bijgewerkt": "2025-02-05",
+    "gerelateerde_wetgeving": [
+      "Pensioenwet",
+      "Wet bedrag ineens, RVU en verlofsparen (35555)",
+      "Wet toekomst pensioenen (Wtp)"
+    ],
+    "parameter_versioning": {
+      "beschrijving": "Belasting- en toeslagparameters wijzigen jaarlijks",
+      "huidige_parameter_jaar": 2024,
+      "verwachte_inwerkingtreding": "2026-07-01",
+      "update_vereist": "Parameters moeten worden bijgewerkt naar 2026-waarden voor productiegebruik",
+      "jaarlijks_te_updaten": [
+        "belastingschijven en tarieven",
+        "heffingskortingen bedragen en afbouwgrenzen",
+        "toeslaggrenzen (zorgtoeslag, huurtoeslag)",
+        "zvw maximum bijdrage-inkomen",
+        "minimum resterend pensioenbedrag",
+        "aio bijstandsnormen en vermogensgrenzen"
+      ]
+    }
+  },
+
+  "constanten": {
+    "belastingjaar": 2024,
+    "aow_leeftijd": 67,
+    "maximaal_percentage_bedrag_ineens": 10,
+    "minimaal_percentage_bedrag_ineens": 0,
+    "stappen_percentage": 1,
+    "uitkeringspatroon": {
+      "zonder_bedrag_ineens": "100-0-100",
+      "met_bedrag_ineens": "90-10-90",
+      "toelichting_patroon": "Patroon: [maandelijks_pensioen_%]-[bedrag_ineens_%]-[resterend_pensioen_%]",
+      "uitleg": {
+        "eerste_getal": "Percentage van oorspronkelijk pensioen dat maandelijks wordt uitgekeerd (bij 10% opname = 90%)",
+        "tweede_getal": "Percentage van pensioenwaarde dat als bedrag ineens wordt opgenomen (0-10%)",
+        "derde_getal": "Percentage van oorspronkelijk pensioen dat levenslang resteert (bij 10% opname = 90%)"
+      },
+      "formule": "Voor X% opname: (100-X)-X-(100-X)",
+      "voorbeelden": {
+        "0_procent": "100-0-100 (geen verandering)",
+        "5_procent": "95-5-95",
+        "10_procent": "90-10-90"
+      },
+      "belangrijk": "Bij keuze voor bedrag ineens wordt het pensioen DIRECT verlaagd naar (100-X)%, ook bij uitgestelde betaling"
+    },
+    "uitgestelde_betaling_maand": "januari",
+    "uitgestelde_betaling_toelichting": "Uitbetaling in januari volgend op het jaar waarin AOW-leeftijd wordt bereikt"
+  },
+
+  "geschiktheid": {
+    "bedrag_ineens": {
+      "titel": "Geschiktheid voor Bedrag Ineens",
+      "voorwaarden": [
+        {
+          "regel": "leeftijds_vereiste",
+          "beschrijving": "Keuze moet gemaakt worden op de pensioeningangsdatum",
+          "voorwaarde": "op_pensioeningangsdatum"
+        },
+        {
+          "regel": "eenmalige_keuze",
+          "beschrijving": "Kan slechts eenmaal gekozen worden, op het moment dat het pensioen ingaat",
+          "voorwaarde": "niet_eerder_gekozen"
+        },
+        {
+          "regel": "maximaal_percentage",
+          "beschrijving": "Maximaal 10% van de waarde van het ouderdomspensioen kan als bedrag ineens worden opgenomen",
+          "voorwaarde": "bedrag_ineens_percentage <= 10"
+        },
+        {
+          "regel": "uitsluiting_hoog_laag",
+          "beschrijving": "Niet mogelijk om zowel bedrag ineens als hoog-laag pensioen te kiezen",
+          "voorwaarde": "NIET (bedrag_ineens EN hoog_laag_pensioen)"
+        },
+        {
+          "regel": "onherroepelijke_keuze",
+          "beschrijving": "De keuze is definitief en kan niet worden teruggedraaid",
+          "voorwaarde": "keuze_is_definitief"
+        },
+        {
+          "regel": "minimum_resterend_pensioen",
+          "beschrijving": "Na opname moet minimaal het wettelijk minimum aan pensioen resteren",
+          "voorwaarde": "(jaarlijks_pensioen * (1 - bedrag_ineens_percentage / 100)) >= minimum_resterend_pensioen_bedrag",
+          "minimum_resterend_pensioen_bedrag_2026": 632.63,
+          "toelichting": "Dit bedrag wordt jaarlijks geindexeerd",
+          "wettelijke_basis": "Besluit uitvoering Pensioenwet"
+        },
+        {
+          "regel": "partner_toestemming",
+          "beschrijving": "Toestemming van partner vereist indien nabestaandenpensioen daalt",
+          "voorwaarde": "INDIEN nabestaandenpensioen_daalt DAN partner_toestemming_verkregen",
+          "toelichting": "Als het nabestaandenpensioen wordt verlaagd door de keuze voor bedrag ineens, moet de partner hier toestemming voor geven",
+          "wettelijke_basis": "Pensioenwet"
+        }
+      ]
+    },
+
+    "uitgestelde_betaling": {
+      "titel": "Geschiktheid voor Uitgestelde Betaling",
+      "beschrijving": "Voorwaarden om betaling van bedrag ineens uit te stellen naar januari volgend op AOW-jaar",
+      "voorwaarden": [
+        {
+          "regel": "pensioen_timing_zelfde_maand",
+          "beschrijving": "Pensioeningangsdatum in dezelfde maand als AOW-gerechtigde leeftijd wordt bereikt",
+          "voorwaarde": "pensioen_start_maand == aow_gerechtigde_maand"
+        },
+        {
+          "regel": "pensioen_timing_volgende_maand",
+          "beschrijving": "OF pensioeningangsdatum op de eerste dag van de maand na AOW-gerechtigdheid",
+          "voorwaarde": "pensioen_start_datum == eerste_dag_maand_na_aow"
+        },
+        {
+          "regel": "betaling_timing",
+          "beschrijving": "Uitgestelde betaling vindt plaats in januari volgend op het jaar waarin AOW-leeftijd wordt bereikt",
+          "betaal_datum": "1_januari_jaar_na_aow_gerechtigdheid"
+        }
+      ],
+      "belangrijk": {
+        "pensioen_verlaging": "Ook bij uitgestelde betaling wordt het pensioen DIRECT op de pensioeningangsdatum verlaagd naar 90%",
+        "geen_herberekening": "Op het uitgestelde betalingsmoment is geen herberekening van de pensioenaanspraken nodig"
+      }
+    }
+  },
+
+  "berekeningen": {
+    "bedrag_ineens_hoogte": {
+      "titel": "Bereken Hoogte Bedrag Ineens",
+      "formule": "gekapitaliseerde_pensioenwaarde * (bedrag_ineens_percentage / 100)",
+      "inputs": [
+        "maandelijks_pensioen",
+        "levensverwachting",
+        "bedrag_ineens_percentage"
+      ],
+      "output": "bedrag_ineens_bruto",
+      "toelichting": "De gekapitaliseerde pensioenwaarde wordt berekend op basis van actuariele tabellen",
+      "actuariele_conversie": {
+        "beschrijving": "Hoe maandelijks pensioen wordt omgerekend naar kapitaalwaarde",
+        "methode": "Contante waarde van toekomstige uitkeringen op basis van levensverwachting en rekenrente",
+        "indicatieve_factor": {
+          "aow_leeftijd_67": "Kapitaal ≈ 18.5 x jaarlijks pensioen",
+          "toelichting": "Deze factor is afhankelijk van geslacht, exacte leeftijd, en actuele sterfte- en rentetarieven",
+          "bron": "Afgeleid uit officiele rekenvoorbeelden EK Nota"
+        },
+        "afleiding_uit_voorbeelden": [
+          {"pensioen_maand": 600, "pensioen_jaar": 7200, "bedrag_ineens_10pct": 13300, "implied_kapitaal": 133000, "factor": 18.47},
+          {"pensioen_maand": 1200, "pensioen_jaar": 14400, "bedrag_ineens_10pct": 26700, "implied_kapitaal": 267000, "factor": 18.54},
+          {"pensioen_maand": 2100, "pensioen_jaar": 25200, "bedrag_ineens_10pct": 46700, "implied_kapitaal": 467000, "factor": 18.53}
+        ],
+        "waarschuwing": "De exacte kapitaalwaarde verschilt per pensioenuitvoerder; gebruik uitvoerder-specifieke waarde"
+      },
+      "voorbeelden": {
+        "pensioen_600_per_maand": {
+          "maandelijks_pensioen": 600,
+          "jaarlijks_pensioen": 7200,
+          "bedrag_ineens_10_procent": 13300
+        },
+        "pensioen_1200_per_maand": {
+          "maandelijks_pensioen": 1200,
+          "jaarlijks_pensioen": 14400,
+          "bedrag_ineens_10_procent": 26700
+        },
+        "pensioen_2100_per_maand": {
+          "maandelijks_pensioen": 2100,
+          "jaarlijks_pensioen": 25200,
+          "bedrag_ineens_10_procent": 46700
+        }
+      }
+    },
+
+    "verlaagd_pensioen": {
+      "titel": "Bereken Verlaagd Maandelijks Pensioen",
+      "beschrijving": "Bij opname bedrag ineens wordt het maandelijks pensioen verlaagd",
+      "directe_betaling": {
+        "formule": "oorspronkelijk_maandelijks_pensioen * (1 - bedrag_ineens_percentage / 100)",
+        "timing": "Verlaging direct toegepast op pensioeningangsdatum"
+      },
+      "uitgestelde_betaling": {
+        "formule": "oorspronkelijk_maandelijks_pensioen * (1 - bedrag_ineens_percentage / 100)",
+        "timing": "Verlaging direct toegepast op pensioeningangsdatum (NIET op betalingsdatum)",
+        "belangrijk": "Het pensioen wordt al bij aanvang verlaagd, ook al wordt het bedrag ineens later uitbetaald"
+      },
+      "inputs": [
+        "oorspronkelijk_maandelijks_pensioen",
+        "bedrag_ineens_percentage"
+      ],
+      "output": "verlaagd_maandelijks_pensioen",
+      "voorbeelden": {
+        "10_procent": {
+          "voorbeeld_600": {"oorspronkelijk": 600, "verlaagd": 540},
+          "voorbeeld_1200": {"oorspronkelijk": 1200, "verlaagd": 1080},
+          "voorbeeld_2100": {"oorspronkelijk": 2100, "verlaagd": 1890}
+        },
+        "5_procent": {
+          "voorbeeld_600": {"oorspronkelijk": 600, "verlaagd": 570},
+          "voorbeeld_1200": {"oorspronkelijk": 1200, "verlaagd": 1140},
+          "voorbeeld_2100": {"oorspronkelijk": 2100, "verlaagd": 1995}
+        }
+      }
+    },
+
+    "belasting": {
+      "inkomstenbelasting": {
+        "titel": "Inkomstenbelasting op Bedrag Ineens",
+        "beschrijving": "Bedrag ineens wordt opgeteld bij het bruto inkomen in het jaar van ontvangst",
+        "formule": "Bereken progressieve belasting op (regulier_inkomen + bedrag_ineens)",
+        "belastingschijven_2024": [
+          {
+            "van": 0,
+            "tot": 75518,
+            "tarief": 0.3693,
+            "beschrijving": "Eerste schijf (36.93%) - inclusief premies volksverzekeringen"
+          },
+          {
+            "van": 75518,
+            "tot": 999999999,
+            "tarief": 0.4950,
+            "beschrijving": "Tweede schijf (49.50%)"
+          }
+        ],
+        "belastingschijven_aow_gerechtigden_2024": [
+          {
+            "van": 0,
+            "tot": 40021,
+            "tarief": 0.1907,
+            "beschrijving": "Eerste schijf AOW-gerechtigden (19.07%)"
+          },
+          {
+            "van": 40021,
+            "tot": 75518,
+            "tarief": 0.3693,
+            "beschrijving": "Tweede schijf AOW-gerechtigden (36.93%)"
+          },
+          {
+            "van": 75518,
+            "tot": 999999999,
+            "tarief": 0.4950,
+            "beschrijving": "Derde schijf AOW-gerechtigden (49.50%)"
+          }
+        ],
+        "heffingskortingen": {
+          "algemene_heffingskorting": {
+            "beschrijving": "Algemene heffingskorting",
+            "maximaal_bedrag_2024": 3362,
+            "afbouw_inkomen": 24813,
+            "afbouw_percentage": 0.06510,
+            "formule": "max(0, maximaal_bedrag - max(0, (verzamelinkomen - afbouw_inkomen) * afbouw_percentage))",
+            "voorbeeld": "Bij inkomen €40.000: 3362 - ((40000 - 24813) * 0.0651) = 3362 - 988 = €2374"
+          },
+          "ouderenkorting": {
+            "beschrijving": "Ouderenkorting voor AOW-gerechtigden",
+            "maximaal_bedrag_2024": 1835,
+            "inkomensgrens": 44770,
+            "afbouw_percentage": 0.15,
+            "formule": "INDIEN verzamelinkomen <= inkomensgrens DAN maximaal_bedrag ANDERS max(0, maximaal_bedrag - (verzamelinkomen - inkomensgrens) * afbouw_percentage)",
+            "eindgrens": "Ouderenkorting is €0 bij verzamelinkomen >= inkomensgrens + (maximaal_bedrag / afbouw_percentage) = 44770 + 12233 = €57003",
+            "voorbeeld": "Bij inkomen €50.000: 1835 - ((50000 - 44770) * 0.15) = 1835 - 785 = €1050"
+          }
+        }
+      },
+
+      "inkomensafhankelijke_bijdrage_zvw": {
+        "titel": "Inkomensafhankelijke Bijdrage Zorgverzekeringswet (Zvw)",
+        "tarief_2024": 0.0545,
+        "maximaal_bijdrage_inkomen_2024": 73031,
+        "berekening": "min(totaal_inkomen, maximaal_bijdrage_inkomen) * tarief",
+        "formule": "zvw_bijdrage = min(aow + pensioen + bedrag_ineens, 73031) * 0.0545",
+        "toelichting": "De Zvw-bijdrage wordt ingehouden door de pensioenuitvoerder",
+        "randgeval_hoog_inkomen": {
+          "beschrijving": "Als het inkomen zonder bedrag ineens al boven €73.031 ligt",
+          "gevolg": "Het bedrag ineens voegt dan GEEN extra Zvw-bijdrage toe",
+          "voorbeeld": "Bij basisinkomen €80.000 + bedrag ineens €20.000: Zvw = €73.031 * 5.45% = €3.980 (niet €100.000 * 5.45%)"
+        }
+      }
+    },
+
+    "toeslagen": {
+      "zorgtoeslag": {
+        "titel": "Zorgtoeslag",
+        "beschrijving": "Inkomensafhankelijke tegemoetkoming in de zorgkosten",
+        "geschiktheid": {
+          "leeftijd": "18+",
+          "verzekering": "Moet Nederlandse zorgverzekering hebben",
+          "inkomensgrenzen_2024": {
+            "alleenstaand": 37496,
+            "met_toeslagpartner": 47368,
+            "beschrijving": "Maximaal verzamelinkomen om in aanmerking te komen"
+          },
+          "vermogensgrens_2024": {
+            "alleenstaand": 140213,
+            "met_toeslagpartner": 177301
+          }
+        },
+        "berekening_2024": {
+          "standaardpremie": 1903,
+          "normpremie_alleenstaand_percentage": 0.0413,
+          "normpremie_partners_percentage": 0.0777,
+          "drempelinkomen": 25437,
+          "maximaal_bedrag_alleenstaand": 1800,
+          "maximaal_bedrag_partners": 3600
+        },
+        "impact": "Bedrag ineens verhoogt het inkomen in dat jaar, waardoor zorgtoeslag mogelijk vermindert of vervalt"
+      },
+
+      "huurtoeslag": {
+        "titel": "Huurtoeslag",
+        "beschrijving": "Inkomensafhankelijke tegemoetkoming in de huurkosten voor huurders",
+        "geschiktheid_2024": {
+          "huurwoning": true,
+          "maximale_huur": 879.66,
+          "minimale_huur": 187.87,
+          "inkomensgrenzen": {
+            "alleenstaand": 25725,
+            "alleenstaand_aow": 28550,
+            "meerpersoonshuishouden": 35175,
+            "meerpersoonshuishouden_aow": 38800,
+            "beschrijving": "Maximaal toetsingsinkomen"
+          },
+          "vermogensgrens_2024": {
+            "alleenstaand": 36952,
+            "meerpersoonshuishouden": 73904
+          }
+        },
+        "berekening": {
+          "basisbedrag": "Afhankelijk van huishoudsamenstelling, leeftijd, huurhoogte",
+          "afbouw": "Geleidelijke vermindering bij hoger inkomen",
+          "kwaliteitskorting": "Toegepast voor goedkopere woningen"
+        },
+        "impact": "Bedrag ineens verhoogt het toetsingsinkomen, waardoor huurtoeslag mogelijk vermindert of vervalt",
+        "bijzondere_uitzondering": {
+          "beschrijving": "Bedrag ineens kan op verzoek worden uitgezonderd als bijzondere nabetaling",
+          "voorwaarde": "Aanvraag bij Belastingdienst/Toeslagen",
+          "effect": "Bij goedkeuring telt bedrag ineens NIET mee voor huurtoeslag berekening",
+          "wettelijke_basis": "Artikel 2b Besluit op de huurtoeslag",
+          "belangrijk": "Dit geldt ALLEEN voor huurtoeslag, niet voor andere toeslagen"
+        }
+      },
+
+      "kindgebonden_budget": {
+        "titel": "Kindgebonden Budget",
+        "beschrijving": "Inkomensafhankelijke bijdrage voor ouders met kinderen",
+        "geschiktheid": {
+          "heeft_kinderen": true,
+          "kind_leeftijd": "Jonger dan 18 jaar",
+          "inkomensafhankelijk": true
+        },
+        "impact": "Bedrag ineens kan leiden tot vermindering of verlies van kindgebonden budget"
+      },
+
+      "kinderopvangtoeslag": {
+        "titel": "Kinderopvangtoeslag",
+        "beschrijving": "Tegemoetkoming in kosten van kinderopvang",
+        "impact": "Bedrag ineens kan leiden tot vermindering van kinderopvangtoeslag"
+      },
+
+      "aio": {
+        "titel": "Aanvullende Inkomensvoorziening Ouderen (AIO)",
+        "beschrijving": "Aanvulling op AOW voor ouderen met onvolledige AOW-opbouw of laag inkomen",
+        "geschiktheid": {
+          "leeftijd": "AOW-gerechtigd",
+          "inkomen": "Inkomen onder bijstandsnorm",
+          "vermogen": "Vermogen onder vrijstellingsgrens"
+        },
+        "berekening": {
+          "beschrijving": "Aanvulling tot bijstandsnorm, rekening houdend met inkomen en vermogen",
+          "bijstandsnorm_alleenstaand_2024": 15168,
+          "bijstandsnorm_samenwonend_2024": 21669,
+          "vermogensvrijstelling_alleenstaand_2024": 7605,
+          "vermogensvrijstelling_samenwonend_2024": 15210
+        },
+        "impact": {
+          "jaar_van_ontvangst": "Bedrag ineens telt als inkomen, kan leiden tot korting of verlies AIO",
+          "vermogenseffect": "Als bedrag ineens wordt gespaard, telt het mee als vermogen voor volgende jaren",
+          "terugvordering": "Mogelijk terugvordering van eerder ontvangen AIO"
+        },
+        "waarschuwing": "AIO-ontvangers behoren tot de meest kwetsbare groep; bedrag ineens is voor hen vaak zeer ongunstig"
+      }
+    },
+
+    "lokale_regelingen": {
+      "titel": "Lokale en Gemeentelijke Regelingen",
+      "beschrijving": "Gemeente-specifieke regelingen die mogelijk worden beinvloed",
+      "voorbeelden": [
+        {
+          "regeling": "Kwijtschelding gemeentelijke belastingen",
+          "beschrijving": "Kwijtschelding van gemeentelijke heffingen bij laag inkomen",
+          "impact": "Bedrag ineens kan leiden tot verlies van kwijtschelding"
+        },
+        {
+          "regeling": "Minimaregelingen",
+          "beschrijving": "Gemeentelijke regelingen voor minima",
+          "impact": "Inkomenstoets kan negatief uitvallen door bedrag ineens"
+        },
+        {
+          "regeling": "Bijzondere bijstand",
+          "beschrijving": "Gemeentelijke bijstand voor bijzondere kosten",
+          "impact": "Vermogenstoets kan negatief uitvallen als bedrag ineens wordt gespaard"
+        }
+      ],
+      "waarschuwing": "De gevolgen voor lokale regelingen varieren per gemeente en zijn niet centraal berekend"
+    },
+
+    "toetsingsinkomen": {
+      "titel": "Berekening Toetsingsinkomen",
+      "beschrijving": "Het inkomen dat wordt gebruikt om recht op toeslagen te bepalen",
+      "componenten": [
+        "aow_uitkering",
+        "aanvullend_pensioen_periodiek",
+        "bedrag_ineens (alleen in jaar van ontvangst)",
+        "overig_inkomen"
+      ],
+      "formule": "som(alle_inkomenscomponenten) - aftrekposten",
+      "timing": "Bedrag ineens telt alleen mee in het jaar van ontvangst",
+      "gevolgen": {
+        "jaar_van_ontvangst": "Hoger toetsingsinkomen, mogelijk verlies van toeslagen",
+        "jaren_daarna": "Lager toetsingsinkomen door verlaagd pensioen, mogelijk hogere toeslagen"
+      }
+    }
+  },
+
+  "bijzondere_situaties": {
+    "scheiding_verevening": {
+      "titel": "Pensioenverevening bij Scheiding",
+      "beschrijving": "Effect van bedrag ineens bij verevend pensioen na scheiding",
+      "regels": [
+        {
+          "regel": "verevend_ouderdomspensioen",
+          "beschrijving": "Bij scheiding kan een deel van het ouderdomspensioen zijn verevend ten behoeve van de ex-partner",
+          "gevolg": "Keuze voor bedrag ineens leidt ook tot gedeeltelijke afkoop van het verevend ouderdomspensioen",
+          "impact_ex_partner": "De ex-partner ontvangt dan ook een bedrag ineens uit het verevend deel"
+        },
+        {
+          "regel": "bijzonder_partnerpensioen",
+          "beschrijving": "Bij scheiding kan een bijzonder partnerpensioen zijn afgesplitst",
+          "gevolg": "De keuze voor bedrag ineens heeft GEEN gevolgen voor het bijzonder partnerpensioen"
+        }
+      ],
+      "waarschuwing": "De deelnemer heeft na scheiding niet noodzakelijk inzicht in de totale inkomenspositie van de ex-partner"
+    },
+
+    "meerdere_pensioenuitvoerders": {
+      "titel": "Meerdere Pensioenuitvoerders",
+      "beschrijving": "Situatie waarbij deelnemer pensioen heeft bij meerdere uitvoerders",
+      "regels": [
+        {
+          "regel": "keuze_per_uitvoerder",
+          "beschrijving": "Bij meerdere pensioenuitvoerders kan bij elk apart gekozen worden voor bedrag ineens",
+          "gevolg": "Deelnemer kan via meerdere uitvoerders een bedrag ineens ontvangen"
+        },
+        {
+          "regel": "waardeoverdracht",
+          "beschrijving": "Deelnemer kan kiezen voor waardeoverdracht om pensioenen samen te voegen",
+          "timing": "Moet voor pensioendatum gebeuren",
+          "let_op": "Geen verplichting tot waardeoverdracht"
+        }
+      ],
+      "informatie_deling": "Pensioenuitvoerders kunnen met toestemming van de deelnemer pensioenaanspraken bij andere uitvoerders opvragen via het pensioenregister"
+    },
+
+    "overlijden_voor_uitbetaling": {
+      "titel": "Overlijden voor Uitgestelde Betaling",
+      "beschrijving": "Gevolgen als deelnemer overlijdt voor uitgestelde betaling plaatsvindt",
+      "regels": [
+        {
+          "regel": "informatieplicht",
+          "beschrijving": "Pensioenuitvoerders moeten deelnemers informeren over de gevolgen bij overlijden voor uitbetaling"
+        },
+        {
+          "regel": "erfgenamen",
+          "beschrijving": "Het bedrag ineens valt in de nalatenschap als de deelnemer overlijdt na de pensioeningangsdatum maar voor de uitgestelde betaling"
+        }
+      ]
+    },
+
+    "invaren_wtp": {
+      "titel": "Samenloop met Wet Toekomst Pensioenen (Invaren)",
+      "beschrijving": "Effect van invaren op bedrag ineens",
+      "regels": [
+        {
+          "regel": "wijziging_pensioenhoogte",
+          "beschrijving": "Na invaren kan het ouderdomspensioen gewijzigd zijn door dekkingsgraad en pensioenafspraken",
+          "gevolg": "Het bedrag ineens voor invaren kan anders zijn dan na invaren"
+        },
+        {
+          "regel": "keuzebegeleiding",
+          "beschrijving": "Pensioenuitvoerders moeten de gevolgen van de transitie meenemen in de keuzebegeleiding"
+        }
+      ]
+    },
+
+    "schulden": {
+      "titel": "Schulden en Beslaglegging",
+      "beschrijving": "Risico dat bedrag ineens vatbaar is voor beslaglegging",
+      "regels": [
+        {
+          "regel": "vermogen_na_ontvangst",
+          "beschrijving": "Na ontvangst wordt bedrag ineens onderdeel van het vermogen",
+          "gevolg": "Kan vatbaar zijn voor beslaglegging door schuldeisers"
+        },
+        {
+          "regel": "vermogenstoets",
+          "beschrijving": "Gespaard bedrag ineens telt mee voor vermogenstoetsen van regelingen"
+        }
+      ],
+      "waarschuwing": "Bij schulden kan het bedrag ineens worden gebruikt voor aflossing door schuldeisers"
+    }
+  },
+
+  "scenarios": {
+    "geen_bedrag_ineens": {
+      "titel": "Scenario: Geen Bedrag Ineens (0%)",
+      "bedrag_ineens_percentage": 0,
+      "bedrag_ineens": 0,
+      "maandelijks_pensioen_factor": 1.0,
+      "belasting_impact": "Geen extra belastingdruk",
+      "toeslag_impact": "Geen negatieve invloed op toeslagen"
+    },
+
+    "gedeeltelijk_bedrag_ineens": {
+      "titel": "Scenario: Gedeeltelijk Bedrag Ineens (5%)",
+      "bedrag_ineens_percentage": 5,
+      "maandelijks_pensioen_factor": 0.95,
+      "overwegingen": [
+        "Gematigde eenmalige uitkering",
+        "Kleine verlaging van maandelijks pensioen",
+        "Gematigde belastingimpact in uitkeringsjaar",
+        "Mogelijk effect op toeslagen afhankelijk van inkomensniveau"
+      ]
+    },
+
+    "maximaal_bedrag_ineens": {
+      "titel": "Scenario: Maximaal Bedrag Ineens (10%)",
+      "bedrag_ineens_percentage": 10,
+      "maandelijks_pensioen_factor": 0.90,
+      "overwegingen": [
+        "Maximale eenmalige uitkering beschikbaar",
+        "10% permanente verlaging van maandelijks pensioen",
+        "Aanzienlijke belastingimpact in uitkeringsjaar",
+        "Waarschijnlijk effect op inkomensafhankelijke toeslagen"
+      ]
+    }
+  },
+
+  "risicofactoren": {
+    "titel": "Risicofactoren om te Overwegen",
+    "financieel_kwetsbare_groepen": {
+      "beschrijving": "Groepen met verhoogd risico bij keuze voor bedrag ineens",
+      "kenmerken": [
+        "Laag tot middeninkomen",
+        "Afhankelijk van toeslagen",
+        "Beperkte financiele geletterdheid",
+        "Schuldsituatie"
+      ],
+      "risicos": [
+        {
+          "risico": "toeslag_verlies",
+          "beschrijving": "Tijdelijk verlies van zorgtoeslag en/of huurtoeslag in uitkeringsjaar",
+          "ernst": "hoog"
+        },
+        {
+          "risico": "hogere_belasting",
+          "beschrijving": "Progressief belastingtarief betekent onevenredige belasting op bedrag ineens",
+          "ernst": "gemiddeld"
+        },
+        {
+          "risico": "permanente_inkomensverlaging",
+          "beschrijving": "Maandelijks pensioen permanent verlaagd met gekozen percentage",
+          "ernst": "gemiddeld_tot_hoog"
+        },
+        {
+          "risico": "beslag_schulden",
+          "beschrijving": "Bedrag ineens kan vatbaar zijn voor beslaglegging bij schulden",
+          "ernst": "hoog"
+        },
+        {
+          "risico": "kwijtschelding_lokale_belastingen",
+          "beschrijving": "Mogelijk verlies van kwijtschelding gemeentelijke belastingen",
+          "ernst": "gemiddeld"
+        }
+      ]
+    }
+  },
+
+  "keuzeondersteuning": {
+    "titel": "Keuzeondersteuning Framework",
+    "beschrijving": "Factoren om burgers te helpen een weloverwogen keuze te maken",
+
+    "gunstige_situaties": [
+      {
+        "situatie": "Geen afhankelijkheid van toeslagen",
+        "beschrijving": "Inkomen boven toeslaggrenzen, dus geen risico op verlies van toeslagen"
+      },
+      {
+        "situatie": "Concrete behoefte aan liquide middelen",
+        "beschrijving": "Specifiek doel: woningverbetering, schuldaflossing, grote aankoop"
+      },
+      {
+        "situatie": "Kortere levensverwachting",
+        "beschrijving": "Gezondheidssituatie wijst op kortere dan gemiddelde levensduur"
+      },
+      {
+        "situatie": "Hoger rendement mogelijk",
+        "beschrijving": "Mogelijkheid om bedrag ineens te beleggen met rendement hoger dan pensioengroei"
+      }
+    ],
+
+    "ongunstige_situaties": [
+      {
+        "situatie": "Afhankelijk van toeslagen",
+        "beschrijving": "Ontvangt zorgtoeslag en/of huurtoeslag - zal deze waarschijnlijk tijdelijk verliezen"
+      },
+      {
+        "situatie": "Weinig spaargeld",
+        "beschrijving": "Beperkt overig vermogen, pensioen is primaire inkomensbron"
+      },
+      {
+        "situatie": "Schuldsituatie",
+        "beschrijving": "Openstaande schulden waarop beslag kan worden gelegd"
+      },
+      {
+        "situatie": "Geen concrete behoefte",
+        "beschrijving": "Geen specifiek plan voor gebruik van bedrag ineens"
+      },
+      {
+        "situatie": "Langere levensverwachting",
+        "beschrijving": "Goede gezondheid wijst op langere dan gemiddelde levensduur"
+      },
+      {
+        "situatie": "Ex-partner met verevend pensioen",
+        "beschrijving": "Gevolgen voor ex-partner moeten worden meegewogen"
+      }
+    ],
+
+    "kernvragen": [
+      "Ontvangt u momenteel zorgtoeslag of huurtoeslag?",
+      "Wat is uw totale jaarinkomen inclusief AOW?",
+      "Heeft u openstaande schulden?",
+      "Heeft u een concrete behoefte aan eenmalig geld?",
+      "Wat is uw huidige gezondheidssituatie en levensverwachting in uw familie?",
+      "Heeft u andere spaargelden of vermogen?",
+      "Bent u comfortabel met financiele planning en beheer?",
+      "Heeft u een ex-partner met verevend pensioen?",
+      "Heeft u pensioen bij meerdere uitvoerders?"
+    ]
+  },
+
+  "informatie_verplichtingen": {
+    "titel": "Informatieverplichtingen voor Pensioenuitvoerders",
+    "beschrijving": "Wat pensioenuitvoerders moeten communiceren aan deelnemers",
+
+    "verplichte_informatie": [
+      {
+        "item": "beschikbaarheid_keuze",
+        "beschrijving": "Informeer deelnemers over de mogelijkheid van bedrag ineens 6-9 maanden voor pensioendatum",
+        "bron": "Pensioenwet artikel 48"
+      },
+      {
+        "item": "financiele_gevolgen",
+        "beschrijving": "Leg impact uit op maandelijks pensioenbedrag",
+        "bron": "Pensioenwet artikel 48"
+      },
+      {
+        "item": "fiscale_gevolgen",
+        "beschrijving": "Waarschuw dat bedrag ineens belastbaar inkomen is en belastingdruk kan verhogen",
+        "bron": "Besluit uitvoering Pensioenwet"
+      },
+      {
+        "item": "gevolgen_toeslagen",
+        "beschrijving": "Waarschuw dat bedrag ineens gevolgen kan hebben voor toeslagen en inkomensafhankelijke regelingen",
+        "bron": "Besluit uitvoering Pensioenwet"
+      },
+      {
+        "item": "verwijzing_informatie",
+        "beschrijving": "Verwijs naar tools: Belastingdienst rekentool, pensioenduidelijkheid.nl, Nibud",
+        "bron": "Besluit uitvoering Pensioenwet"
+      },
+      {
+        "item": "uitgestelde_betaling_optie",
+        "beschrijving": "Informeer over mogelijkheid tot uitgestelde betaling indien van toepassing",
+        "bron": "Wet herziening bedrag ineens"
+      },
+      {
+        "item": "overlijden_voor_betaling",
+        "beschrijving": "Leg gevolgen uit als deelnemer overlijdt voor uitgestelde betaling",
+        "bron": "Wet herziening bedrag ineens"
+      },
+      {
+        "item": "onherroepelijke_keuze",
+        "beschrijving": "Benadruk dat de keuze definitief is en niet kan worden gewijzigd",
+        "bron": "Pensioenwet"
+      }
+    ],
+
+    "niet_verplicht": [
+      {
+        "item": "individuele_doorrekening",
+        "beschrijving": "Uitvoerders zijn NIET verplicht om individuele belasting/toeslag impact door te rekenen",
+        "reden": "Uitvoerder kent niet de volledige inkomens- en vermogenspositie van de deelnemer"
+      },
+      {
+        "item": "financieel_advies",
+        "beschrijving": "Uitvoerders geven GEEN bindend financieel advies"
+      }
+    ],
+
+    "keuzebegeleiding_norm": {
+      "beschrijving": "Open norm in Pensioenwet artikel 48a",
+      "vereiste": "Pensioenuitvoerder moet deelnemers in staat stellen een passende keuze te maken",
+      "toezicht": "AFM houdt toezicht op naleving van deze norm"
+    }
+  },
+
+  "rekenvoorbeelden": {
+    "voorbeeld_1": {
+      "titel": "Laag Inkomen, Alleenstaand, Toeslag Ontvanger",
+      "profiel": {
+        "maandelijks_aanvullend_pensioen": 600,
+        "jaarlijks_aanvullend_pensioen": 7200,
+        "aow_jaarlijks": 19600,
+        "huishouden": "alleenstaand",
+        "ontvangt_toeslagen": true,
+        "huur_maandelijks": 576
+      },
+      "scenarios": {
+        "geen_bedrag_ineens": {
+          "bedrag_ineens": 0,
+          "bruto_inkomen": 26800,
+          "zvw_bijdrage": 1400,
+          "belasting": 900,
+          "netto_inkomen": 24500,
+          "zorgpremie_eigen_risico": 2100,
+          "zorgtoeslag": 1500,
+          "besteedbaar_inkomen": 23900,
+          "huurtoeslag": 2700,
+          "totaal_besteedbaar_inkomen": 26600
+        },
+        "10_procent_bedrag_ineens": {
+          "bedrag_ineens": 13300,
+          "maandelijks_pensioen_verlaagd": 540,
+          "jaarlijks_pensioen_verlaagd": 6500,
+          "jaar_van_uitkering": {
+            "bruto_inkomen": 39400,
+            "zvw_bijdrage": 2100,
+            "belasting": 4000,
+            "netto_inkomen": 33300,
+            "zorgpremie_eigen_risico": 2100,
+            "zorgtoeslag": 0,
+            "besteedbaar_inkomen": 31300,
+            "huurtoeslag": 0,
+            "totaal_besteedbaar_inkomen": 31300
+          },
+          "volgende_jaren": {
+            "bruto_inkomen": 26100,
+            "zvw_bijdrage": 1400,
+            "belasting": 700,
+            "netto_inkomen": 23900,
+            "zorgpremie_eigen_risico": 2100,
+            "zorgtoeslag": 1500,
+            "besteedbaar_inkomen": 23400,
+            "huurtoeslag": 2900,
+            "totaal_besteedbaar_inkomen": 26300
+          }
+        },
+        "5_procent_bedrag_ineens": {
+          "bedrag_ineens": 6700,
+          "maandelijks_pensioen_verlaagd": 570,
+          "jaarlijks_pensioen_verlaagd": 6800,
+          "jaar_van_uitkering": {
+            "bruto_inkomen": 33100,
+            "zvw_bijdrage": 1800,
+            "belasting": 2300,
+            "netto_inkomen": 29000,
+            "zorgpremie_eigen_risico": 2100,
+            "zorgtoeslag": 600,
+            "besteedbaar_inkomen": 27600,
+            "huurtoeslag": 500,
+            "totaal_besteedbaar_inkomen": 28100
+          },
+          "volgende_jaren": {
+            "bruto_inkomen": 26400,
+            "zvw_bijdrage": 1400,
+            "belasting": 800,
+            "netto_inkomen": 24200,
+            "zorgpremie_eigen_risico": 2100,
+            "zorgtoeslag": 1500,
+            "besteedbaar_inkomen": 23600,
+            "huurtoeslag": 2800,
+            "totaal_besteedbaar_inkomen": 26400
+          }
+        }
+      }
+    },
+
+    "voorbeeld_2": {
+      "titel": "Midden Inkomen, Alleenstaand",
+      "profiel": {
+        "maandelijks_aanvullend_pensioen": 1200,
+        "jaarlijks_aanvullend_pensioen": 14400,
+        "aow_jaarlijks": 19600,
+        "huishouden": "alleenstaand",
+        "huur_maandelijks": 576
+      },
+      "scenarios": {
+        "geen_bedrag_ineens": {
+          "bedrag_ineens": 0,
+          "bruto_inkomen": 34000,
+          "zvw_bijdrage": 1800,
+          "belasting": 2500,
+          "netto_inkomen": 29700,
+          "zorgpremie_eigen_risico": 2100,
+          "zorgtoeslag": 500,
+          "besteedbaar_inkomen": 28100,
+          "huurtoeslag": 300,
+          "totaal_besteedbaar_inkomen": 28400
+        },
+        "10_procent_bedrag_ineens": {
+          "bedrag_ineens": 26700,
+          "maandelijks_pensioen_verlaagd": 1080,
+          "jaarlijks_pensioen_verlaagd": 13000,
+          "jaar_van_uitkering": {
+            "bruto_inkomen": 59200,
+            "zvw_bijdrage": 3200,
+            "belasting": 14000,
+            "netto_inkomen": 42100,
+            "zorgpremie_eigen_risico": 2100,
+            "zorgtoeslag": 0,
+            "besteedbaar_inkomen": 40000,
+            "huurtoeslag": 0,
+            "totaal_besteedbaar_inkomen": 40000
+          },
+          "volgende_jaren": {
+            "bruto_inkomen": 32600,
+            "zvw_bijdrage": 1700,
+            "belasting": 2200,
+            "netto_inkomen": 28600,
+            "zorgpremie_eigen_risico": 2100,
+            "zorgtoeslag": 700,
+            "besteedbaar_inkomen": 27300,
+            "huurtoeslag": 700,
+            "totaal_besteedbaar_inkomen": 27900
+          }
+        },
+        "5_procent_bedrag_ineens": {
+          "bedrag_ineens": 13300,
+          "maandelijks_pensioen_verlaagd": 1140,
+          "jaarlijks_pensioen_verlaagd": 13700,
+          "jaar_van_uitkering": {
+            "bruto_inkomen": 46600,
+            "zvw_bijdrage": 2500,
+            "belasting": 7200,
+            "netto_inkomen": 37000,
+            "zorgpremie_eigen_risico": 2100,
+            "zorgtoeslag": 0,
+            "besteedbaar_inkomen": 34900,
+            "huurtoeslag": 0,
+            "totaal_besteedbaar_inkomen": 34900
+          },
+          "volgende_jaren": {
+            "bruto_inkomen": 33300,
+            "zvw_bijdrage": 1800,
+            "belasting": 2400,
+            "netto_inkomen": 29100,
+            "zorgpremie_eigen_risico": 2100,
+            "zorgtoeslag": 600,
+            "besteedbaar_inkomen": 27700,
+            "huurtoeslag": 500,
+            "totaal_besteedbaar_inkomen": 28200
+          }
+        }
+      }
+    },
+
+    "voorbeeld_3": {
+      "titel": "Hoger Inkomen, Alleenstaand",
+      "profiel": {
+        "maandelijks_aanvullend_pensioen": 2100,
+        "jaarlijks_aanvullend_pensioen": 25200,
+        "aow_jaarlijks": 19600,
+        "huishouden": "alleenstaand",
+        "huur_maandelijks": 576
+      },
+      "scenarios": {
+        "geen_bedrag_ineens": {
+          "bedrag_ineens": 0,
+          "bruto_inkomen": 44800,
+          "zvw_bijdrage": 2400,
+          "belasting": 6200,
+          "netto_inkomen": 36300,
+          "zorgpremie_eigen_risico": 2100,
+          "zorgtoeslag": 0,
+          "besteedbaar_inkomen": 34200,
+          "huurtoeslag": 0,
+          "totaal_besteedbaar_inkomen": 34200
+        },
+        "10_procent_bedrag_ineens": {
+          "bedrag_ineens": 46700,
+          "maandelijks_pensioen_verlaagd": 1890,
+          "jaarlijks_pensioen_verlaagd": 22700,
+          "jaar_van_uitkering": {
+            "bruto_inkomen": 88900,
+            "zvw_bijdrage": 3800,
+            "belasting": 27200,
+            "netto_inkomen": 57900,
+            "zorgpremie_eigen_risico": 2100,
+            "zorgtoeslag": 0,
+            "besteedbaar_inkomen": 55800,
+            "huurtoeslag": 0,
+            "totaal_besteedbaar_inkomen": 55800
+          },
+          "volgende_jaren": {
+            "bruto_inkomen": 42300,
+            "zvw_bijdrage": 2200,
+            "belasting": 5100,
+            "netto_inkomen": 34900,
+            "zorgpremie_eigen_risico": 2100,
+            "zorgtoeslag": 0,
+            "besteedbaar_inkomen": 32800,
+            "huurtoeslag": 0,
+            "totaal_besteedbaar_inkomen": 32800
+          }
+        },
+        "5_procent_bedrag_ineens": {
+          "bedrag_ineens": 23300,
+          "maandelijks_pensioen_verlaagd": 1995,
+          "jaarlijks_pensioen_verlaagd": 23900,
+          "jaar_van_uitkering": {
+            "bruto_inkomen": 66900,
+            "zvw_bijdrage": 3600,
+            "belasting": 17100,
+            "netto_inkomen": 46200,
+            "zorgpremie_eigen_risico": 2100,
+            "zorgtoeslag": 0,
+            "besteedbaar_inkomen": 44200,
+            "huurtoeslag": 0,
+            "totaal_besteedbaar_inkomen": 44200
+          },
+          "volgende_jaren": {
+            "bruto_inkomen": 43500,
+            "zvw_bijdrage": 2300,
+            "belasting": 5600,
+            "netto_inkomen": 35600,
+            "zorgpremie_eigen_risico": 2100,
+            "zorgtoeslag": 0,
+            "besteedbaar_inkomen": 33500,
+            "huurtoeslag": 0,
+            "totaal_besteedbaar_inkomen": 33500
+          }
+        }
+      }
+    }
+  },
+
+  "aannames": {
+    "titel": "Belangrijke Aannames en Vereenvoudigingen",
+    "items": [
+      {
+        "aanname": "belasting_parameters",
+        "beschrijving": "Belastingschijven en tarieven gebaseerd op parameters 2024"
+      },
+      {
+        "aanname": "toeslag_parameters",
+        "beschrijving": "Toeslaggrenzen en bedragen gebaseerd op parameters 2024"
+      },
+      {
+        "aanname": "pensioen_kapitalisatie",
+        "beschrijving": "Pensioenwaarde gekapitaliseerd op basis van standaard actuariele tabellen"
+      },
+      {
+        "aanname": "levensverwachting",
+        "beschrijving": "Standaard CBS levensverwachtingstabellen gebruikt"
+      },
+      {
+        "aanname": "geen_inflatie",
+        "beschrijving": "Berekeningen houden geen rekening met toekomstige inflatie"
+      },
+      {
+        "aanname": "geen_indexatie",
+        "beschrijving": "Pensioenindexatie niet gemodelleerd in voorbeelden"
+      },
+      {
+        "aanname": "alleenstaand_huishouden",
+        "beschrijving": "Voorbeelden gaan uit van alleenstaande huishoudens tenzij anders vermeld"
+      },
+      {
+        "aanname": "huurwoning",
+        "beschrijving": "Huurtoeslagberekeningen gaan uit van huursituatie"
+      },
+      {
+        "aanname": "volledige_aow",
+        "beschrijving": "Voorbeelden gaan uit van volledige AOW-opbouw (50 jaar)"
+      },
+      {
+        "aanname": "pensioen_en_aow_zelfde_jaar",
+        "beschrijving": "Voorbeelden gaan uit van pensioen- en AOW-ingang op 1 januari"
+      }
+    ]
+  },
+
+  "wettelijke_beperkingen": {
+    "titel": "Wettelijke Beperkingen en Vereisten",
+    "items": [
+      {
+        "beperking": "onherroepelijke_keuze",
+        "beschrijving": "Eenmaal gekozen kan de beslissing niet worden teruggedraaid",
+        "wettelijke_basis": "Wet bedrag ineens"
+      },
+      {
+        "beperking": "timing_beperking",
+        "beschrijving": "Kan alleen gekozen worden bij aanvang pensioen",
+        "wettelijke_basis": "Wet bedrag ineens"
+      },
+      {
+        "beperking": "percentage_maximum",
+        "beschrijving": "Maximaal 10% kan als bedrag ineens worden opgenomen",
+        "wettelijke_basis": "Wet bedrag ineens"
+      },
+      {
+        "beperking": "uitsluiting_hoog_laag",
+        "beschrijving": "Niet te combineren met hoog-laag pensioen",
+        "wettelijke_basis": "Wet bedrag ineens"
+      },
+      {
+        "beperking": "afm_toezicht",
+        "beschrijving": "Pensioenuitvoerders staan onder AFM-toezicht voor kwaliteit van keuzebegeleiding",
+        "wettelijke_basis": "Pensioenwet artikel 48a"
+      }
+    ]
+  },
+
+  "beschikbare_tools": {
+    "titel": "Beschikbare Tools voor Burgers",
+    "overheids_tools": [
+      {
+        "naam": "Belastingdienst Proefberekening Toeslagen",
+        "url": "https://www.belastingdienst.nl",
+        "beschrijving": "Proefberekening voor effect van inkomenswijzigingen op toeslagen",
+        "beperking": "Vereist handmatige invoer van alle gegevens"
+      },
+      {
+        "naam": "Bedrag Ineens Tool",
+        "status": "In ontwikkeling",
+        "beschrijving": "Specifieke tool voor vergelijking bedrag ineens scenario's",
+        "verwacht": "Voor inwerkingtreding wet"
+      },
+      {
+        "naam": "Pensioenduidelijkheid.nl",
+        "beschrijving": "Algemeen pensioeninformatieplatform"
+      },
+      {
+        "naam": "Mijnpensioenoverzicht.nl",
+        "beschrijving": "Persoonlijk pensioenoverzicht, toont indicatieve impact bedrag ineens vanaf 10 jaar voor AOW-datum"
+      }
+    ],
+
+    "overige_bronnen": [
+      {
+        "naam": "Nibud",
+        "beschrijving": "Tools voor persoonlijke financien"
+      },
+      {
+        "naam": "Pensioenfonds keuzebegeleiding",
+        "beschrijving": "Keuzebegeleiding aangeboden door eigen pensioenuitvoerder"
+      }
+    ]
+  },
+
+  "disclaimer": {
+    "titel": "Disclaimer",
+    "tekst": "Dit document is opgesteld voor de DigiCampus Rules as Code Hackathon. De berekeningen en regels zijn indicatief en niet bindend. Raadpleeg altijd een financieel adviseur voor persoonlijk advies. De werkelijke gevolgen zijn afhankelijk van individuele omstandigheden.",
+    "geen_advies": "Dit bestand geeft GEEN financieel of juridisch advies",
+    "parameters_kunnen_wijzigen": "Belasting- en toeslagparameters kunnen jaarlijks wijzigen"
+  }
+}
