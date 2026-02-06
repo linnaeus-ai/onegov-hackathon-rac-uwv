@@ -1,0 +1,312 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DecisionTableExecutor = void 0;
+const expression_evaluator_1 = require("../evaluators/expression-evaluator");
+const decision_table_header_parser_1 = require("../parsers/decision-table-header-parser");
+const units_1 = require("../units");
+/**
+ * Executes RegelSpraak decision tables
+ */
+class DecisionTableExecutor {
+    expressionEvaluator = new expression_evaluator_1.ExpressionEvaluator();
+    headerParser = new decision_table_header_parser_1.DecisionTableHeaderParser();
+    unitRegistry = new units_1.UnitRegistry();
+    execute(table, context) {
+        try {
+            // Parse headers using structured parser
+            const parsedResult = this.headerParser.parseResultColumn(table.resultColumn);
+            if (!parsedResult) {
+                throw new Error(`Failed to parse result column: ${table.resultColumn}`);
+            }
+            const parsedConditions = table.conditionColumns.map(col => {
+                const parsed = this.headerParser.parseConditionColumn(col);
+                if (!parsed) {
+                    throw new Error(`Failed to parse condition column: ${col}`);
+                }
+                return parsed;
+            });
+            // Evaluate each row
+            for (const row of table.rows) {
+                if (this.evaluateRow(row, parsedConditions, context)) {
+                    // Row matches - execute result
+                    const value = this.expressionEvaluator.evaluate(row.resultExpression, context);
+                    // Get current_instance from context (set by engine during iteration)
+                    const currentInstance = context.current_instance;
+                    // Set the attribute on current_instance or fall back to variable
+                    if (parsedResult.targetType === 'attribute' && parsedResult.targetExpression) {
+                        const targetName = this.extractTargetName(parsedResult.targetExpression);
+                        // Store on current_instance if available (object-scoped decision table)
+                        if (currentInstance && currentInstance.value) {
+                            const objData = currentInstance.value;
+                            objData[targetName] = value;
+                        }
+                        else {
+                            // Fallback for non-object-scoped tables
+                            context.setVariable(targetName, value);
+                        }
+                        return {
+                            success: true,
+                            matchedRow: row.rowNumber,
+                            target: targetName,
+                            value
+                        };
+                    }
+                    else if (parsedResult.targetType === 'kenmerk') {
+                        // For kenmerk assignments, set the characteristic on current_instance
+                        const targetName = parsedResult.kenmerkName || 'kenmerk';
+                        if (currentInstance && currentInstance.value) {
+                            const objData = currentInstance.value;
+                            objData[targetName] = value;
+                        }
+                        else {
+                            context.setVariable(targetName, value);
+                        }
+                        return {
+                            success: true,
+                            matchedRow: row.rowNumber,
+                            target: targetName,
+                            value
+                        };
+                    }
+                    throw new Error('Unknown target type in decision table result');
+                }
+            }
+            // No matching row found
+            return {
+                success: false,
+                error: new Error('No matching row in decision table')
+            };
+        }
+        catch (error) {
+            return {
+                success: false,
+                error: error
+            };
+        }
+    }
+    extractTargetName(expr) {
+        // Extract a simple name from the target expression for storage
+        switch (expr.type) {
+            case 'AttributeReference':
+                const path = expr.path;
+                // Use the last path element (attribute name) for storage
+                // E.g., ['Natuurlijk persoon', 'woonregio factor'] -> 'woonregio factor'
+                return path.length > 0 ? path[path.length - 1] : 'result';
+            case 'VariableReference':
+                return expr.variableName;
+            default:
+                return 'result';
+        }
+    }
+    evaluateRow(row, conditions, context) {
+        // Check all conditions
+        for (let i = 0; i < conditions.length; i++) {
+            const condition = conditions[i];
+            const cellValue = row.conditionValues[i];
+            // Skip n.v.t. conditions
+            if (cellValue === 'n.v.t.') {
+                continue;
+            }
+            // Handle kenmerk checks specially
+            if (condition.isKenmerkCheck) {
+                // For kenmerk checks, the cell value should be 'waar' or 'onwaar'
+                const expectedValue = cellValue === 'waar' ||
+                    cellValue?.value === true ||
+                    cellValue === true;
+                if (!expectedValue) {
+                    return false;
+                }
+                continue;
+            }
+            // Evaluate the subject expression
+            const subjectValue = this.expressionEvaluator.evaluate(condition.subjectExpression, context);
+            if (!subjectValue || subjectValue.type === 'null') {
+                return false; // Subject not found or null
+            }
+            // Handle DisjunctionExpression with empty values array (parser bug workaround)
+            // The parser's location.endColumn often cuts off the trailing "of 'X'" value,
+            // so we extract the full cell content from between table delimiters instead.
+            let conditionValue;
+            const cellExpr = cellValue;
+            if (cellExpr.type === 'DisjunctionExpression' &&
+                (!cellExpr.values || cellExpr.values.length === 0) &&
+                cellExpr.location) {
+                // Get source text from context if available
+                const sourceText = context.sourceText || context.domainModel?.sourceText;
+                if (sourceText) {
+                    const lines = sourceText.split('\n');
+                    const line = lines[cellExpr.location.startLine - 1];
+                    if (line) {
+                        // Find the cell content by looking for the cell between | delimiters
+                        // that contains the start position. This ensures we get the FULL cell content.
+                        const startCol = cellExpr.location.startColumn - 1;
+                        // Find cell boundaries by scanning for | delimiters
+                        let cellStart = startCol;
+                        let cellEnd = line.length;
+                        // Scan backwards to find the cell start (after previous |)
+                        for (let i = startCol; i >= 0; i--) {
+                            if (line[i] === '|') {
+                                cellStart = i + 1;
+                                break;
+                            }
+                        }
+                        // Scan forwards to find the cell end (before next |)
+                        for (let i = startCol; i < line.length; i++) {
+                            if (line[i] === '|') {
+                                cellEnd = i;
+                                break;
+                            }
+                        }
+                        const cellText = line.substring(cellStart, cellEnd).trim();
+                        // Extract ALL quoted strings from the full cell text
+                        const stringMatches = cellText.match(/'[^']+'/g);
+                        if (stringMatches && stringMatches.length > 0) {
+                            const values = stringMatches.map((s) => ({
+                                type: 'string',
+                                value: s.replace(/'/g, '')
+                            }));
+                            conditionValue = { type: 'array', value: values };
+                        }
+                        else {
+                            conditionValue = { type: 'array', value: [] };
+                        }
+                    }
+                    else {
+                        conditionValue = { type: 'array', value: [] };
+                    }
+                }
+                else {
+                    // Fallback: evaluate normally (will return empty array)
+                    conditionValue = this.expressionEvaluator.evaluate(cellValue, context);
+                }
+            }
+            else {
+                // Evaluate the condition value normally
+                conditionValue = this.expressionEvaluator.evaluate(cellValue, context);
+            }
+            // Compare based on operator
+            if (!this.compareValues(subjectValue, conditionValue, condition.operator)) {
+                return false;
+            }
+        }
+        return true; // All conditions matched
+    }
+    compareValues(left, right, operator) {
+        // Handle disjunction (array) comparison - check if left value matches any in the array
+        if (right.type === 'array') {
+            const values = right.value;
+            if (values.length === 0) {
+                return false; // Empty array means no match possible
+            }
+            // Check if left matches any of the values in the array
+            for (const val of values) {
+                if (this.compareValues(left, val, operator)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        // Handle unit values - extract numeric values and units
+        const leftValue = this.extractNumericValue(left);
+        const rightValue = this.extractNumericValue(right);
+        // Handle string comparison
+        if (left.type === 'string' && right.type === 'string') {
+            switch (operator) {
+                case '==': return left.value === right.value;
+                case '!=': return left.value !== right.value;
+                default: return false;
+            }
+        }
+        // Handle boolean comparison
+        if (left.type === 'boolean' && right.type === 'boolean') {
+            switch (operator) {
+                case '==': return left.value === right.value;
+                case '!=': return left.value !== right.value;
+                default: return false;
+            }
+        }
+        // Handle numeric comparison (including units)
+        if (leftValue !== null && rightValue !== null) {
+            // If both have units, ensure they're compatible
+            if (left.unit && right.unit) {
+                const leftUnit = left.unit;
+                const rightUnit = right.unit;
+                // Check unit compatibility
+                if (leftUnit.system !== rightUnit.system) {
+                    return false; // Incompatible units
+                }
+                // TODO: Implement proper unit conversion
+                // For now, just compare the numeric values if units match
+                if (leftUnit.name !== rightUnit.name) {
+                    // Try to convert units
+                    const converted = this.convertUnits(rightValue, rightUnit, leftUnit);
+                    if (converted !== null) {
+                        return this.compareNumericValues(leftValue, converted, operator);
+                    }
+                    return false;
+                }
+            }
+            return this.compareNumericValues(leftValue, rightValue, operator);
+        }
+        // Handle enum/domain values
+        // Note: enum is not a standard ValueType, but may be used for domain values
+        if (left.type === 'enum' && right.type === 'enum') {
+            switch (operator) {
+                case '==': return left.value === right.value;
+                case '!=': return left.value !== right.value;
+                default: return false;
+            }
+        }
+        // Type mismatch - try loose equality for GELIJK_AAN
+        if (operator === '==') {
+            return left.value == right.value; // Note: loose equality
+        }
+        return false;
+    }
+    extractNumericValue(value) {
+        if (value.type === 'number') {
+            return value.value;
+        }
+        // Check if it's a unit value with numeric component
+        if (value.unit && typeof value.value === 'number') {
+            return value.value;
+        }
+        return null;
+    }
+    compareNumericValues(left, right, operator) {
+        switch (operator) {
+            case '==': return left === right;
+            case '!=': return left !== right;
+            case '>': return left > right;
+            case '>=': return left >= right;
+            case '<': return left < right;
+            case '<=': return left <= right;
+            default: return false;
+        }
+    }
+    convertUnits(value, fromUnit, toUnit) {
+        // Simple unit conversion for common cases
+        // This should ideally use the UnitRegistry
+        // For now, handle simple same-system conversions
+        if (fromUnit.system === 'Geld' && toUnit.system === 'Geld') {
+            // All money units are typically in the same base (euro)
+            return value;
+        }
+        if (fromUnit.system === 'Tijd' && toUnit.system === 'Tijd') {
+            // Time conversions
+            const conversions = {
+                'dag': 1,
+                'week': 7,
+                'maand': 30, // Approximate
+                'jaar': 365 // Approximate
+            };
+            const fromFactor = conversions[fromUnit.name] || 1;
+            const toFactor = conversions[toUnit.name] || 1;
+            return value * fromFactor / toFactor;
+        }
+        // Unable to convert
+        return null;
+    }
+}
+exports.DecisionTableExecutor = DecisionTableExecutor;
+//# sourceMappingURL=decision-table-executor.js.map

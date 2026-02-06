@@ -1,0 +1,1 @@
+{"version":3,"file":"base.d.ts","sourceRoot":"","sources":["../../src/ast/base.ts"],"names":[],"mappings":"AAAA;;;;;;;;GAQG;AAEH,OAAO,EAAE,cAAc,EAAE,MAAM,YAAY,CAAC;AAE5C;;;;;;GAMG;AACH,MAAM,WAAW,OAAO;IACtB,IAAI,EAAE,MAAM,CAAC;IACb,QAAQ,EAAE,cAAc,CAAC;CAC1B"}
