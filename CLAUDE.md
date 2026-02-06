@@ -3,9 +3,9 @@
 ## Regelspraak Syntax Learnings
 
 ### Attribute Naming
-- Engine strips dimension keywords: `bruto`, `netto`, `huidig jaar`, `vorig jaar`, `volgend jaar`
-- These are reserved for the dimensional data system (reading pre-populated nested structures)
-- Use distinct names to avoid collisions: `beschikbaar inkomen` not `netto inkomen`
+- Since commit 561ce53, dimension keywords (`bruto`, `netto`, `huidig jaar`, etc.) are only stripped when a dimension with that label is actually defined
+- You CAN use `bruto inkomen`, `netto inkomen` as plain attribute names
+- Dimension system is for reading pre-populated nested structures (when you define a dimension explicitly)
 - Use simple names: `het bedrag ineens` not `het bruto bedrag ineens`
 - Check actual stored names in output to debug mismatches
 

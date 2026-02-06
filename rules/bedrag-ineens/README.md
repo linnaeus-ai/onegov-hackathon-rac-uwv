@@ -1,62 +1,62 @@
-# Bedrag Ineens - Regelspraak Implementation
+# Bedrag Ineens - Regelspraak Implementatie
 
-Rules-as-Code implementation for calculating the financial impact of "bedrag ineens" (lump sum pension withdrawal) for Dutch AOW recipients.
+Rules-as-Code implementatie voor het berekenen van de financiële impact van "bedrag ineens" (eenmalige pensioenopname) voor Nederlandse AOW-gerechtigden.
 
-## Overview
+## Overzicht
 
-This module calculates how withdrawing a lump sum from your pension affects:
-- Gross/net income
-- Tax liability (Box 1)
-- Tax credits (heffingskortingen)
-- Benefits (zorgtoeslag, huurtoeslag)
-- Available income
+Deze module berekent hoe het opnemen van een bedrag ineens uit je pensioen invloed heeft op:
+- Bruto/netto inkomen
+- Belastingplicht (Box 1)
+- Heffingskortingen
+- Toeslagen (zorgtoeslag, huurtoeslag)
+- Beschikbaar inkomen
 
-## File Structure
+## Bestandsstructuur
 
 ```
 rules/bedrag-ineens/
-├── gegevens.rs          # Data model definitions (PRODUCTION)
-├── regels.rs            # Business rules (PRODUCTION)
-├── regels_test.rs       # Same rules, used for incremental testing
-├── run.js               # Test runner script (DEVELOPMENT)
-├── test_table1.json     # Test case: 10% withdrawal (DEVELOPMENT)
-├── test_table4.json     # Test case: 5% withdrawal (DEVELOPMENT)
-└── README.md            # This file
+├── gegevens.rs          # Datamodel definities (PRODUCTIE)
+├── regels.rs            # Bedrijfsregels (PRODUCTIE)
+├── regels_test.rs       # Dezelfde regels, voor incrementeel testen
+├── run.js               # Test runner script (ONTWIKKELING)
+├── test_table1.json     # Testcase: 10% opname (ONTWIKKELING)
+├── test_table4.json     # Testcase: 5% opname (ONTWIKKELING)
+└── README.md            # Dit bestand
 ```
 
-### Production Files
+### Productiebestanden
 
-| File | Purpose |
-|------|---------|
-| `gegevens.rs` | Gegevensspraak definitions: object types, parameters, relationships |
-| `regels.rs` | Regelspraak rules: 21 calculation rules in dependency order |
+| Bestand | Doel |
+|---------|------|
+| `gegevens.rs` | Gegevensspraak definities: objecttypes, parameters, relaties |
+| `regels.rs` | Regelspraak regels: 21 berekeningsregels in afhankelijkheidsvolgorde |
 
-### Development/Test Files
+### Ontwikkel-/Testbestanden
 
-| File | Purpose |
-|------|---------|
-| `run.js` | Node.js test runner using regelspraak-ts engine |
-| `test_table*.json` | Test scenarios based on EK Nota examples |
-| `regels_test.rs` | Copy of regels.rs for incremental development |
+| Bestand | Doel |
+|---------|------|
+| `run.js` | Node.js test runner met regelspraak-ts engine |
+| `test_table*.json` | Testscenario's gebaseerd op EK Nota voorbeelden |
+| `regels_test.rs` | Kopie van regels.rs voor incrementele ontwikkeling |
 
-## Integration Guide
+## Integratiegids
 
-### Prerequisites
+### Vereisten
 
 ```bash
-# Build the regelspraak-ts engine
+# Bouw de regelspraak-ts engine
 cd regelspraak-ts
 npm install
 npm run build
 ```
 
-### Backend Integration
+### Backend Integratie
 
 ```javascript
 const { Engine, Context } = require('./regelspraak-ts/dist');
 const fs = require('fs');
 
-// 1. Load and parse rules (do once at startup)
+// 1. Laad en parse regels (eenmalig bij opstarten)
 const gegevens = fs.readFileSync('rules/bedrag-ineens/gegevens.rs', 'utf-8');
 const regels = fs.readFileSync('rules/bedrag-ineens/regels.rs', 'utf-8');
 const rulesText = `${gegevens}\n\n${regels}`;
@@ -69,16 +69,16 @@ if (!parseResult.success) {
 }
 const model = parseResult.model;
 
-// 2. For each calculation request, create a new Context
-function calculateBedragIneens(input) {
+// 2. Maak voor elke berekeningsaanvraag een nieuwe Context
+function berekenBedragIneens(input) {
   const context = new Context(model);
 
-  // Set parameters (2024 tax values)
+  // Stel parameters in (belastingwaarden 2024)
   for (const [name, value] of Object.entries(input.parameters)) {
     context.setVariable(name, { type: 'number', value });
   }
 
-  // Create Persoon object
+  // Maak Persoon object aan
   const persoonAttrs = {
     'AOW inkomen': { type: 'number', value: input.aowInkomen },
     'aanvullend pensioen per maand': { type: 'number', value: input.pensioenPerMaand },
@@ -87,29 +87,29 @@ function calculateBedragIneens(input) {
   };
   context.createObject('Persoon', 'persoon1', persoonAttrs);
 
-  // Set kenmerken (boolean characteristics)
+  // Stel kenmerken in (boolean eigenschappen)
   context.setKenmerk('Persoon', 'persoon1', 'is AOW gerechtigd', true);
   context.setKenmerk('Persoon', 'persoon1', 'is alleenstaand', input.isAlleenstaand);
 
-  // Create Scenario object
+  // Maak Scenario object aan
   context.createObject('Scenario', 'scenario1', {
     'opname percentage': { type: 'number', value: input.opnamePercentage }
   });
 
-  // Link scenario to persoon
+  // Koppel scenario aan persoon
   const scenarioObj = context.getObjectsByType('Scenario')[0];
   const persoonObj = context.getObjectsByType('Persoon')[0];
   context.addRelationship('scenario van persoon', scenarioObj, persoonObj);
   scenarioObj.value['persoon'] = persoonObj;
 
-  // Execute rules
+  // Voer regels uit
   const result = engine.execute(model, context);
 
   if (!result.success) {
     throw new Error(`Execution error: ${result.error}`);
   }
 
-  // Extract results
+  // Haal resultaten op
   const scenario = context.getObjectsByType('Scenario')[0];
   return {
     bedragIneens: scenario.value['bedrag ineens']?.value,
@@ -124,26 +124,25 @@ function calculateBedragIneens(input) {
 
 ## Input Interface
 
-### User Input (from frontend)
+### Gebruikersinvoer (vanuit frontend)
 
 ```typescript
-interface UserInput {
-  // Required
-  pensioenPerMaand: number;      // Monthly pension amount (e.g., 600)
-  pensioenvermogen: number;      // Total pension capital (e.g., 133000)
-  opnamePercentage: number;      // Withdrawal % (0, 5, or 10)
-  isAlleenstaand: boolean;       // Single household?
+interface GebruikersInvoer {
+  // Verplicht
+  pensioenPerMaand: number;      // Maandelijks pensioenbedrag (bijv. 600)
+  pensioenvermogen: number;      // Totaal pensioenkapitaal (bijv. 133000)
+  opnamePercentage: number;      // Opnamepercentage (0, 5, of 10)
+  isAlleenstaand: boolean;       // Alleenstaand huishouden?
 
-  // Optional (defaults available)
-  aowInkomen?: number;           // AOW income (default: 19600 for 2024)
-  overigInkomen?: number;        // Other income (default: 0)
-  huurPerMaand?: number;         // Monthly rent (default: 0)
+  // Optioneel (standaardwaarden beschikbaar)
+  aowInkomen?: number;           // AOW inkomen (standaard: 19600 voor 2024)
+  huurPerMaand?: number;         // Maandelijkse huur (standaard: 0)
 }
 ```
 
-### Parameters (2024 tax values)
+### Parameters (belastingwaarden 2024)
 
-These are fixed for a given tax year. Store in config or database:
+Deze zijn vast voor een gegeven belastingjaar. Sla op in config of database:
 
 ```json
 {
@@ -175,45 +174,45 @@ These are fixed for a given tax year. Store in config or database:
 
 ## Output Interface
 
-### Calculation Results
+### Berekeningsresultaten
 
 ```typescript
-interface CalculationResult {
-  // Phase 1: Bedrag Ineens
-  pensioenPerJaar: number;           // Annual pension (pensioenPerMaand × 12)
-  bedragIneens: number;              // Lump sum (pensioenvermogen × opname%)
-  resterendPensioenPerJaar: number;  // Remaining annual pension
-  permanentVerliesPerJaar: number;   // Permanent yearly loss
+interface BerekeningsResultaat {
+  // Fase 1: Bedrag Ineens
+  pensioenPerJaar: number;           // Jaarlijks pensioen (pensioenPerMaand × 12)
+  bedragIneens: number;              // Eenmalig bedrag (pensioenvermogen × opname%)
+  resterendPensioenPerJaar: number;  // Resterend jaarlijks pensioen
+  permanentVerliesPerJaar: number;   // Permanent jaarlijks verlies
 
-  // Phase 2: Income
-  inkomen: number;                   // Gross income (AOW + pension + lump sum)
+  // Fase 2: Inkomen
+  inkomen: number;                   // Bruto inkomen (AOW + pensioen + bedrag ineens)
 
-  // Phase 3: Tax
-  zvwBijdrage: number;               // Healthcare contribution
-  belastingBox1: number;             // Box 1 tax before credits
+  // Fase 3: Belasting
+  zvwBijdrage: number;               // Zorgverzekeringswet bijdrage
+  belastingBox1: number;             // Box 1 belasting voor kortingen
 
-  // Phase 4: Tax Credits
+  // Fase 4: Heffingskortingen
   algemeneHeffingskorting: number;
   ouderenkorting: number;
   alleenstaandeOuderenkorting: number;
   totaleHeffingskortingen: number;
-  belastingNaHeffingskortingen: number;  // Final tax
+  belastingNaHeffingskortingen: number;  // Eindbelasting
 
-  // Phase 5: Benefits
-  zorgtoeslag: number;               // Healthcare benefit
-  huurtoeslag: number;               // Housing benefit
+  // Fase 5: Toeslagen
+  zorgtoeslag: number;
+  huurtoeslag: number;
 
-  // Phase 6: Result
-  beschikbaarInkomen: number;        // Net available income
+  // Fase 6: Resultaat
+  beschikbaarInkomen: number;        // Beschikbaar inkomen (na belasting)
 }
 ```
 
-## Call Flow
+## Procesflow
 
 ```
 ┌─────────────────┐
 │    Frontend     │
-│  (User Input)   │
+│ (Gebruikersinvoer) │
 └────────┬────────┘
          │ POST /calculate
          ▼
@@ -227,101 +226,128 @@ interface CalculationResult {
 │                  Regelspraak Engine                      │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐ │
 │  │ gegevens.rs │ +  │  regels.rs  │ -> │    Model    │ │
-│  │ (data model)│    │   (rules)   │    │  (parsed)   │ │
+│  │ (datamodel) │    │  (regels)   │    │  (geparsed) │ │
 │  └─────────────┘    └─────────────┘    └──────┬──────┘ │
 │                                               │        │
 │  ┌─────────────┐    ┌─────────────┐          │        │
-│  │   Context   │ <- │ User Input  │          │        │
-│  │  (runtime)  │    │ + Params    │          │        │
+│  │   Context   │ <- │ Gebruikers- │          │        │
+│  │  (runtime)  │    │ invoer+Params│         │        │
 │  └──────┬──────┘    └─────────────┘          │        │
 │         │                                     │        │
 │         ▼                                     │        │
 │  ┌─────────────────────────────────────────┐ │        │
 │  │         engine.execute(model, context)   │◄┘        │
 │  │                                          │         │
-│  │  Phase 1: Bedrag Ineens berekeningen    │         │
-│  │  Phase 2: Bruto inkomen                 │         │
-│  │  Phase 3: Belasting (Box 1)             │         │
-│  │  Phase 4: Heffingskortingen             │         │
-│  │  Phase 5: Toeslagen                     │         │
-│  │  Phase 6: Beschikbaar inkomen           │         │
+│  │  Fase 1: Bedrag ineens berekeningen     │         │
+│  │  Fase 2: Bruto inkomen                  │         │
+│  │  Fase 3: Belasting (Box 1)              │         │
+│  │  Fase 4: Heffingskortingen              │         │
+│  │  Fase 5: Toeslagen                      │         │
+│  │  Fase 6: Beschikbaar inkomen            │         │
 │  └──────┬──────────────────────────────────┘         │
 │         │                                             │
 └─────────┼─────────────────────────────────────────────┘
           │
           ▼
 ┌─────────────────┐
-│   JSON Result   │
-│  (all computed  │
-│   attributes)   │
+│   JSON Resultaat │
+│  (alle berekende │
+│   attributen)    │
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐
 │    Frontend     │
-│  (Display)      │
+│   (Weergave)    │
 └─────────────────┘
 ```
 
-## Running Tests
+## Tests Uitvoeren
 
 ```bash
-# From rules/bedrag-ineens directory
+# Vanuit rules/bedrag-ineens directory
 cd rules/bedrag-ineens
 
-# Run Table 1 test (10% withdrawal, high income scenario)
+# Voer Tabel 1 test uit (10% opname, hoog inkomen scenario)
 node run.js test_table1.json regels.rs
 
-# Run Table 4 test (5% withdrawal, lower income with toeslagen)
+# Voer Tabel 4 test uit (5% opname, lager inkomen met toeslagen)
 node run.js test_table4.json regels.rs
 ```
 
-### Expected Results
+### Verwachte Resultaten
 
-**Table 1 (10% opname, €600/maand pensioen):**
-- bedrag ineens: €13,300 ✓
-- inkomen: €39,380 ✓
-- belasting na heffingskortingen: €3,906 ✓
+**Tabel 1 (10% opname, €600/maand pensioen):**
+- bedrag ineens: €13.300 ✓
+- inkomen: €39.380 ✓
+- belasting na heffingskortingen: €3.906 ✓
 - zorgtoeslag: €0 ✓
 - huurtoeslag: €0 ✓
 
-**Table 4 (5% opname, €600/maand pensioen):**
-- bedrag ineens: €6,700 ✓
-- inkomen: €33,140 ✓
-- belasting: €2,503 (expected €2,300 - simplified formula)
-- zorgtoeslag: €782 (expected €600 - simplified formula)
-- huurtoeslag: €1,175 (expected €500 - simplified formula)
+**Tabel 4 (5% opname, €600/maand pensioen):**
+- bedrag ineens: €6.700 ✓
+- inkomen: €33.140 ✓
+- belasting: €2.503 (verwacht €2.300 - vereenvoudigde formule)
+- zorgtoeslag: €782 (verwacht €600 - vereenvoudigde formule)
+- huurtoeslag: €1.175 (verwacht €500 - vereenvoudigde formule)
 
-## Rules Summary (21 rules)
+## Regeloverzicht (21 regels)
 
-| # | Rule | Computes |
-|---|------|----------|
+| # | Regel | Berekent |
+|---|-------|----------|
 | 1 | Bereken pensioen per jaar | pensioenPerMaand × 12 |
 | 2 | Bereken bedrag ineens | pensioenvermogen × opname% |
 | 3 | Bereken resterend pensioen | pensioenPerJaar × (100 - opname%) |
 | 4 | Bereken permanent verlies | pensioenPerJaar - resterend |
-| 5 | Bereken inkomen | AOW + resterend + bedragIneens + overig |
+| 5 | Bereken inkomen | AOW + resterend + bedragIneens |
 | 6 | Bereken Zvw | min(inkomen, Zvw max) × Zvw% |
-| 7-9 | Bereken belasting schijf 1/2/3 | Progressive tax brackets |
-| 10 | Bereken belasting box1 | Sum of brackets |
+| 7-9 | Bereken belasting schijf 1/2/3 | Progressieve belastingschijven |
+| 10 | Bereken belasting box1 | Som van schijven |
 | 11 | Bereken algemene heffingskorting | max(0, AHK max - afbouw) |
-| 12-13 | Bereken ouderenkorting | OK with income-based reduction |
-| 14 | Bereken alleenstaande ouderenkorting | AOK if alleenstaand |
-| 15 | Bereken totale heffingskortingen | Sum of credits |
-| 16 | Bereken belasting na heffingskortingen | max(0, box1 - credits) |
-| 17-18 | Bereken zorgtoeslag | Income-based with threshold |
-| 19-20 | Bereken huurtoeslag | Income-based (simplified) |
+| 12-13 | Bereken ouderenkorting | OK met inkomensafhankelijke afbouw |
+| 14 | Bereken alleenstaande ouderenkorting | AOK indien alleenstaand |
+| 15 | Bereken totale heffingskortingen | Som van kortingen |
+| 16 | Bereken belasting na heffingskortingen | max(0, box1 - kortingen) |
+| 17-18 | Bereken zorgtoeslag | Inkomensafhankelijk met drempel |
+| 19-20 | Bereken huurtoeslag | Inkomensafhankelijk (vereenvoudigd) |
 | 21 | Bereken beschikbaar inkomen | inkomen - Zvw - belasting |
 
-## Known Limitations
+## Bekende Beperkingen
 
-1. **Zorgtoeslag**: Uses simplified afbouw formula, not official normpercentage/standaardpremie model
-2. **Huurtoeslag**: Uses linear interpolation, not official basishuur/rekenhuur model
-3. **Household types**: Only supports alleenstaand (single), not partners
-4. **Non-AOW**: Only supports AOW-gerechtigden (retirees with AOW)
+1. **Zorgtoeslag**: Gebruikt vereenvoudigde afbouwformule, niet het officiële normpercentage/standaardpremie model
+2. **Huurtoeslag**: Gebruikt lineaire interpolatie, niet het officiële basishuur/rekenhuur model
+3. **Huishoudtypes**: Ondersteunt alleen alleenstaand, niet partners
+4. **Niet-AOW**: Ondersteunt alleen AOW-gerechtigden (gepensioneerden met AOW)
 
-## References
+## Ontwerpbeslissingen
 
-- [EK Nota Rekenvoorbeelden](../doc/07_EK_Nota_Rekenvoorbeelden.md) - Source for test cases
+### Waarom Geen Beslistabellen?
+
+Beslistabellen zijn ideaal voor **discrete lookups** en **range-selectie met vooraf berekende waarden**. De bedrag ineens regels zijn **formule-intensief met drempelcontroles** — een ander patroon.
+
+**Waar beslistabellen wel goed werken** (zie `regelspraak-ts/examples/toka/regels.rs`):
+```
+// Categorische lookup: Provincie → Factor (geen formule)
+Beslistabel Woonregio factor
+| | de woonregio factor... | indien woonprovincie gelijk is aan |
+| 1 | 1 | 'Friesland', 'Groningen', 'Drenthe' ... |
+| 2 | 2 | 'Noord-Brabant', 'Gelderland' ... |
+
+// Range-selectie: Reisduur → Vooraf berekend percentage
+Beslistabel Belasting op basis van reisduur
+| | de belasting... | indien reisduur groter dan | indien reisduur kleiner of gelijk aan |
+| 1 | percentage_eerste_schijf × belasting | n.v.t. | bovengrens_eerste |
+```
+
+**Waarom bedrag ineens regels gebruikt in plaats van tabellen:**
+- Afbouwformules (heffingskortingen, toeslagen) gebruiken de **daadwerkelijke inkomenswaarde** in de berekening, niet alleen de range
+- Progressieve belastingschijven **berekenen altijd alle drie** met min/max-guards — geen selectie nodig
+- `max(0, ZT_max - (inkomen - drempel) × tarief)` in een tabelcel plaatsen is minder leesbaar dan een dedicated regel
+
+Het init + conditioneel patroon (`Initialiseer X` + `Bereken X indien ...`) is de idiomatische aanpak voor drempel-gebaseerde formules in Regelspraak.
+
+## Referenties
+
+- [EK Nota Rekenvoorbeelden](../doc/07_EK_Nota_Rekenvoorbeelden.md) - Bron voor testcases
 - [Berekening zorgtoeslag 2024](https://download.belastingdienst.nl/toeslagen/docs/berekening_zorgtoeslag_tg0821z41fd.pdf)
 - [Berekening huurtoeslag 2024](https://download.belastingdienst.nl/toeslagen/docs/berekening_huurtoeslag_tg0831z42fd.pdf)

@@ -91,7 +91,7 @@
   "expected": {
     "baseline": {
       "bedrag ineens": 0,
-      "inkomen": 26800,
+      "bruto inkomen": 26800,
       "belasting na heffingskortingen": 900,
       "zorgtoeslag": 1500,
       "huurtoeslag": 2700,
@@ -99,7 +99,7 @@
     },
     "jaar_met_opname": {
       "bedrag ineens": 6700,
-      "inkomen": 33100,
+      "bruto inkomen": 33100,
       "belasting na heffingskortingen": 2300,
       "zorgtoeslag": 600,
       "huurtoeslag": 500,
@@ -107,7 +107,7 @@
     },
     "jaar_na_opname": {
       "bedrag ineens": 6700,
-      "inkomen": 26400,
+      "bruto inkomen": 26400,
       "belasting na heffingskortingen": 800,
       "zorgtoeslag": 1500,
       "huurtoeslag": 2800,

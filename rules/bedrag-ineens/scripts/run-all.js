@@ -95,7 +95,7 @@ function main() {
       // Print summary line
       const s10 = scenarioSummaries.scenario_10pct || {};
       console.log(`✓ ${file}: ${profile.name.substring(0, 40).padEnd(40)}`);
-      console.log(`    PV: €${pensioenvermogen.toLocaleString().padStart(8)} | 10% bedrag: €${(s10['bedrag ineens'] || 0).toFixed(0).padStart(6)} | beschikbaar: €${(s10['beschikbaar inkomen'] || 0).toFixed(0)}`);
+      console.log(`    PV: €${pensioenvermogen.toLocaleString().padStart(8)} | 10% bedrag: €${(s10['bedrag ineens'] || 0).toFixed(0).padStart(6)} | netto: €${(s10['netto inkomen'] || 0).toFixed(0)}`);
 
     } catch (err) {
       summary.profiles.push({
