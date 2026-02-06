@@ -88,7 +88,7 @@ export function Calculator({ lumpsum, setLumpsum, years, setYears, onCalculateBe
           ) : (
             <>
               <CheckCircle2 className="w-5 h-5" />
-              Bereken de beste keuze
+              Geef advies
             </>
           )}
         </motion.button>

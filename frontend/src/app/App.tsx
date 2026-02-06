@@ -562,7 +562,7 @@ export default function App() {
           <div className="bg-orange-50 border border-orange-100 p-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-start gap-3 text-orange-800 text-sm backdrop-blur-sm bg-orange-50/95">
             <AlertTriangle className="w-5 h-5 shrink-0 text-orange-600 mt-0.5" />
             <p>
-              <strong>Belangrijke waarschuwing:</strong> De getoonde
+              <strong>Let op:</strong> De getoonde
               berekeningen zijn indicatief en gebaseerd op algemene aannames. De
               werkelijke bedragen kunnen afwijken door persoonlijke
               omstandigheden of toekomstige wijzigingen in wet- en regelgeving.

@@ -290,15 +290,9 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
           className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col"
         >
           {/* Header */}
-          <div className={`p-6 flex items-center justify-between border-b shrink-0 ${
-            isIncome ? 'bg-green-50' : isBenefits ? 'bg-purple-50' : 'bg-red-50'
-          }`}>
+          <div className="p-6 flex items-center justify-between border-b shrink-0 bg-blue-50">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${
-                isIncome ? 'bg-green-100 text-green-700' :
-                isBenefits ? 'bg-purple-100 text-purple-700' :
-                'bg-red-100 text-red-700'
-              }`}>
+              <div className="p-2 rounded-lg bg-blue-100 text-blue-600">
                 {isIncome ? <TrendingDown className="w-6 h-6" /> :
                  isBenefits ? <Gift className="w-6 h-6" /> :
                  <ReceiptText className="w-6 h-6" />}
@@ -451,28 +445,28 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                 </div>
 
                 {/* Long-term Impact */}
-                <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
-                  <h4 className="font-bold text-purple-900 mb-2 flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <h4 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-blue-600" />
                     Impact over tijd
                   </h4>
-                  <p className="text-sm text-purple-800 mb-3">
+                  <p className="text-sm text-gray-600 mb-3">
                     Bij een verwachte levensduur van {data.currentAge + data.years} jaar (nog {data.years} jaar),
                     is het totale effect:
                   </p>
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-white rounded-lg p-3 text-center">
-                      <div className="text-xs text-purple-600 mb-1">Eenmalig ontvangen</div>
-                      <div className="text-xl font-bold text-green-600">+ €{data.lumpsumAmount.toLocaleString()}</div>
+                    <div className="bg-white rounded-lg p-3 text-center border border-gray-100">
+                      <div className="text-xs text-gray-500 mb-1">Eenmalig ontvangen</div>
+                      <div className="text-xl font-bold text-blue-600">+ €{data.lumpsumAmount.toLocaleString()}</div>
                     </div>
-                    <div className="bg-white rounded-lg p-3 text-center">
-                      <div className="text-xs text-purple-600 mb-1">Maandelijks verlies</div>
+                    <div className="bg-white rounded-lg p-3 text-center border border-gray-100">
+                      <div className="text-xs text-gray-500 mb-1">Maandelijks verlies</div>
                       <div className="text-xl font-bold text-red-600">
                         - €{data.reductionMonthly}/mnd
                       </div>
                     </div>
-                    <div className="bg-white rounded-lg p-3 text-center">
-                      <div className="text-xs text-purple-600 mb-1">Totaal verlies ({data.years} jaar)</div>
+                    <div className="bg-white rounded-lg p-3 text-center border border-gray-100">
+                      <div className="text-xs text-gray-500 mb-1">Totaal verlies ({data.years} jaar)</div>
                       <div className="text-xl font-bold text-red-600">
                         - €{(data.reductionMonthly * 12 * data.years).toLocaleString()}
                       </div>
@@ -481,8 +475,8 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
 
                   {/* Break-even point */}
                   {data.lumpsumAmount > 0 && data.reductionMonthly > 0 && (
-                    <div className="mt-4 bg-white rounded-lg p-3">
-                      <div className="text-sm text-purple-900">
+                    <div className="mt-4 bg-white rounded-lg p-3 border border-gray-100">
+                      <div className="text-sm text-gray-700">
                         <strong>Break-even punt:</strong> Na {Math.ceil(data.lumpsumAmount / (data.reductionMonthly * 12))} jaar
                         heeft u het bedrag ineens "terugverdiend" aan gemiste pensioeninkomsten.
                         {data.years > Math.ceil(data.lumpsumAmount / (data.reductionMonthly * 12)) ? (
@@ -499,12 +493,12 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
               // BENEFITS EXPLANATION
               <>
                 {/* Summary */}
-                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-4 border border-purple-200">
-                  <h3 className="font-bold text-purple-900 mb-2 flex items-center gap-2">
+                <div className="bg-gradient-to-r from-blue-50 to-sky-50 rounded-xl p-4 border border-blue-200">
+                  <h3 className="font-bold text-blue-900 mb-2 flex items-center gap-2">
                     <Info className="w-5 h-5" />
                     Samenvatting
                   </h3>
-                  <p className="text-sm text-purple-800">
+                  <p className="text-sm text-blue-800">
                     Door <strong>€{data.lumpsumAmount.toLocaleString()}</strong> bedrag ineens op te nemen,
                     stijgt uw inkomen tijdelijk naar <strong>€{Math.round(data.brutoInkomen).toLocaleString()}</strong>.
                     Hierdoor kunnen uw toeslagen in het jaar van opname worden verminderd of vervallen.
@@ -514,7 +508,7 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                 {/* Calculation Steps */}
                 <div className="space-y-2">
                   <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                    <Gift className="w-5 h-5 text-purple-600" />
+                    <Gift className="w-5 h-5 text-blue-600" />
                     Berekening toeslagen stap voor stap
                   </h3>
 
@@ -529,7 +523,7 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                     }
                     result={`€${Math.round(data.zorgtoeslag).toLocaleString()} zorgtoeslag`}
                     icon={Heart}
-                    color="purple"
+                    color="blue"
                     rule={data.brutoInkomen >= 37496 ? RULES.zorgtoeslagBoven : RULES.zorgtoeslag}
                   />
 
@@ -603,7 +597,7 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                         />
                         <Bar dataKey="Normaal" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={20} />
-                        <Bar dataKey="Met opname" fill="#a855f7" radius={[0, 4, 4, 0]} barSize={20} />
+                        <Bar dataKey="Met opname" fill="#ef4444" radius={[0, 4, 4, 0]} barSize={20} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
