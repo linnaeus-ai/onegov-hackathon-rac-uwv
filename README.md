@@ -2,11 +2,104 @@
 
 Dit is de repository voor de OneGov DigiCampus Hackathon challenge over "Rules as Code" voor het pensioenkeuzerecht "bedrag ineens".
 
+## Live Demo
+
+De applicatie is live te bekijken op: [Render](https://onegov-hackathon-rac-uwv.onrender.com)
+
 ## Challenge
 
 > Hoe kunnen we burgers (en adviseurs/uitvoerders) helpen begrijpen of het verstandig is om met bedrag ineens (0–10%) op te nemen, door wet- en regelgeving te modelleren als Rules as Code met gestandaardiseerde input én een uitlegbare visualisatie van de effecten?
 
 **Challenge Owners:** Belastingdienst & PGGM
+
+## Features
+
+- **Regelspraak Engine**: Berekeningen worden uitgevoerd door de echte Regelspraak engine die `.rs` regelbestanden parseert
+- **10 Profielen**: Kies uit 10 verschillende burgerprofielen met realistische pensioengegevens
+- **Interactieve Slider**: Pas het opnamepercentage (0-10%) aan en zie direct de impact
+- **Stap-voor-stap Uitleg**: Bekijk per onderwerp (inkomen, belasting, toeslagen) hoe de berekening tot stand komt
+- **Optimale Keuze Berekening**: Bereken de beste opnamekeuze gebaseerd op levensverwachting
+- **Regelspraak Referenties**: Elke berekening toont de onderliggende Regelspraak regel
+
+## Running the Application
+
+### Prerequisites
+- Node.js 18+ installed
+
+### Quick Start (Development)
+
+1. **Start the backend** (Terminal 1):
+```bash
+cd backend
+npm install
+npm start
+```
+The backend runs on http://localhost:3001
+
+2. **Start the frontend** (Terminal 2):
+```bash
+cd frontend
+npm install
+npm run dev
+```
+The frontend runs on http://localhost:5173
+
+### Production Build
+
+```bash
+# Build frontend
+cd frontend
+npm install
+npm run build
+
+# Copy to backend
+cp -r dist/* ../backend/public/
+
+# Run backend (serves both API and frontend)
+cd ../backend
+npm start
+```
+
+## Project Structure
+
+```
+├── backend/                    # Express.js API server
+│   ├── server.js               # API endpoints
+│   ├── rules-engine.js         # Regelspraak engine wrapper
+│   ├── profiles.yaml           # Citizen profiles data
+│   ├── public/                 # Built frontend (production)
+│   ├── rules/bedrag-ineens/    # Regelspraak rule files
+│   │   ├── gegevens.rs         # Data definitions
+│   │   └── regels.rs           # Calculation rules
+│   └── regelspraak-engine/     # Compiled Regelspraak engine
+├── frontend/                   # React + Vite frontend
+│   └── src/app/                # React components
+├── regelspraak-ts/             # Regelspraak TypeScript engine (source)
+├── rules/                      # Original Regelspraak rules
+│   └── bedrag-ineens/          # Bedrag ineens rules
+└── doc/                        # Documentation
+```
+
+## Regelspraak Rules
+
+De berekeningen zijn gebaseerd op Regelspraak regels in `rules/bedrag-ineens/`:
+
+- **gegevens.rs**: Definieert objecttypes (Persoon, Scenario), parameters en feittypes
+- **regels.rs**: Bevat de berekningsregels voor:
+  - Pensioen en bedrag ineens
+  - Bruto inkomen
+  - Belasting (3 schijven)
+  - Heffingskortingen (AHK, ouderenkorting, AOK)
+  - Toeslagen (zorgtoeslag, huurtoeslag)
+  - Netto inkomen
+
+Voorbeeld regel:
+```
+Het bedrag ineens van een Scenario moet berekend worden als
+het pensioenvermogen van zijn persoon
+maal het opname percentage van het scenario
+gedeeld door 100.
+```
 
 ## Documentatie
 
@@ -33,54 +126,6 @@ Dit is de repository voor de OneGov DigiCampus Hackathon challenge over "Rules a
 - [EK Nota (PDF)](doc/EK%20Nota%20naar%20aanleiding%20van%20verslag%20Wet%20herziening%20bedrag%20ineens.pdf)
 - [EK Nota Rekenvoorbeelden (Markdown)](doc/07_EK_Nota_Rekenvoorbeelden.md)
 
-## Running the Application
-
-### Prerequisites
-- Node.js 18+ installed
-
-### Quick Start
-
-1. **Start the backend** (Terminal 1):
-```bash
-cd backend
-npm install
-npm start
-```
-The backend runs on http://localhost:3001
-
-2. **Start the frontend** (Terminal 2):
-```bash
-cd frontend
-npm install
-npm run dev
-```
-The frontend runs on http://localhost:5173 (or configured PORT)
-
-### Features
-- **Profile Selector**: Click the profile dropdown in the top-right corner to switch between 10 different citizen profiles
-- **Real Calculations**: Uses the Regelspraak rules to calculate tax, benefits, and net income impact
-- **Interactive Sliders**: Adjust the lump sum percentage (0-10%) to see real-time impact
-
-## Project Structure
-
-```
-├── backend/           # Express.js API server
-│   ├── server.js      # API endpoints
-│   └── rules.js       # Regelspraak rules implementation
-├── frontend/          # React + Vite frontend
-│   └── src/app/       # React components
-├── rules/             # Regelspraak rule definitions
-│   └── bedrag-ineens/ # Bedrag ineens rules
-└── rules-as-code-pension-starter/
-    └── data/          # Profile data (YAML)
-```
-
-## Starter Repository
-
-De [rules-as-code-pension-starter](rules-as-code-pension-starter/) submodule bevat:
-- Fictieve pensioenprofielen in YAML-formaat
-- Voorbeelddata voor scenario berekeningen
-
 ## Het Probleem
 
 Bij opname van een "bedrag ineens" (tot 10% van het pensioen) kunnen gepensioneerden te maken krijgen met:
@@ -90,20 +135,27 @@ Bij opname van een "bedrag ineens" (tot 10% van het pensioen) kunnen gepensionee
 3. **Terugvordering** - Reeds ontvangen toeslagen moeten mogelijk worden terugbetaald
 4. **Permanent lager pensioen** - De maandelijkse uitkering blijft levenslang lager
 
-## Te Bouwen Oplossing
+## De Oplossing
 
-Een tool die:
-1. **Scenario's doorrekent** - 0%, 5%, 10% opname vergelijken
-2. **Impact uitlegt** - Welke regels leiden tot welk effect
-3. **Inzicht geeft** - "Dit lijkt gunstig/risicovol" + waarom
+Deze tool:
+1. **Doorrekent scenario's** - Vergelijk verschillende opnamepercentages (0-10%)
+2. **Legt impact uit** - Toont welke regels leiden tot welk effect
+3. **Geeft inzicht** - Visuele weergave van de gevolgen op inkomen, belasting en toeslagen
+4. **Berekent optimum** - Adviseert het beste percentage gebaseerd op levensverwachting
 
-### Criteria
+## Deployment (Render)
 
-- Explainability by design
-- Scenariovergelijking (incl. netto-effect)
-- Gestandaardiseerde input
-- Visualisatie (beslisboom, flow, impact breakdown)
-- Robuustheid voor verschillende profielen
+De applicatie is geconfigureerd voor deployment op Render via `render.yaml`:
+
+```yaml
+services:
+  - type: web
+    name: onegov-hackathon-rac-uwv
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+```
 
 ## Links
 

@@ -1,0 +1,47 @@
+{
+  "aannames": {
+    "titel": "Belangrijke Aannames en Vereenvoudigingen",
+    "items": [
+      {
+        "aanname": "belasting_parameters",
+        "beschrijving": "Belastingschijven en tarieven gebaseerd op parameters 2024"
+      },
+      {
+        "aanname": "toeslag_parameters",
+        "beschrijving": "Toeslaggrenzen en bedragen gebaseerd op parameters 2024"
+      },
+      {
+        "aanname": "pensioen_kapitalisatie",
+        "beschrijving": "Pensioenwaarde gekapitaliseerd op basis van standaard actuariele tabellen"
+      },
+      {
+        "aanname": "levensverwachting",
+        "beschrijving": "Standaard CBS levensverwachtingstabellen gebruikt"
+      },
+      {
+        "aanname": "geen_inflatie",
+        "beschrijving": "Berekeningen houden geen rekening met toekomstige inflatie"
+      },
+      {
+        "aanname": "geen_indexatie",
+        "beschrijving": "Pensioenindexatie niet gemodelleerd in voorbeelden"
+      },
+      {
+        "aanname": "alleenstaand_huishouden",
+        "beschrijving": "Voorbeelden gaan uit van alleenstaande huishoudens tenzij anders vermeld"
+      },
+      {
+        "aanname": "huurwoning",
+        "beschrijving": "Huurtoeslagberekeningen gaan uit van huursituatie"
+      },
+      {
+        "aanname": "volledige_aow",
+        "beschrijving": "Voorbeelden gaan uit van volledige AOW-opbouw (50 jaar)"
+      },
+      {
+        "aanname": "pensioen_en_aow_zelfde_jaar",
+        "beschrijving": "Voorbeelden gaan uit van pensioen- en AOW-ingang op 1 januari"
+      }
+    ]
+  }
+}

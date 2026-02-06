@@ -303,7 +303,7 @@ app.post("/api/calculate-optimal", (req, res) => {
       percentage: optimal.percentage,
       reason:
         optimal.percentage === 0
-          ? "Geen opname geeft het hoogste levenslange inkomen gezien uw levensverwachting."
+          ? "Geen opname geeft het hoogste totale inkomen gezien uw levensverwachting."
           : optimal.percentage === 10
             ? "Maximale opname (10%) is optimaal, mogelijk door korte verwachte levensduur of lage toeslageffecten."
             : `Een opname van ${optimal.percentage}% balanceert het directe voordeel met behoud van maandelijks inkomen.`,
