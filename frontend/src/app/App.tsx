@@ -70,6 +70,7 @@ export default function App() {
         lumpsumAmount: 0,
         baseMonthly: 0,
         newMonthly: 0,
+        ongoingMonthly: 0,
         taxImpact: 0,
         netLumpsum: 0,
         reductionMonthly: 0,
@@ -84,10 +85,15 @@ export default function App() {
 
     const { result, baseline, comparison, profile } = calculation;
 
+    // Calculate the ongoing monthly income AFTER the lump sum year
+    // This is lower because the pension is permanently reduced
+    const ongoingMonthly = Math.round(baseline.maandelijksBeschikbaarInkomen - result.maandelijksVerlies);
+
     return {
       lumpsumAmount: result.bedragIneens,
       baseMonthly: Math.round(baseline.maandelijksBeschikbaarInkomen),
       newMonthly: Math.round(result.maandelijksBeschikbaarInkomen),
+      ongoingMonthly: ongoingMonthly, // Permanent monthly income after lump sum
       taxImpact: Math.round(comparison.belastingVerschil),
       netLumpsum: Math.round(comparison.nettoUitkering),
       reductionMonthly: Math.round(result.maandelijksVerlies),
@@ -95,13 +101,15 @@ export default function App() {
       beschikbaarInkomen: result.beschikbaarInkomen,
       zorgtoeslag: result.zorgtoeslag,
       huurtoeslag: result.huurtoeslag,
+      // Show 3 scenarios: current, year of withdrawal, and ongoing after
       incomeChartData: [
-        { name: 'Huidig', waarde: Math.round(baseline.maandelijksBeschikbaarInkomen) },
-        { name: 'Na Opname', waarde: Math.round(result.maandelijksBeschikbaarInkomen) },
+        { name: 'Zonder opname', waarde: Math.round(baseline.maandelijksBeschikbaarInkomen) },
+        { name: 'Jaar van opname', waarde: Math.round(result.maandelijksBeschikbaarInkomen) },
+        { name: 'Jaren erna', waarde: ongoingMonthly },
       ],
       taxChartData: [
         { name: 'Normaal', waarde: Math.round(baseline.belastingNaHeffingskortingen) },
-        { name: 'Met Lumpsum', waarde: Math.round(result.belastingNaHeffingskortingen) },
+        { name: 'Met bedrag ineens', waarde: Math.round(result.belastingNaHeffingskortingen) },
       ]
     };
   }, [calculation]);
@@ -399,6 +407,7 @@ export default function App() {
           lumpsumAmount: results.lumpsumAmount,
           baseMonthly: results.baseMonthly,
           newMonthly: results.newMonthly,
+          ongoingMonthly: results.ongoingMonthly, // Permanent monthly income after lump sum
           reductionMonthly: results.reductionMonthly,
           chartData: results.incomeChartData,
           // Calculation details

@@ -23,11 +23,11 @@ export function Calculator({ lumpsum, setLumpsum, years, setYears, onCalculateBe
       </div>
 
       <div className="space-y-8">
-        {/* Lumpsum Slider */}
+        {/* Bedrag ineens Slider */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-              Bedrag ineens (Lumpsum)
+              Bedrag ineens
               <Info className="w-4 h-4 text-gray-400 cursor-help" />
             </label>
             <span className="text-lg font-bold text-blue-600">{lumpsum}%</span>
