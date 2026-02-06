@@ -1,0 +1,101 @@
+{
+  "name": "Profile 777777777: Fatima Al-Zahra",
+  "description": "Alleenstaande met laag inkomen en hoge huur, komt in aanmerking voor huurtoeslag",
+  "source_bsn": "777777777",
+  "source_data": {
+    "age": 34,
+    "has_partner": false,
+    "aow_percentage": 100,
+    "pfzw_pensioenvermogen": 100000,
+    "abp_pensioenvermogen": 5000,
+    "pfzw_pensioen_maand": 520,
+    "abp_pensioen_maand": 26
+  },
+  "parameters": {
+    "AOW bruto alleenstaand": 19600,
+    "eerste schijfgrens": 40021,
+    "tweede schijfgrens": 75518,
+    "tarief eerste schijf AOW": 0.1907,
+    "tarief tweede schijf": 0.3693,
+    "tarief derde schijf": 0.495,
+    "Zvw percentage": 0.0545,
+    "Zvw maximum": 73031,
+    "AHK maximum AOW": 1735,
+    "AHK afbouwgrens": 24813,
+    "AHK afbouw percentage AOW": 0.03421,
+    "OK maximum": 1835,
+    "OK afbouwgrens": 44770,
+    "OK afbouw percentage": 0.15,
+    "AOK bedrag": 532,
+    "ZT grens alleenstaand": 37496,
+    "ZT maximum alleenstaand": 1800,
+    "ZT drempel": 25437,
+    "ZT afbouw percentage": 0.1322,
+    "HT grens eerste": 26000,
+    "HT grens tweede": 32000,
+    "HT grens derde": 38000,
+    "HT maximum": 2900,
+    "jaarlijkse zorgkosten": 2100
+  },
+  "objects": {
+    "personen": [
+      {
+        "id": "persoon_777777777",
+        "AOW inkomen": 19600,
+        "aanvullend pensioen per maand": 546,
+        "pensioenvermogen": 105000,
+        "huur per maand": 0
+      }
+    ],
+    "scenarios": [
+      {
+        "id": "scenario_0pct",
+        "opname percentage": 0
+      },
+      {
+        "id": "scenario_5pct",
+        "opname percentage": 5
+      },
+      {
+        "id": "scenario_10pct",
+        "opname percentage": 10
+      }
+    ]
+  },
+  "relationships": [
+    {
+      "type": "scenario van persoon",
+      "scenario": "scenario_0pct",
+      "persoon": "persoon_777777777"
+    },
+    {
+      "type": "scenario van persoon",
+      "scenario": "scenario_5pct",
+      "persoon": "persoon_777777777"
+    },
+    {
+      "type": "scenario van persoon",
+      "scenario": "scenario_10pct",
+      "persoon": "persoon_777777777"
+    }
+  ],
+  "kenmerken": {
+    "Persoon": {
+      "persoon_777777777": {
+        "is AOW gerechtigd": false,
+        "is alleenstaand": true
+      }
+    },
+    "Scenario": {
+      "scenario_0pct": {
+        "is jaar met opname": false
+      },
+      "scenario_5pct": {
+        "is jaar met opname": true
+      },
+      "scenario_10pct": {
+        "is jaar met opname": true
+      }
+    }
+  }
+}
