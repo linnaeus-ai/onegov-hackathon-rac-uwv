@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Landmark, User, Menu, ChevronDown, Check } from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import { Landmark, User, Menu, ChevronDown, Check } from "lucide-react";
 
 interface Profile {
   id: string;
@@ -14,32 +14,41 @@ interface HeaderProps {
   isLoading?: boolean;
 }
 
-export function Header({ profiles = [], selectedProfileId, onSelectProfile, isLoading }: HeaderProps) {
+export function Header({
+  profiles = [],
+  selectedProfileId,
+  onSelectProfile,
+  isLoading,
+}: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const selectedProfile = profiles.find(p => p.id === selectedProfileId);
+  const selectedProfile = profiles.find((p) => p.id === selectedProfileId);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
     <header className="bg-[#007bc7] text-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="bg-white p-1 rounded-sm">
-            <Landmark className="text-[#007bc7] w-8 h-8" />
+          <div className="bg-white rounded-sm">
+            <img src="./uwv.png" alt="UWV Logo" className="w-8 h-8" />
           </div>
           <div className="flex flex-col leading-tight">
-            <span className="font-bold text-xl tracking-tight">UWV</span>
-            <span className="text-xs opacity-90 uppercase">Mijn Pensioenoverzicht</span>
+            <span className="text-sm font-bold opacity-90">
+              Mijn Pensioenoverzicht
+            </span>
           </div>
         </div>
 
@@ -54,9 +63,13 @@ export function Header({ profiles = [], selectedProfileId, onSelectProfile, isLo
               >
                 <User className="w-5 h-5" />
                 <span className="hidden sm:inline text-sm max-w-[150px] truncate">
-                  {isLoading ? 'Laden...' : (selectedProfile?.name || 'Selecteer profiel')}
+                  {isLoading
+                    ? "Laden..."
+                    : selectedProfile?.name || "Selecteer profiel"}
                 </span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                />
               </button>
 
               {isOpen && (
