@@ -450,7 +450,7 @@ export default function App() {
                           </tr>
                           <tr>
                             <td className="py-4 text-sm font-medium">
-                              Belasting (jaar)
+                              Belasting (jaar van opname)
                             </td>
                             <td className="py-4 text-sm">
                               €
@@ -475,7 +475,7 @@ export default function App() {
                           </tr>
                           <tr>
                             <td className="py-4 text-sm font-medium">
-                              Zorgtoeslag (jaar)
+                              Zorgtoeslag (jaar van opname)
                             </td>
                             <td className="py-4 text-sm">
                               €
@@ -508,7 +508,7 @@ export default function App() {
                           </tr>
                           <tr>
                             <td className="py-4 text-sm font-medium">
-                              Huurtoeslag (jaar)
+                              Huurtoeslag (jaar van opname)
                             </td>
                             <td className="py-4 text-sm">
                               €
@@ -546,6 +546,9 @@ export default function App() {
                       * Berekeningen zijn gebaseerd op de Regelspraak regels
                       voor bedrag ineens. De werkelijke bedragen kunnen
                       afwijken.
+                      <br />
+                      ** De belasting, zorgtoeslag, en huurtoeslag verschillen
+                      zijn enkel voor het jaar van opname.
                     </p>
                   </div>
                 </div>

@@ -22,23 +22,21 @@ export function ImpactCard({ type, title, description, value, trend, onClick }: 
     return <ReceiptText className="w-6 h-6" />;
   };
 
+  // Uniform blue icon background for all cards
   const getColorClasses = () => {
     if (isNeutral) return 'bg-gray-100 text-gray-500';
-    if (isIncome) return 'bg-green-50 text-green-600';
-    if (isBenefits) return 'bg-purple-50 text-purple-600';
-    return 'bg-red-50 text-red-600';
+    return 'bg-blue-50 text-blue-600';
   };
 
+  // Red for negative impact values, gray for neutral
   const getValueColor = () => {
     if (isNeutral) return 'text-gray-500';
-    if (isIncome) return 'text-gray-900';
-    if (isBenefits) return 'text-purple-600';
     return 'text-red-600';
   };
 
+  // Consistent trend indicator
   const getTrendColor = () => {
     if (isNeutral) return 'text-gray-400';
-    if (isIncome || isBenefits) return 'text-orange-500';
     return 'text-red-500';
   };
 
