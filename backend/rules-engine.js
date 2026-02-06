@@ -6,8 +6,8 @@
 const { readFileSync, existsSync } = require('fs');
 const { resolve, join } = require('path');
 
-// Import from regelspraak-ts dist - try local copy first, then fall back to original location
-const localRegelspraakPath = join(__dirname, 'regelspraak-dist');
+// Import from regelspraak-ts engine - try local copy first, then fall back to original location
+const localRegelspraakPath = join(__dirname, 'regelspraak-engine');
 const originalRegelspraakPath = resolve(__dirname, '../regelspraak-ts/dist');
 const regelspraakPath = existsSync(localRegelspraakPath) ? localRegelspraakPath : originalRegelspraakPath;
 

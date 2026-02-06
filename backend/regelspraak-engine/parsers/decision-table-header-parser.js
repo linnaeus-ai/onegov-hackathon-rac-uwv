@@ -1,0 +1,212 @@
+"use strict";
+/**
+ * Parser for Beslistabel (decision table) column headers.
+ *
+ * This module handles parsing natural language patterns in decision table
+ * column headers into proper AST expressions that can be evaluated.
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DecisionTableHeaderParser = void 0;
+class DecisionTableHeaderParser {
+    // Condition patterns - ordered from most specific to least specific
+    static CONDITION_PATTERNS = [
+        // "indien de [attribute] van zijn [object] [operator]"
+        [/^indien\s+de\s+(.+?)\s+van\s+(?:zijn|haar|hun|de|het|een)\s+(.+?)\s+(gelijk\s+is\s+aan|groter\s+is\s+dan|groter\s+of\s+gelijk\s+is\s+aan|kleiner\s+is\s+dan|kleiner\s+of\s+gelijk\s+is\s+aan|ongelijk\s+is\s+aan)\s*$/i,
+            'attribute_of_object'],
+        // "indien de [attribute] van [object] [operator]" (without possessive)
+        [/^indien\s+de\s+(.+?)\s+van\s+(.+?)\s+(gelijk\s+is\s+aan|groter\s+is\s+dan|groter\s+of\s+gelijk\s+is\s+aan|kleiner\s+is\s+dan|kleiner\s+of\s+gelijk\s+is\s+aan|ongelijk\s+is\s+aan)\s*$/i,
+            'attribute_of_named_object'],
+        // "indien zijn [attribute] [operator]"
+        [/^indien\s+(?:zijn|haar|hun)\s+(.+?)\s+(gelijk\s+is\s+aan|groter\s+is\s+dan|groter\s+of\s+gelijk\s+is\s+aan|kleiner\s+is\s+dan|kleiner\s+of\s+gelijk\s+is\s+aan|ongelijk\s+is\s+aan)\s*$/i,
+            'simple_attribute'],
+        // "indien hij een [kenmerk] heeft" or "indien hij [kenmerk] heeft"
+        [/^indien\s+(?:hij|zij|het)\s+(?:een\s+)?(.+?)\s+heeft\s*$/i,
+            'kenmerk_check'],
+        // "indien [attribute] [operator]" (simplest form)
+        [/^indien\s+(.+?)\s+(gelijk\s+is\s+aan|groter\s+is\s+dan|groter\s+of\s+gelijk\s+is\s+aan|kleiner\s+is\s+dan|kleiner\s+of\s+gelijk\s+is\s+aan|ongelijk\s+is\s+aan)\s*$/i,
+            'bare_attribute'],
+    ];
+    // Result patterns
+    static RESULT_PATTERNS = [
+        // "de [attribute] van een [object] moet gesteld worden op"
+        [/^de\s+(.+?)\s+van\s+(?:een|de|het)\s+(.+?)\s+moet\s+(?:gesteld\s+worden\s+op|berekend\s+worden\s+als)\s*$/i,
+            'attribute_assignment'],
+        // "de [attribute] van [object] moet gesteld worden op" (named object)
+        [/^de\s+(.+?)\s+van\s+(.+?)\s+moet\s+(?:gesteld\s+worden\s+op|berekend\s+worden\s+als)\s*$/i,
+            'named_object_attribute'],
+        // "de [attribute] moet gesteld worden op"
+        [/^(?:de|het)\s+(.+?)\s+moet\s+(?:gesteld\s+worden\s+op|berekend\s+worden\s+als)\s*$/i,
+            'simple_attribute_assignment'],
+        // "een [object] is [kenmerk]"
+        [/^een\s+(.+?)\s+is\s+(?:een\s+)?(.+?)\s*$/i,
+            'kenmerk_assignment'],
+        // "[object] is [kenmerk]" (without "een")
+        [/^(.+?)\s+is\s+(?:een\s+)?(.+?)\s*$/i,
+            'simple_kenmerk_assignment'],
+    ];
+    // Operator mapping
+    static OPERATOR_MAP = {
+        'gelijk is aan': '==',
+        'is': '==',
+        'groter is dan': '>',
+        'groter of gelijk is aan': '>=',
+        'kleiner is dan': '<',
+        'kleiner of gelijk is aan': '<=',
+        'ongelijk is aan': '!=',
+    };
+    /**
+     * Parse a condition column header into a structured form
+     */
+    parseConditionColumn(headerText) {
+        const cleaned = headerText.trim();
+        for (const [pattern, patternType] of DecisionTableHeaderParser.CONDITION_PATTERNS) {
+            const match = cleaned.match(pattern);
+            if (match) {
+                switch (patternType) {
+                    case 'simple_attribute':
+                        // "indien zijn leeftijd groter is dan"
+                        return {
+                            subjectExpression: this.createAttributeReference(match[1].trim()),
+                            operator: DecisionTableHeaderParser.OPERATOR_MAP[match[2].toLowerCase().trim()] || '==',
+                            isKenmerkCheck: false
+                        };
+                    case 'attribute_of_object':
+                        // "indien de reisduur van zijn reis groter is dan"
+                        return {
+                            subjectExpression: this.createNavigationReference(match[1].trim(), // attribute
+                            match[2].trim() // object
+                            ),
+                            operator: DecisionTableHeaderParser.OPERATOR_MAP[match[3].toLowerCase().trim()] || '==',
+                            isKenmerkCheck: false
+                        };
+                    case 'attribute_of_named_object':
+                        // "indien de leeftijd van passagier groter is dan"
+                        return {
+                            subjectExpression: this.createNavigationReference(match[1].trim(), // attribute
+                            match[2].trim() // object name
+                            ),
+                            operator: DecisionTableHeaderParser.OPERATOR_MAP[match[3].toLowerCase().trim()] || '==',
+                            isKenmerkCheck: false
+                        };
+                    case 'kenmerk_check':
+                        // "indien hij een recht op duurzaamheidskorting heeft"
+                        const kenmerkName = match[1].trim();
+                        return {
+                            subjectExpression: this.createKenmerkReference(kenmerkName),
+                            operator: '==', // Kenmerk checks are always equality
+                            isKenmerkCheck: true,
+                            kenmerkName
+                        };
+                    case 'bare_attribute':
+                        // "indien leeftijd groter is dan"
+                        return {
+                            subjectExpression: this.createAttributeReference(match[1].trim()),
+                            operator: DecisionTableHeaderParser.OPERATOR_MAP[match[2].toLowerCase().trim()] || '==',
+                            isKenmerkCheck: false
+                        };
+                }
+            }
+        }
+        return null;
+    }
+    /**
+     * Parse a result column header into a structured form
+     */
+    parseResultColumn(headerText) {
+        const cleaned = headerText.trim();
+        for (const [pattern, patternType] of DecisionTableHeaderParser.RESULT_PATTERNS) {
+            const match = cleaned.match(pattern);
+            if (match) {
+                switch (patternType) {
+                    case 'attribute_assignment':
+                        // "de woonregio factor van een Natuurlijk persoon moet gesteld worden op"
+                        return {
+                            targetType: 'attribute',
+                            targetExpression: this.createNavigationReference(match[1].trim(), // attribute
+                            match[2].trim() // object type
+                            )
+                        };
+                    case 'named_object_attribute':
+                        // "de belasting van passagier moet gesteld worden op"
+                        return {
+                            targetType: 'attribute',
+                            targetExpression: this.createNavigationReference(match[1].trim(), // attribute
+                            match[2].trim() // object name
+                            )
+                        };
+                    case 'simple_attribute_assignment':
+                        // "de belasting moet gesteld worden op"
+                        return {
+                            targetType: 'attribute',
+                            targetExpression: this.createAttributeReference(match[1].trim())
+                        };
+                    case 'kenmerk_assignment':
+                        // "een passagier is een passagier jonger dan 18 jaar"
+                        return {
+                            targetType: 'kenmerk',
+                            targetExpression: this.createVariableReference(match[1].trim()),
+                            kenmerkName: match[2].trim()
+                        };
+                    case 'simple_kenmerk_assignment':
+                        // "passagier is minderjarig"
+                        return {
+                            targetType: 'kenmerk',
+                            targetExpression: this.createVariableReference(match[1].trim()),
+                            kenmerkName: match[2].trim()
+                        };
+                }
+            }
+        }
+        return null;
+    }
+    createAttributeReference(attributeName) {
+        // Clean attribute name - remove articles but preserve the original casing and spaces
+        const cleaned = attributeName
+            .replace(/^(de|het|een)\s+/i, '')
+            .trim();
+        // Keep multi-word attributes as single strings, consistent with visitor pattern
+        // E.g., "woonregio factor" stays as "woonregio factor"
+        return {
+            type: 'AttributeReference',
+            path: [cleaned]
+        };
+    }
+    createNavigationReference(attributeName, objectName) {
+        // Clean names but preserve casing and multi-word structure
+        const cleanedAttribute = attributeName
+            .replace(/^(de|het|een)\s+/i, '')
+            .trim();
+        const cleanedObject = objectName
+            .replace(/^(zijn|haar|hun|de|het|een)\s+/i, '')
+            .trim();
+        // Create AttributeReference with object-first path order
+        // Preserve multi-word names as single path segments
+        return {
+            type: 'AttributeReference',
+            path: [cleanedObject, cleanedAttribute]
+        };
+    }
+    createVariableReference(name) {
+        // Clean and preserve the variable name
+        const cleaned = name
+            .replace(/^(de|het|een)\s+/i, '')
+            .trim();
+        // For object types like "Natuurlijk persoon", preserve the multi-word format
+        return {
+            type: 'VariableReference',
+            variableName: cleaned
+        };
+    }
+    createKenmerkReference(kenmerkName) {
+        // For kenmerk checks, we create an attribute reference
+        // Preserve the kenmerk name format
+        const cleaned = kenmerkName.trim();
+        // Use the "is" prefix pattern for kenmerken, consistent with the visitor
+        return {
+            type: 'AttributeReference',
+            path: [`is ${cleaned}`]
+        };
+    }
+}
+exports.DecisionTableHeaderParser = DecisionTableHeaderParser;
+//# sourceMappingURL=decision-table-header-parser.js.map
