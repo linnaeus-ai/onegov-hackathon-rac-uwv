@@ -170,10 +170,15 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                     Samenvatting
                   </h3>
                   <p className="text-sm text-orange-800">
-                    U neemt <strong>{data.percentage}%</strong> van uw pensioenvermogen op als bedrag ineens.
-                    Dit betekent dat uw maandelijkse pensioenuitkering <strong>permanent</strong> lager wordt
-                    met <strong>€{data.reductionMonthly}/maand</strong>.
+                    U neemt <strong>{data.percentage}%</strong> van uw pensioenvermogen op als bedrag ineens
+                    (<strong>€{data.lumpsumAmount.toLocaleString()}</strong> bruto, eenmalig).
                   </p>
+                  <div className="mt-3 p-3 bg-red-100 rounded-lg border border-red-200">
+                    <p className="text-sm text-red-800 font-medium">
+                      ⚠️ Let op: Uw maandelijkse inkomen wordt daarna <strong>permanent €{data.reductionMonthly} lager</strong> voor de rest van uw leven.
+                      Dit is €{(data.reductionMonthly * 12).toLocaleString()} per jaar.
+                    </p>
+                  </div>
                 </div>
 
                 {/* Calculation Steps */}
@@ -243,24 +248,45 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
 
                 {/* Visual Impact */}
                 <div className="bg-gray-50 rounded-xl p-4">
-                  <h4 className="font-bold text-gray-900 mb-4">Vergelijking maandinkomen</h4>
-                  <div className="h-48">
+                  <h4 className="font-bold text-gray-900 mb-4">Vergelijking maandinkomen over tijd</h4>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Let op: in het jaar van opname ontvangt u eenmalig het bedrag ineens, waardoor uw inkomen hoger lijkt.
+                    Maar in alle jaren daarna is uw maandinkomen <strong>permanent lager</strong>.
+                  </p>
+                  <div className="h-56">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={data.chartData} layout="vertical">
                         <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e5e7eb" />
                         <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} />
-                        <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} width={100} />
+                        <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} width={110} />
                         <Tooltip
-                          formatter={(value: number) => [`€${value.toLocaleString()}`, 'Bedrag']}
+                          formatter={(value: number) => [`€${value.toLocaleString()}`, 'Per maand']}
                           contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                         />
-                        <Bar dataKey="waarde" radius={[0, 4, 4, 0]} barSize={40}>
+                        <Bar dataKey="waarde" radius={[0, 4, 4, 0]} barSize={32}>
                           {data.chartData.map((entry: any, index: number) => (
-                            <Cell key={`cell-${index}`} fill={index === 0 ? '#3b82f6' : '#f97316'} />
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={index === 0 ? '#3b82f6' : index === 1 ? '#22c55e' : '#ef4444'}
+                            />
                           ))}
                         </Bar>
                       </BarChart>
                     </ResponsiveContainer>
+                  </div>
+                  <div className="flex gap-4 mt-3 text-xs">
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded bg-blue-500"></div>
+                      <span className="text-gray-600">Referentie (geen opname)</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded bg-green-500"></div>
+                      <span className="text-gray-600">Eenmalig hoger (incl. bedrag ineens)</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 rounded bg-red-500"></div>
+                      <span className="text-gray-600">Permanent lager</span>
+                    </div>
                   </div>
                 </div>
 
@@ -274,18 +300,39 @@ export function ImpactModal({ isOpen, onClose, type, data }: ImpactModalProps) {
                     Bij een verwachte levensduur van {data.currentAge + data.years} jaar (nog {data.years} jaar),
                     is het totale effect:
                   </p>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-3">
                     <div className="bg-white rounded-lg p-3 text-center">
                       <div className="text-xs text-purple-600 mb-1">Eenmalig ontvangen</div>
                       <div className="text-xl font-bold text-green-600">+ €{data.lumpsumAmount.toLocaleString()}</div>
                     </div>
                     <div className="bg-white rounded-lg p-3 text-center">
-                      <div className="text-xs text-purple-600 mb-1">Totaal minder pensioen</div>
+                      <div className="text-xs text-purple-600 mb-1">Maandelijks verlies</div>
+                      <div className="text-xl font-bold text-red-600">
+                        - €{data.reductionMonthly}/mnd
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-lg p-3 text-center">
+                      <div className="text-xs text-purple-600 mb-1">Totaal verlies ({data.years} jaar)</div>
                       <div className="text-xl font-bold text-red-600">
                         - €{(data.reductionMonthly * 12 * data.years).toLocaleString()}
                       </div>
                     </div>
                   </div>
+
+                  {/* Break-even point */}
+                  {data.lumpsumAmount > 0 && data.reductionMonthly > 0 && (
+                    <div className="mt-4 bg-white rounded-lg p-3">
+                      <div className="text-sm text-purple-900">
+                        <strong>Break-even punt:</strong> Na {Math.ceil(data.lumpsumAmount / (data.reductionMonthly * 12))} jaar
+                        heeft u het bedrag ineens "terugverdiend" aan gemiste pensioeninkomsten.
+                        {data.years > Math.ceil(data.lumpsumAmount / (data.reductionMonthly * 12)) ? (
+                          <span className="text-red-600"> Gezien uw levensverwachting ontvangt u minder dan zonder opname.</span>
+                        ) : (
+                          <span className="text-green-600"> Gezien uw levensverwachting kan opname voordelig zijn.</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </>
             ) : (

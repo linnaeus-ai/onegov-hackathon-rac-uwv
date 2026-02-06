@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { readFileSync } from 'fs';
 import { parse } from 'yaml';
-import { calculateScenario, PARAMETERS } from './rules.js';
+import { calculateScenario, PARAMETERS } from './rules-engine.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
